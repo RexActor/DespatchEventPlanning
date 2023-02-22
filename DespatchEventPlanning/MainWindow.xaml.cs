@@ -72,50 +72,17 @@ namespace DespatchEventPlanning
 				{
 					dtColumn.ReadOnly = false;
 				}
-				if (dtColumn.ColumnName == COLUMN_HEADER_PACKING_DATE_FILTER)
-				{
-					dtColumn.ReadOnly = false;
-					//dtColumn.DataType = typeof(string);
-				}
+				
 				else
 				{
 					dtColumn.ReadOnly = true;
 				}
 			}
-
-			foreach (DataRow row in packingPlanDataTable.Rows)
-			{
-
-				//Debug.WriteLine($"{row[COLUMN_HEADER_PACKING_DATE_FILTER]} is type of: {row[COLUMN_HEADER_PACKING_DATE_FILTER].GetType()}");
-				var date = Convert.ToDateTime( row[COLUMN_HEADER_PACKING_DATE_FILTER]);
-
-
-
-			
-
-
-				string originalShortDateTime = date.ToShortDateString();
-				string inputFormat = "dd/MM/yyyy";
-				DateTime result = DateTime.ParseExact(originalShortDateTime,
-				inputFormat, CultureInfo.InvariantCulture); //or a specific culture
-															//Debug.WriteLine(result);
-				DateTime test = new DateTime(result.Year, result.Month, result.Day);
-				Debug.WriteLine(test);
-				//Debug.WriteLine($"Original Value as {row[COLUMN_HEADER_PACKING_DATE_FILTER].GetType()} --> {row[COLUMN_HEADER_PACKING_DATE_FILTER]} |  Converted Value - {date.ToShortDateString()} | Converted back to {result.GetType()} --> {result.D}");
-				//Debug.WriteLine($" {date} is Equal to {originalShortDateTime}? --> {date.ToString() == originalShortDateTime}");
-
-			}
-
-
-	
+				
 
 
 			excelDataGrid.PreparingCellForEdit += ExcelDataGrid_PreparingCellForEdit;
 			
-
-
-
-
 			
 			dataView = packingPlanDataTable.DefaultView;
 
