@@ -200,7 +200,7 @@ namespace DespatchEventPlanning
 		private void PackingDateCalendar_SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
 		{
 			selectedPackingDate = PackingDateCalendar.SelectedDate.Value;
-			dataView.RowFilter = $"{COLUMN_HEADER_PACKING_DATE_FILTER}={selectedPackingDate}"; 
+			dataView.RowFilter = $"{COLUMN_HEADER_PACKING_DATE_FILTER}='{selectedPackingDate}'"; 
 			excelDataGrid.ItemsSource = dataView;
 		}
 	}
