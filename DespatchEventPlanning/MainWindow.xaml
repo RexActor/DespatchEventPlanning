@@ -1,18 +1,18 @@
-﻿<Window
+﻿<Window x:Name="RootWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:DespatchEventPlanning"
-        xmlns:Database="clr-namespace:DespatchEventPlanning.Database" x:Class="DespatchEventPlanning.MainWindow"
-        mc:Ignorable="d"
-        Title="MainWindow"  Width="1500" Height="960" MaxWidth="1980" MaxHeight="1080"
+      xmlns:local="clr-namespace:DespatchEventPlanning.Views"
+    x:Class="DespatchEventPlanning.MainWindow"
+    mc:Ignorable="d"
+        Title="MainWindow"  Width="1600" Height="960" MaxWidth="1980" MaxHeight="1080"
     WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="25*" MaxWidth="250" MinWidth="200"/>
             <ColumnDefinition Width="103*"/>
-            <ColumnDefinition Width="22*"/>
+           
 
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0" >
@@ -22,44 +22,15 @@
                 <RowDefinition Height="auto" MinHeight="60"/>
                 <RowDefinition Height="auto" MinHeight="60"/>
             </Grid.RowDefinitions>
-            <Button Content="Import Plan" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35"/>
-            <Button Grid.Row="1" Content="Allocate Loads" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35"/>
-            <Button Grid.Row="2" Content="Create Depot Splits" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35"/>
-            <Button Grid.Row="3" x:Name="SaveDataButton" Content="Save Data" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="SaveDataButton_Click" />
+            <Button x:Name="ImportPlanButton" Content="Import Plan" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="ImportPlanButton_Click"/>
+            <Button x:Name="AllocateLoadsButton" Grid.Row="1" Content="Allocate Loads" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="AllocateLoadsButton_Click"/>
+            <Button x:Name="DepotSplitsButton" Grid.Row="2" Content="Depot Splits" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="DepotSplitsButton_Click"/>
+            <Button x:Name="SaveButton" Grid.Row="3" Content="Save Data" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="SaveButton_Click" />
 
 
         </Grid>
-        
-        <DataGrid x:Name="excelDataGrid" SelectionMode="Single" SelectionUnit="Cell" Grid.Column="1" HorizontalContentAlignment="Center" ColumnWidth="*" Height="auto" Width="auto" d:ItemsSource="{d:SampleData ItemCount=5}"  RenderTransformOrigin="0.5,0.5" Margin="0,36,10,30"/>
-        <!--#region  Packing Date Calendar-->
-        <Grid Grid.Column="2">
-            <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-             <RowDefinition Height="auto"/>
-        </Grid.RowDefinitions>
-
-            <Border BorderThickness="2" BorderBrush="Black" Grid.Row="0" Margin="10,10,10,10" Background="#62797f" >
-            <Grid>
-                <Label Content="Packing Date" BorderBrush="DarkGreen" Background="LightBlue" HorizontalContentAlignment="Center" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,10,0,225" Width="178" />
-                <Calendar x:Name="PackingDateCalendar" HorizontalAlignment="Center" Margin="0,42,0,54"  SelectedDatesChanged="Calendar_SelectedDatesChanged"/>
-                    <Button x:Name="ClearPackingDateButton" Content="Clear Packing Date" HorizontalAlignment="Center" Margin="0,218,0,10"  Width="178" IsTabStop="False" BorderBrush="#3b4043" BorderThickness="1" Background="#98a7ab" ClickMode="Press" Click="ClearPackingDateButton_Click" />
-            </Grid>
-        </Border>
-
-        <!--#endregion-->
-        <!--#region  Depot Date Calendar-->
-
-            <Border  BorderThickness="2" BorderBrush="Black" Grid.Row="1" Margin="10,10,10,10" Background="#62797f" >
-            <Grid Margin="0,0,0,-30">
-                <Label BorderBrush="DarkGreen" Background="LightBlue" BorderThickness="1" Content="Depot Date" HorizontalContentAlignment="Center" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,10,0,255"  Width="178" />
-                <Calendar x:Name="DepotDateCalendar" HorizontalAlignment="Center" SelectedDatesChanged="Calendar_SelectedDatesChanged"   Margin="0,42,0,54"/>
-                    <Button x:Name="ClearDepotDateButton" Content="Clear Depot Date" Height="35" HorizontalAlignment="Center" Margin="0,216,0,42" Width="178" IsTabStop="False" BorderBrush="#3b4043" BorderThickness="1" Background="#98a7ab" ClickMode="Press" Click="ClearDepotDateButton_Click"/>
-            </Grid>
-        </Border>
-        </Grid>
-        <!--#endregion-->
-
-
+        <local:PackingPlan Grid.Column="1" x:Name="packingPlanUserControl" Visibility="Hidden"/>
+        <local:AllocateLoadsUserControl Grid.Column="1" x:Name="allocateLoadsUSerControl" Visibility="Hidden"/>
+        <local:DepotSplitsUserControl Grid.Column="1" x:Name="depotSplitsUserControl" Visibility="Hidden"/>
     </Grid>
 </Window>
