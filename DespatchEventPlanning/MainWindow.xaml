@@ -10,9 +10,9 @@
     WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="25*" MaxWidth="250" MinWidth="200"/>
-            <ColumnDefinition Width="103*"/>
-           
+            <ColumnDefinition Width="160"/>
+            <ColumnDefinition/>
+
 
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0" >
@@ -22,7 +22,7 @@
                 <RowDefinition Height="auto" MinHeight="60"/>
                 <RowDefinition Height="auto" MinHeight="60"/>
             </Grid.RowDefinitions>
-            <Button x:Name="ImportPlanButton" Content="Import Plan" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="ImportPlanButton_Click"/>
+            <Button x:Name="ImportPlanButton" Content="Production Plan" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="ImportPlanButton_Click"/>
             <Button x:Name="AllocateLoadsButton" Grid.Row="1" Content="Allocate Loads" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="AllocateLoadsButton_Click"/>
             <Button x:Name="DepotSplitsButton" Grid.Row="2" Content="Depot Splits" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="DepotSplitsButton_Click"/>
             <Button x:Name="SaveButton" Grid.Row="3" Content="Save Data" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="SaveButton_Click" />

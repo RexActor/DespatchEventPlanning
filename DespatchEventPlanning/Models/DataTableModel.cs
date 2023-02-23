@@ -1,11 +1,7 @@
 ﻿using DespatchEventPlanning.Database;
 
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DespatchEventPlanning.Models
 {
@@ -14,60 +10,45 @@ namespace DespatchEventPlanning.Models
 		DepotDate,
 		RequiredDate,
 		PackingQuantity,
-
 	};
 
-
 	public class DataTableModel
-    {
-		 string filePath = $"{AppDomain.CurrentDomain.BaseDirectory}PackingPlan.xlsx";
-		 string savePath = $"{AppDomain.CurrentDomain.BaseDirectory}NewFilePlan.xlsx";
+	{
+		private readonly string filePath = $"{AppDomain.CurrentDomain.BaseDirectory}PackingPlan.xlsx";
+		// string savePath = $"{AppDomain.CurrentDomain.BaseDirectory}NewFilePlan.xlsx";
 
 		private const string COLUMN_HEADER_PACKING_QUANTITY = "PackingQuantity";
 		private const string COLUMN_HEADER_PACKING_DATE_FILTER = "RequiredDate";
 		private const string COLUMN_HEADER_DEPOT_DATE_FILTER = "DepotDate";
 
-		
+		//DataView? dataView;
 
-		DataTable? packingPlanDataTable;
-		DataHandler? importedData;
-		DataColumn dtColumn;
-		DataView dataView;
-		
 		public DataTable GetDataTable()
 		{
-			importedData = new DataHandler();
+			DataHandler importedData = new DataHandler();
 
-			packingPlanDataTable = importedData.ReadExcelFile("PackingPlan", filePath);
+			DataTable packingPlanDataTable = importedData.ReadExcelFile("PackingPlan", filePath);
 			packingPlanDataTable.DefaultView.Sort = $"{COLUMN_HEADER_PACKING_DATE_FILTER} ASC";
 
+			DataColumn dataColumn = new DataColumn();
+			dataColumn.DataType = typeof(bool);
+			dataColumn.DefaultValue = false;
+			dataColumn.ColumnName = "Testing";
+			dataColumn.ReadOnly = false;
 
-			dtColumn = new DataColumn();
-			dtColumn.DataType = typeof(bool);
-			dtColumn.DefaultValue = false;
-			dtColumn.ColumnName = "Testing";
-			dtColumn.ReadOnly = false;
-			//packingPlanDataTable.Columns.Add(new DataColumn(
-			//	"Selected",typeof(bool)
-			//));
-			packingPlanDataTable.Columns.Add(dtColumn);
+			packingPlanDataTable.Columns.Add(dataColumn);
 
-							
-
-			foreach (DataColumn dtColumn in packingPlanDataTable.Columns)
+			foreach (DataColumn _dataColumn in packingPlanDataTable.Columns)
 			{
-				if (dtColumn.ColumnName == "Testing" || dtColumn.ColumnName == COLUMN_HEADER_PACKING_QUANTITY)
+				if (_dataColumn.ColumnName == "Testing" || _dataColumn.ColumnName == COLUMN_HEADER_PACKING_QUANTITY)
 				{
-					dtColumn.ReadOnly = false;
+					_dataColumn.ReadOnly = false;
 				}
-
 				else
 				{
-					dtColumn.ReadOnly = true;
+					_dataColumn.ReadOnly = true;
 				}
 			}
-
-
 
 			return packingPlanDataTable;
 		}
@@ -78,13 +59,12 @@ namespace DespatchEventPlanning.Models
 
 			return view;
 		}
+
 		public DataView FilterDataTable(DataView view, Filter_For_Data_Table filter, DateTime filterValue1, Filter_For_Data_Table filter2, DateTime filterValue2)
 		{
 			view.RowFilter = $"{filter} = '{filterValue1}' AND {filter2}='{filterValue2}'";
 
 			return view;
 		}
-
-
 	}
 }

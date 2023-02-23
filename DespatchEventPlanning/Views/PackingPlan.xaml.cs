@@ -1,8 +1,11 @@
 ﻿using DespatchEventPlanning.Models;
 
+using DocumentFormat.OpenXml.Math;
+
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -44,7 +47,8 @@ namespace DespatchEventPlanning.Views
 		DateTime? selectedDepotDate;
 		DataView dataView;
 		DataTableModel dataTableModel;
-
+		Label dateLabel;
+		double totalPackingQuantity;
 
 		public PackingPlan()
         {
@@ -57,17 +61,33 @@ namespace DespatchEventPlanning.Views
 
 
 			excelDataGrid.PreparingCellForEdit += ExcelDataGrid_PreparingCellForEdit;
+			excelDataGrid.SourceUpdated += ExcelDataGrid_SourceUpdated;
+			excelDataGrid.ColumnDisplayIndexChanged += ExcelDataGrid_ColumnDisplayIndexChanged;
+			
+			
 
 			dataView = packingPlanDataTable.DefaultView;
-
+			//dataView.ListChanged += DataView_ListChanged;
 
 			PackingDateCalendar.SelectedDate = DateTime.Now.Date;
 			selectedPackingDate = DateTime.Now.Date;
 
 		}
 
+		private void DataView_ListChanged(object? sender, System.ComponentModel.ListChangedEventArgs e)
+		{
+			
+		}
 
+		private void ExcelDataGrid_ColumnDisplayIndexChanged(object? sender, DataGridColumnEventArgs e)
+		{
+			
+		}
 
+		private void ExcelDataGrid_SourceUpdated(object? sender, DataTransferEventArgs e)
+		{
+			
+		}
 
 		private void ExcelDataGrid_PreparingCellForEdit(object? sender, DataGridPreparingCellForEditEventArgs e)
 		{
@@ -120,10 +140,131 @@ namespace DespatchEventPlanning.Views
 
 		}
 
+
+		private void GenerateLabel(DataGrid _dataGrid)
+		{
+			DepotDateLabelGrid.Children.Clear();
+			
+			if (_dataGrid != null)
+			{
+
+				int rowLimit = 7;
+				int rowLocation = 0;
+				int colLocation = 0;
+				
+
+				List<DateTime> allocatedDates = new List<DateTime>();
+				allocatedDates.Clear();
+
+
+				foreach (DataRowView item in _dataGrid.ItemsSource)
+				{
+
+					DateTime date = Convert.ToDateTime(item[COLUMN_HEADER_PACKING_DATE_FILTER]);
+					
+					if (!allocatedDates.Contains(date))
+					{
+						allocatedDates.Add(date);
+						//Debug.WriteLine($"List have entries: {allocatedDates.Count} ");
+					}
+
+				}
+				
+				if (allocatedDates.Count > rowLimit)
+				{
+
+					for (int i = 0; i < Math.Ceiling((float)allocatedDates.Count / rowLimit); i++)
+					{
+						var colDef = new ColumnDefinition();
+						colDef.Width = new GridLength(110);
+						//colDef.Name= i.ToString();
+						DepotDateLabelGrid.ColumnDefinitions.Add(colDef);
+					}
+
+				}
+
+				for (int i = 0; i < rowLimit; i++)
+				{
+					var def = new RowDefinition();
+					def.Height = new GridLength(40);
+
+					DepotDateLabelGrid.RowDefinitions.Add(def);
+				}
+
+
+				foreach (DateTime item in allocatedDates)
+				{
+
+					ToolTip toolTip = new ToolTip();
+					toolTip.Content = item.Date.ToShortDateString();
+
+					///GENERATE LABEL ///////
+
+					dateLabel = new Label();
+					dateLabel.Height = 30;
+
+
+					dateLabel.Content = $"{item.Date.ToShortDateString()} Packing { GetPackingQuantity(item.Date)} cases";
+
+
+					dateLabel.Margin = new Thickness(5, 2, 0, 2);
+
+
+
+					dateLabel.BorderThickness = new Thickness(1);
+					dateLabel.BorderBrush = Brushes.Red;
+					dateLabel.ToolTip = toolTip;
+
+
+					if (rowLocation >= rowLimit)
+					{
+						colLocation++;
+						rowLocation = 0;
+					}
+
+					Grid.SetRow(dateLabel, rowLocation);
+					Grid.SetColumn(dateLabel, colLocation);
+
+					DepotDateLabelGrid.Children.Add(dateLabel);
+					rowLocation++;
+					totalPackingQuantity = 0;
+				}
+			}
+			
+		}
+		
+
+		/// <summary>
+		/// Returns total sum of PackingQuantityColumn from dataview
+		/// DataView is being filtered out based on given param!
+		/// </summary>
+		/// <param name="packingDate"></param>
+		/// <returns></returns>
+
+		private double GetPackingQuantity(DateTime packingDate)
+		{
+			
+			DataView _dataView = dataView;
+
+			_dataView = dataTableModel.FilterDataTable(_dataView, Filter_For_Data_Table.RequiredDate, packingDate);
+			
+
+			foreach (DataRowView _dataRow in _dataView)
+			{
+				//Debug.WriteLine(_dataRow[COLUMN_HEADER_PACKING_QUANTITY].ToString());
+				totalPackingQuantity += (Double)_dataRow[COLUMN_HEADER_PACKING_QUANTITY];
+
+							}
+
+			return totalPackingQuantity;
+
+		}
+
 		private void Calendar_SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
 		{
 
 			selectedPackingDate = PackingDateCalendar.SelectedDate.Value;
+						
 
 			selectedDepotDate = DepotDateCalendar.SelectedDate;
 			if (selectedDepotDate != null)
@@ -134,7 +275,11 @@ namespace DespatchEventPlanning.Views
 			{
 				dataView = dataTableModel.FilterDataTable(dataView, Filter_For_Data_Table.RequiredDate, selectedPackingDate);
 			}
+				
 			excelDataGrid.ItemsSource = dataView;
+			GenerateLabel(excelDataGrid);
+
+
 		}
 		private void ClearDepotDateButton_Click(object sender, RoutedEventArgs e)
 		{
@@ -142,6 +287,7 @@ namespace DespatchEventPlanning.Views
 
 			excelDataGrid.ItemsSource = dataTableModel.FilterDataTable(dataView, Filter_For_Data_Table.RequiredDate, selectedPackingDate);
 			selectedDepotDate = null;
+			GenerateLabel(excelDataGrid);
 		}
 		private void ClearPackingDateButton_Click(object sender, RoutedEventArgs e)
 		{
@@ -154,6 +300,7 @@ namespace DespatchEventPlanning.Views
 				dataView.RowFilter = null;
 			}
 			excelDataGrid.ItemsSource = dataView;
+			GenerateLabel(excelDataGrid);
 		}
 
 
