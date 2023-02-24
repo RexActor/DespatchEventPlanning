@@ -7,6 +7,52 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" Background="pink">
     <Grid>
-        <DataGrid x:Name="ForecastDataGrid"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="155"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="160"/>
+                <ColumnDefinition Width="165"/>
+                <ColumnDefinition Width="235"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Label Content="Show Forecast Mismatch:" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="153"/>
+            <CheckBox x:Name="ForecastMismatchCheckBox"  Grid.Column="1" IsChecked="False" HorizontalAlignment="Center" VerticalAlignment="Center" Height="15" Width="16" Checked="ForecastMismatchCheckBox_Checked" Unchecked="ForecastMismatchCheckBox_Checked" />
+
+            <Label Grid.Row="1" Grid.Column="0" Content="Remove '0' Quantity:" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="27,0,0,0" Height="25" Width="128" />
+            <CheckBox x:Name="QuantityRemoveCheckbox" Grid.Row="1" Grid.Column="1" IsChecked="False" HorizontalAlignment="Center" VerticalAlignment="Center" Height="15" Width="16" Checked="QuantityRemoveCheckbox_Checked" Unchecked="QuantityRemoveCheckbox_Checked"/>
+
+            <Label Grid.Column="2" Content="Search Win Number:" FontWeight="Bold" HorizontalAlignment="Left"  VerticalAlignment="Center" Margin="33,0,0,0" Height="25" Width="127" />
+            <TextBox x:Name="SearchWinTextBox" Grid.Column="3" Text="" HorizontalAlignment="Left" Width="150" VerticalAlignment="Center" KeyDown="SearchWinTextBox_KeyDown" Height="17" />
+
+            <Label Grid.Row="1" Grid.Column="2" Content="Search By Depot Date:" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="24,0,0,0" Height="25" Width="136" />
+            <DatePicker x:Name="DepotDateDatePicker" Grid.Row="1" Grid.Column="3" Width="150" HorizontalAlignment="Left" SelectedDateChanged="DepotDateDatePicker_SelectedDateChanged" Margin="0,0,0,-5"/>
+            <Button x:Name="ResetAllButon" Grid.Row="0" Grid.Column="4" Content="Reset All" Width="100" HorizontalAlignment="Left" Height="19" VerticalAlignment="Center" Click="ResetAllButon_Click"  />
+
+            <Button x:Name="ClearDepotDateButton" Grid.Row="1" Grid.Column="4" Content="Clear" Width="100" HorizontalAlignment="Left" Height="19" VerticalAlignment="Center" Click="ClearDepotDateButton_Click"  />
+                
+        </Grid>
+
+
+
+        <DataGrid x:Name="ForecastDataGrid" Grid.Row="1">
+            <DataGrid.Resources>
+                <Style TargetType="DataGridCell" x:Key="BoolValue">
+                    <Setter Property="Background" Value="Green"/>
+                    <Setter Property="Foreground" Value="Black"/>
+                </Style>
+            </DataGrid.Resources>
+        </DataGrid>
     </Grid>
 </UserControl>

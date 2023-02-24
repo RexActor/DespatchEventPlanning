@@ -3,7 +3,9 @@
 using System;
 using System.Data;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace DespatchEventPlanning.Views
 {
@@ -27,13 +29,14 @@ namespace DespatchEventPlanning.Views
 		private const string PACKINGPLAN_PACKINGDATE = "RequiredDate";
 		private const string PACKINGPLAN_WINNUMBER = "WinNumber";
 
-		private DataTableModel dataTableModel;
-		private DataTable forecastDataTable;
-		private DataTable packingplanDataTable;
+		private DataTableModel? dataTableModel;
+		private DataTable? forecastDataTable;
+		private DataTable? packingplanDataTable;
+		private DataTable? temporaryDataTable;
 
-		private DataColumn forecastMatchColumn;
-		private DataColumn forecastDifferenceColumn;
-		private DataColumn packingQuantity;
+		private DataColumn? forecastMatchColumn;
+		private DataColumn? forecastDifferenceColumn;
+		private DataColumn? packingQuantity;
 
 		public ForecastView()
 		{
@@ -42,6 +45,34 @@ namespace DespatchEventPlanning.Views
 			forecastDataTable = dataTableModel.GetDataTable(SHEET_NAME_FORECAST, FILE_NAME.Forecast);
 			packingplanDataTable = dataTableModel.GetDataTable(SHEET_NAME_PACKINGPLAN, FILE_NAME.PackingPlan);
 
+			GenerateExtraColumns(forecastDataTable);
+			CheckForecast(forecastDataTable);
+
+			ForecastDataGrid.ItemsSource = forecastDataTable.DefaultView;
+		}
+
+		private void CheckForecast(DataTable _dataTable)
+		{
+			bool forecastMatch = false;
+
+			double packingQuantity = 0;
+
+			foreach (DataRow row in _dataTable.Rows)
+			{
+				packingQuantity = packingplanDataTable.AsEnumerable().Where(item => item.Field<double>(PACKINGPLAN_WINNUMBER) == (double)row[FORECAST_WINNUMBER]).Where(item => item.Field<string>(PACKINGPLAN_DEPOTDATE) == row[FORECAST_DEPOT_DATE].ToString()).Sum(item => item.Field<double>(PACKINGPLAN_QTY));
+
+				forecastMatch = Convert.ToDouble(row[FORECAST_PACK_QTY]) == packingQuantity;
+
+				row[FORECAST_DIFFERENCE] = (double)row[FORECAST_QTY] - packingQuantity;
+				row[FORECAST_PACK_QTY] = packingQuantity;
+				row[FORECAST_MATCH] = forecastMatch;
+
+				forecastMatch = false;
+			}
+		}
+
+		private void GenerateExtraColumns(DataTable _dataTable)
+		{
 			forecastMatchColumn = new DataColumn();
 			forecastDifferenceColumn = new DataColumn();
 			packingQuantity = new DataColumn();
@@ -58,36 +89,133 @@ namespace DespatchEventPlanning.Views
 			packingQuantity.DataType = typeof(int);
 			packingQuantity.DefaultValue = 0;
 
-			forecastDataTable.Columns.Add(packingQuantity);
-			forecastDataTable.Columns.Add(forecastDifferenceColumn);
-		
-			forecastDataTable.Columns.Add(forecastMatchColumn);
+			_dataTable.Columns.Add(packingQuantity);
+			_dataTable.Columns.Add(forecastDifferenceColumn);
 
-
-			CheckForecast(forecastDataTable);
-
-			ForecastDataGrid.ItemsSource = forecastDataTable.DefaultView;
+			_dataTable.Columns.Add(forecastMatchColumn);
 		}
 
-		private void CheckForecast(DataTable _dataTable)
+		private void DepotDateDatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
 		{
-			bool forecastMatch = false;
-			int difference = 0;
-			double packingQuantity = 0;
-
-			foreach (DataRow row in _dataTable.Rows)
+			if (temporaryDataTable != null)
 			{
-				//dataTableModel.FilterDataTable(packingplanDataTable.DefaultView, Filter_For_Data_Table.DepotDate, row[FORECAST_DEPOT_DATE].ToString()).d;
-
-				packingQuantity = packingplanDataTable.AsEnumerable().Where(item => item.Field<double>(PACKINGPLAN_WINNUMBER) == (double)row[FORECAST_WINNUMBER]).Where(item => item.Field<string>(PACKINGPLAN_DEPOTDATE) == row[FORECAST_DEPOT_DATE].ToString()).Sum(item => item.Field<double>(PACKINGPLAN_QTY));
-
-				row[FORECAST_DIFFERENCE] = (double)row[FORECAST_QTY] - packingQuantity;
-				forecastMatch = Convert.ToDouble(row[FORECAST_PACK_QTY]) == packingQuantity;
-				row[FORECAST_PACK_QTY] = packingQuantity;
-
-				row[FORECAST_MATCH] = forecastMatch;
-				forecastMatch = false;
+				temporaryDataTable.Clear();
 			}
+			else
+			{
+				temporaryDataTable = new DataTable();
+			}
+
+			var rows = forecastDataTable.AsEnumerable().Where(item => item.Field<string>(FORECAST_DEPOT_DATE) == DepotDateDatePicker.SelectedDate.Value.ToShortDateString());
+
+			if (rows.Count() > 0)
+			{
+				temporaryDataTable = rows.CopyToDataTable();
+			}
+			ForecastDataGrid.ItemsSource = temporaryDataTable.DefaultView;
+		}
+
+		private void SearchWinTextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+		{
+			if (temporaryDataTable != null)
+			{
+				temporaryDataTable.Clear();
+			}
+			else
+			{
+				temporaryDataTable = new DataTable();
+			}
+			if (Keyboard.IsKeyDown(System.Windows.Input.Key.Enter))
+			{
+				if (Double.TryParse(SearchWinTextBox.Text, out double value))
+				{
+					var rows = forecastDataTable.AsEnumerable().Where(item => item.Field<double>(FORECAST_WINNUMBER) == value);
+					if (rows.Count() > 0)
+					{
+						temporaryDataTable = rows.CopyToDataTable();
+						ForecastDataGrid.ItemsSource = temporaryDataTable.DefaultView;
+					}
+					else
+					{
+						ForecastDataGrid.ItemsSource = forecastDataTable.DefaultView;
+					}
+				}
+				else if (SearchWinTextBox.Text == string.Empty)
+				{
+					ForecastDataGrid.ItemsSource = forecastDataTable.DefaultView;
+				}
+			}
+		}
+
+		private void QuantityRemoveCheckbox_Checked(object sender, RoutedEventArgs e)
+		{
+			double quantityToRemove = 0;
+			if (temporaryDataTable != null)
+			{
+				temporaryDataTable.Clear();
+			}
+			else
+			{
+				temporaryDataTable = new DataTable();
+			}
+
+			if (QuantityRemoveCheckbox.IsChecked == true)
+			{
+				var rows = forecastDataTable.AsEnumerable().Where(item => item.Field<double>(FORECAST_QTY) != quantityToRemove);
+
+				if (rows.Count() > 0)
+				{
+					temporaryDataTable = rows.CopyToDataTable();
+				}
+				ForecastDataGrid.ItemsSource = temporaryDataTable.DefaultView;
+			}
+			else
+			{
+				ForecastDataGrid.ItemsSource = forecastDataTable.DefaultView;
+			}
+		}
+
+		private void ForecastMismatchCheckBox_Checked(object sender, RoutedEventArgs e)
+		{
+			if (temporaryDataTable != null)
+			{
+				temporaryDataTable.Clear();
+			}
+			else
+			{
+				temporaryDataTable = new DataTable();
+			}
+
+			var rows = forecastDataTable.AsEnumerable().Where(item => item.Field<string>(FORECAST_MATCH) == ForecastMismatchCheckBox.IsChecked.ToString());
+
+			if (rows.Count() > 0)
+			{
+				temporaryDataTable = rows.CopyToDataTable();
+			}
+
+			ForecastDataGrid.ItemsSource = temporaryDataTable.DefaultView;
+		}
+
+		private void ClearDepotDateButton_Click(object sender, RoutedEventArgs e)
+		{
+			if (temporaryDataTable != null)
+			{
+				temporaryDataTable.Clear();
+				ForecastDataGrid.ItemsSource = forecastDataTable.DefaultView;
+				//DepotDateDatePicker.SelectedDate
+			}
+		}
+
+		private void ResetAllButon_Click(object sender, RoutedEventArgs e)
+		{
+			if (temporaryDataTable != null)
+			{
+				temporaryDataTable.Clear();
+			}
+			ForecastDataGrid.ItemsSource = forecastDataTable.DefaultView;
+			ForecastMismatchCheckBox.IsChecked = false;
+			QuantityRemoveCheckbox.IsChecked = false;
+			SearchWinTextBox.Text = string.Empty;
 		}
 	}
 }
