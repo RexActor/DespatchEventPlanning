@@ -1,5 +1,7 @@
 ﻿using DespatchEventPlanning.Models;
 
+using DocumentFormat.OpenXml.Drawing.Diagrams;
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -9,107 +11,89 @@ using System.Windows.Media;
 
 namespace DespatchEventPlanning.Views
 {
+	internal enum FILTER_OPTION
+	{
+		PACKINGDATE,
+		DEPOTDATE,
+		BOTH,
+	}
+
 	/// <summary>
 	/// Interaction logic for PackingPlan.xaml
 	/// </summary>
 	public partial class PackingPlan : UserControl
 	{
+#pragma warning disable S125 // Sections of code should not be commented out
 		//readonly string filePath = $"{AppDomain.CurrentDomain.BaseDirectory}PackingPlan.xlsx";
 		//readonly string savePath = $"{AppDomain.CurrentDomain.BaseDirectory}NewFilePlan.xlsx";
 
 		private const string COLUMN_HEADER_PACKING_QUANTITY = "PackingQuantity";
+#pragma warning restore S125 // Sections of code should not be commented out
 		private const string COLUMN_HEADER_PACKING_DATE_FILTER = "RequiredDate";
-		private const string COLUMN_HEADER_DEPOT_DATE_FILTER = "DepotDate";
+
+#pragma warning disable S125 // Sections of code should not be commented out
+		//private const string COLUMN_HEADER_DEPOT_DATE_FILTER = "DepotDate";
 
 		private DataTable packingPlanDataTable;
-		private DateTime? selectedPackingDate;
-		private DateTime? selectedDepotDate;
+#pragma warning restore S125 // Sections of code should not be commented out
+	
 		private DataView dataView;
 		private DataTableModel dataTableModel;
 		private Label? dateLabel;
 		private bool changesMade = false;
-		private double previousValue = 0d;
-		private double newValue = 0d;
-		private bool packingQuantityCellSelected = false;
+		
 		private double totalPackingQuantity;
-
+		
+		public DataTableModel GetPackingPlanDataTableModel()
+		{
+			return dataTableModel;
+		}
 		public PackingPlan()
 		{
 			InitializeComponent();
 
 			dataTableModel = new DataTableModel();
 
-			packingPlanDataTable = dataTableModel.GetDataTable();
-			packingPlanDataTable.RowChanged += PackingPlanDataTable_RowChanged;
-
-			excelDataGrid.PreparingCellForEdit += ExcelDataGrid_PreparingCellForEdit;
+			packingPlanDataTable = dataTableModel.GetDataTable("PackingPlan",FILE_NAME.PackingPlan);
 
 			dataView = packingPlanDataTable.DefaultView;
+			excelDataGrid.ItemsSource = packingPlanDataTable.DefaultView;
+			
+		
 
 			PackingDateCalendar.SelectedDate = DateTime.Now.Date;
-			selectedPackingDate = DateTime.Now.Date;
-		}
-
-		private void ExcelDataGrid_PreparingCellForEdit(object? sender, DataGridPreparingCellForEditEventArgs e)
-		{
-			if (e.Column.Header.ToString() == COLUMN_HEADER_PACKING_QUANTITY)
-			{
-				packingQuantityCellSelected = true;
-				var cellInfo = excelDataGrid.SelectedCells[0];
-				var cellContent = cellInfo.Column.GetCellContent(cellInfo.Item);
-
-				TextBox? temp = cellContent as TextBox;
-				if (temp is not null)
-				{
-					previousValue = Double.TryParse(temp.Text, out previousValue) ? previousValue : 0;
-				}
-			}
-		}
-
-		private void PackingPlanDataTable_RowChanged(object sender, DataRowChangeEventArgs e)
-		{
-			if (packingQuantityCellSelected == true)
-			{
-				newValue = Double.TryParse(e.Row[COLUMN_HEADER_PACKING_QUANTITY].ToString(), out newValue) ? newValue : 0;
-
-				if (previousValue != newValue)
-				{
-					changesMade = true;
-					MessageBox.Show($"Old Value: {previousValue} | new Value: {newValue}");
-					previousValue = 0;
-					newValue = 0;
-					packingQuantityCellSelected = false;
-				}
-			}
+			
 		}
 
 		private void SaveDataButton_Click(object sender, RoutedEventArgs e)
 		{
 			if (changesMade)
+#pragma warning disable S125 // Sections of code should not be commented out
 			{
 				//importedData.SaveDatatableToExcel(packingPlanDataTable, filePath);
 			}
+#pragma warning restore S125 // Sections of code should not be commented out
 		}
 
-		private void GenerateLabel(DataGrid _dataGrid)
+		private void GenerateLabel(DateTime _selectedPackingDate)
 		{
-			if (_dataGrid != null)
+			DepotDateLabelGrid.Children.Clear();
+			if (_selectedPackingDate != null)
 			{
-				DepotDateLabelGrid.Children.Clear();
 				int rowLimit = 7;
 				int rowLocation = 0;
 				int colLocation = 0;
 
 				List<DateTime> allocatedDates = new List<DateTime>();
 				allocatedDates.Clear();
-
-				foreach (DataRowView item in _dataGrid.ItemsSource)
+				DataView temp_dataView = (DataView)packingPlanDataTable.DefaultView;
+				foreach (DataRowView _dataRow in temp_dataView)
 				{
-					DateTime date = Convert.ToDateTime(item[COLUMN_HEADER_PACKING_DATE_FILTER]);
+					DateTime packingDate = Convert.ToDateTime(_dataRow[COLUMN_HEADER_PACKING_DATE_FILTER]);
 
-					if (!allocatedDates.Contains(date))
+					if (!allocatedDates.Contains(packingDate) && packingDate == _selectedPackingDate)
 					{
-						allocatedDates.Add(date);
+						allocatedDates.Add(packingDate);
 					}
 				}
 
@@ -132,17 +116,18 @@ namespace DespatchEventPlanning.Views
 					DepotDateLabelGrid.RowDefinitions.Add(def);
 				}
 
-				foreach (DateTime item in allocatedDates)
+#pragma warning disable S3267 // Loops should be simplified with "LINQ" expressions
+				foreach (DateTime _allocatedDate in allocatedDates)
 				{
 					ToolTip toolTip = new ToolTip();
-					toolTip.Content = item.Date.ToShortDateString();
+					toolTip.Content = _allocatedDate.Date.ToShortDateString();
 
 					///GENERATE LABEL ///////
 
 					dateLabel = new Label();
 					dateLabel.Height = 30;
 
-					dateLabel.Content = $"{item.Date.ToShortDateString()} Packing {GetPackingQuantity(item.Date)} cases";
+					dateLabel.Content = $"{_allocatedDate.Date.ToShortDateString()} Packing {GetPackingQuantity(_allocatedDate.Date)} cases";
 
 					dateLabel.Margin = new Thickness(5, 2, 0, 2);
 
@@ -163,6 +148,7 @@ namespace DespatchEventPlanning.Views
 					rowLocation++;
 					totalPackingQuantity = 0;
 				}
+#pragma warning restore S3267 // Loops should be simplified with "LINQ" expressions
 			}
 		}
 
@@ -177,7 +163,7 @@ namespace DespatchEventPlanning.Views
 		{
 			DataView _dataView = dataView;
 
-			_dataView = dataTableModel.FilterDataTable(_dataView, Filter_For_Data_Table.RequiredDate, packingDate);
+			_dataView = dataTableModel.FilterDataTable(_dataView, Filter_For_Data_Table.RequiredDate, packingDate.ToShortDateString());
 
 			foreach (DataRowView _dataRow in _dataView)
 			{
@@ -187,49 +173,51 @@ namespace DespatchEventPlanning.Views
 			return totalPackingQuantity;
 		}
 
-		private void Calendar_SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
+		private void Calendar_PackingDatesChanged(object sender, SelectionChangedEventArgs e)
 		{
-			if (PackingDateCalendar.SelectedDate != null)
+			UpdateDataGrid(FILTER_OPTION.PACKINGDATE);
+		}
+
+		private void Calendar_DepotDatesChanged(object sender, SelectionChangedEventArgs e)
+		{
+		}
+
+		private void UpdateDataGrid(FILTER_OPTION filterOption)
+		{
+			DataView _tempDataView = new DataView();
+			switch (filterOption)
 			{
-				selectedPackingDate = PackingDateCalendar.SelectedDate.Value;
-			}
-			selectedDepotDate = DepotDateCalendar.SelectedDate;
-			if (selectedDepotDate != null && selectedPackingDate!=null)
-			{
-				dataView = dataTableModel.FilterDataTable(dataView, Filter_For_Data_Table.RequiredDate, selectedPackingDate.Value, Filter_For_Data_Table.DepotDate, selectedDepotDate.Value);
-			}
-			else if(selectedPackingDate!=null)
-			{
-					dataView = dataTableModel.FilterDataTable(dataView, Filter_For_Data_Table.RequiredDate, selectedPackingDate.Value);
-			
+				case FILTER_OPTION.DEPOTDATE:
+
+					break;
+
+				case FILTER_OPTION.PACKINGDATE:
+					dataView = dataTableModel.FilterDataTable(dataView, Filter_For_Data_Table.RequiredDate, PackingDateCalendar.SelectedDate.Value.ToShortDateString());
+
+					break;
+
+				case FILTER_OPTION.BOTH:
+
+					break;
+
+				default:
+
+					break;
 			}
 
+			GenerateLabel(PackingDateCalendar.SelectedDate.Value);
 			excelDataGrid.ItemsSource = dataView;
-			GenerateLabel(excelDataGrid);
 		}
 
 		private void ClearDepotDateButton_Click(object sender, RoutedEventArgs e)
 		{
-			if (selectedPackingDate != null)
-			{
-				excelDataGrid.ItemsSource = dataTableModel.FilterDataTable(dataView, Filter_For_Data_Table.RequiredDate, selectedPackingDate.Value);
-				selectedDepotDate = null;
-				GenerateLabel(excelDataGrid);
-			}
 		}
 
 		private void ClearPackingDateButton_Click(object sender, RoutedEventArgs e)
 		{
-			if (selectedDepotDate != null)
-			{
-				dataView = dataTableModel.FilterDataTable(dataView, Filter_For_Data_Table.DepotDate, selectedDepotDate.Value);
-			}
-			else
-			{
-				dataView.RowFilter = null;
-			}
+			dataView.RowFilter = null;
 			excelDataGrid.ItemsSource = dataView;
-			GenerateLabel(excelDataGrid);
+			DepotDateLabelGrid.Children.Clear();
 		}
 	}
 }

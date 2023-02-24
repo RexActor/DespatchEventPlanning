@@ -21,16 +21,20 @@
                 <RowDefinition Height="auto" MinHeight="60"/>
                 <RowDefinition Height="auto" MinHeight="60"/>
                 <RowDefinition Height="auto" MinHeight="60"/>
+                <RowDefinition Height="auto" MinHeight="60"/>
             </Grid.RowDefinitions>
             <Button x:Name="ImportPlanButton" Content="Production Plan" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="ImportPlanButton_Click"/>
             <Button x:Name="AllocateLoadsButton" Grid.Row="1" Content="Allocate Loads" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="AllocateLoadsButton_Click"/>
             <Button x:Name="DepotSplitsButton" Grid.Row="2" Content="Depot Splits" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="DepotSplitsButton_Click"/>
-            <Button x:Name="SaveButton" Grid.Row="3" Content="Save Data" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="SaveButton_Click" />
+            <Button x:Name="ForecastButton" Grid.Row="3" Content="Forecast Data" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="ForecastButton_Click" />
+
+            <Button x:Name="SaveButton" Grid.Row="4" Content="Save Data" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="SaveButton_Click" />
 
 
         </Grid>
         <local:PackingPlan Grid.Column="1" x:Name="packingPlanUserControl" Visibility="Hidden"/>
         <local:AllocateLoadsUserControl Grid.Column="1" x:Name="allocateLoadsUSerControl" Visibility="Hidden"/>
         <local:DepotSplitsUserControl Grid.Column="1" x:Name="depotSplitsUserControl" Visibility="Hidden"/>
+        <local:ForecastView Grid.Column="1" x:Name="forecastUserControl" Visibility="Hidden"/>
     </Grid>
 </Window>

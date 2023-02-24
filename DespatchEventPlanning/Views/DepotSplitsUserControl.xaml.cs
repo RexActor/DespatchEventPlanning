@@ -6,8 +6,8 @@ namespace DespatchEventPlanning.Views
 {
 	public class DepotInformation
 	{
-		public int depotNumber { get; set; }
-		public string DepotName { get; set; }
+		public int? depotNumber { get; set; }
+		public string? DepotName { get; set; }
 	}
 
 	/// <summary>
