@@ -28,7 +28,6 @@ namespace DespatchEventPlanning.Views
 		private DataColumn? depotColumn;
 
 		private DataView view;
-	
 
 		public ForecastView()
 		{
@@ -53,53 +52,57 @@ namespace DespatchEventPlanning.Views
 		private void GetDepotSplits(DataTable forecastDataTable)
 		{
 			if (depotSplitDataTable == null || defaultDepotSplitsDataTable == null) { return; }
-			
-				foreach (DataRow forecastRow in forecastDataTable.Rows)
-				{
-					foreach (var _depotNameInEnum in Enum.GetNames(typeof(EnumClass.DEPOTS)).OrderBy(x => x))
-					{
-						var result_found = depotSplitDataTable.AsEnumerable().Where(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.WinNumber}") == (double)forecastRow[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.WinNumber}"]).Where(item => item.Field<string>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.DepotDate}") == forecastRow[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.DepotDate}"].ToString()).Where(item => item.Field<string>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.DepotName}") == _depotNameInEnum).Sum(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.Qty}"));
 
-						if (double.TryParse(result_found.ToString(), out double result))
+			foreach (DataRow forecastRow in forecastDataTable.Rows)
+			{
+
+
+
+				Enum.GetNames(typeof(EnumClass.DEPOTS)).OrderBy(x => x).ToList().ForEach(_depotNameInEnum
+					=>
+				{
+					var result_found = depotSplitDataTable.AsEnumerable().Where(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.WinNumber}") == (double)forecastRow[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.WinNumber}"]).Where(item => item.Field<string>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.DepotDate}") == forecastRow[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.DepotDate}"].ToString()).Where(item => item.Field<string>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.DepotName}") == _depotNameInEnum).Sum(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.Qty}"));
+
+					if (double.TryParse(result_found.ToString(), out double result))
+					{
+						if (result_found > 0)
 						{
-							if (result_found > 0)
-							{
-								forecastRow[_depotNameInEnum] = result_found;
-							}
-							else
-							{
-								var defaultSplit = defaultDepotSplitsDataTable.AsEnumerable().Where(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.WinNumber}") == (double)forecastRow[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.WinNumber}"]).Where(item => item.Field<string>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.DepotName}") == _depotNameInEnum).Sum(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.Qty}"));
-								forecastRow[_depotNameInEnum] = Math.Round((double)forecastRow[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.Qty}"] * defaultSplit);
-							}
+							forecastRow[_depotNameInEnum] = result_found;
 						}
 						else
 						{
-							forecastRow[_depotNameInEnum] = -1;
+							var defaultSplit = defaultDepotSplitsDataTable.AsEnumerable().Where(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.WinNumber}") == (double)forecastRow[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.WinNumber}"]).Where(item => item.Field<string>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.DepotName}") == _depotNameInEnum).Sum(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.Qty}"));
+							forecastRow[_depotNameInEnum] = Math.Round((double)forecastRow[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.Qty}"] * defaultSplit);
 						}
 					}
-				}
-			
+					else
+					{
+						forecastRow[_depotNameInEnum] = -1;
+					}
+				});
+
+				
+			}
 		}
 
 		private void CheckForecast(DataTable _dataTable)
 		{
 			if (packingplanDataTable == null) { return; }
-			
-				bool forecastMatch = false;
 
-				double packingQuantityToAssign = 0;
+			bool forecastMatch = false;
 
-				foreach (DataRow row in _dataTable.Rows)
-				{
-					packingQuantityToAssign = packingplanDataTable.AsEnumerable().Where(item => item.Field<double>($"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.WinNumber}") == (double)row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.WinNumber}"]).Where(item => item.Field<string>($"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.DepotDate}") == row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.DepotDate}"].ToString()).Sum(item => item.Field<double>($"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.PackingQuantity}"));
+			double packingQuantityToAssign = 0;
 
-					forecastMatch = Convert.ToDouble(row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.PackQuantity}"]) == packingQuantityToAssign;
+			foreach (DataRow row in _dataTable.Rows)
+			{
+				packingQuantityToAssign = packingplanDataTable.AsEnumerable().Where(item => item.Field<double>($"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.WinNumber}") == (double)row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.WinNumber}"]).Where(item => item.Field<string>($"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.DepotDate}") == row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.DepotDate}"].ToString()).Sum(item => item.Field<double>($"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.PackingQuantity}"));
 
-					row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.Difference}"] = (double)row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.Qty}"] - packingQuantityToAssign;
-					row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.PackQuantity}"] = packingQuantityToAssign;
-					row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.ForecastMatch}"] = forecastMatch;
-				}
-			
+				forecastMatch = Convert.ToDouble(row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.PackQuantity}"]) == packingQuantityToAssign;
+
+				row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.Difference}"] = (double)row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.Qty}"] - packingQuantityToAssign;
+				row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.PackQuantity}"] = packingQuantityToAssign;
+				row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.ForecastMatch}"] = forecastMatch;
+			}
 		}
 
 		private void GenerateExtraColumns(DataTable _dataTable)
@@ -125,14 +128,18 @@ namespace DespatchEventPlanning.Views
 
 			_dataTable.Columns.Add(forecastMatchColumn);
 
-			foreach (var _enum in Enum.GetNames(typeof(EnumClass.DEPOTS)).OrderBy(x => x))
+
+			Enum.GetNames(typeof(EnumClass.DEPOTS)).OrderBy(x => x).ToList().ForEach(_enum =>
 			{
 				depotColumn = new DataColumn();
 				depotColumn.ColumnName = _enum;
 				depotColumn.DataType = typeof(double);
 				depotColumn.DefaultValue = 0;
 				_dataTable.Columns.Add(depotColumn);
-			}
+			});
+
+
+			
 		}
 
 		private void DepotDateDatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
@@ -226,7 +233,7 @@ namespace DespatchEventPlanning.Views
 
 		private void ForecastMismatchCheckBox_Checked(object sender, RoutedEventArgs e)
 		{
-			if(forecastDataTable == null) { return; }
+			if (forecastDataTable == null) { return; }
 
 			if (temporaryDataTable != null)
 			{

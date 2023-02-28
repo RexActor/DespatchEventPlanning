@@ -4,6 +4,7 @@ using DespatchEventPlanning.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -64,8 +65,9 @@ namespace DespatchEventPlanning.Views
 			int colLocation = 0;
 
 			List<DateTime> allocatedDates = new List<DateTime>();
-			allocatedDates.Clear();
+
 			DataView temp_dataView = packingPlanDataTable.DefaultView;
+
 			foreach (DataRowView _dataRow in temp_dataView)
 			{
 				DateTime packingDate = Convert.ToDateTime(_dataRow[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.RequiredDate}"]);
@@ -96,7 +98,8 @@ namespace DespatchEventPlanning.Views
 			}
 
 #pragma warning disable S3267 // Loops should be simplified with "LINQ" expressions
-			foreach (DateTime _allocatedDate in allocatedDates)
+
+			allocatedDates.ToList().ForEach(_allocatedDate =>
 			{
 				ToolTip toolTip = new ToolTip();
 				toolTip.Content = _allocatedDate.Date.ToShortDateString();
@@ -126,8 +129,7 @@ namespace DespatchEventPlanning.Views
 				DepotDateLabelGrid.Children.Add(dateLabel);
 				rowLocation++;
 				totalPackingQuantity = 0;
-			}
-#pragma warning restore S3267 // Loops should be simplified with "LINQ" expressions
+			});
 		}
 
 		/// <summary>

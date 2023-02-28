@@ -46,14 +46,16 @@ namespace DespatchEventPlanning.Views
 		{
 			List<DepotInformation> sortedList = DepotNames.OrderBy(o => o.depotNumber).ToList();
 
-			foreach (var depot in sortedList)
-			{
+
+			sortedList.ForEach(depot => {
 				DataGridTextColumn column = new DataGridTextColumn();
 				column.Header = $"{depot.DepotName}";
 
 				column.Width = 100;
 				DepotSplitGrid.Columns.Add(column);
-			}
+			});
+
+		
 		}
 
 		public void CreateDepotSplitGrid()
