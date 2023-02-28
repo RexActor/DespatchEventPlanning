@@ -1,4 +1,5 @@
-﻿using DespatchEventPlanning.Models;
+﻿using DespatchEventPlanning.Helpers;
+using DespatchEventPlanning.Models;
 
 using System;
 using System.Data;
@@ -14,61 +15,91 @@ namespace DespatchEventPlanning.Views
 	/// </summary>
 	public partial class ForecastView : UserControl
 	{
-		private const string SHEET_NAME_PACKINGPLAN = "PackingPlan";
-		private const string SHEET_NAME_FORECAST = "Forecast";
-
-		private const string FORECAST_DEPOT_DATE = "DepotDAte";
-		private const string FORECAST_QTY = "Qty";
-		private const string FORECAST_WINNUMBER = "WinNumber";
-		private const string FORECAST_DIFFERENCE = "Difference";
-		private const string FORECAST_PACK_QTY = "Pack Quantity";
-		private const string FORECAST_MATCH = "Forecast Match";
-
-		private const string PACKINGPLAN_QTY = "PackingQuantity";
-		private const string PACKINGPLAN_DEPOTDATE = "DepotDate";
-		private const string PACKINGPLAN_PACKINGDATE = "RequiredDate";
-		private const string PACKINGPLAN_WINNUMBER = "WinNumber";
-
 		private DataTableModel? dataTableModel;
 		private DataTable? forecastDataTable;
 		private DataTable? packingplanDataTable;
 		private DataTable? temporaryDataTable;
+		private DataTable? depotSplitDataTable;
+		private DataTable? defaultDepotSplitsDataTable;
 
 		private DataColumn? forecastMatchColumn;
 		private DataColumn? forecastDifferenceColumn;
 		private DataColumn? packingQuantity;
+		private DataColumn? depotColumn;
+
+		private DataView view;
+	
 
 		public ForecastView()
 		{
 			InitializeComponent();
 			dataTableModel = new DataTableModel();
-			forecastDataTable = dataTableModel.GetDataTable(SHEET_NAME_FORECAST, FILE_NAME.Forecast);
-			packingplanDataTable = dataTableModel.GetDataTable(SHEET_NAME_PACKINGPLAN, FILE_NAME.PackingPlan);
+			view = new DataView();
 
+			forecastDataTable = dataTableModel.GetDataTable($"{EnumClass.SHEETNAMES.Forecast}", EnumClass.FILE_NAME.Forecast);
+			packingplanDataTable = dataTableModel.GetDataTable($"{EnumClass.SHEETNAMES.PackingPlan}", EnumClass.FILE_NAME.PackingPlan);
+			defaultDepotSplitsDataTable = dataTableModel.GetDataTable($"{EnumClass.SHEETNAMES.DepotSplits}", EnumClass.FILE_NAME.DefaultDepotSplits);
+
+			depotSplitDataTable = dataTableModel.GetDataTable($"{EnumClass.SHEETNAMES.DepotSplits}", EnumClass.FILE_NAME.DepotSplits);
 			GenerateExtraColumns(forecastDataTable);
 			CheckForecast(forecastDataTable);
+			GetDepotSplits(forecastDataTable);
 
-			ForecastDataGrid.ItemsSource = forecastDataTable.DefaultView;
+			view = forecastDataTable.AsEnumerable().Where(item => item.Field<double>($"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.Qty}") != 0).AsDataView();
+
+			ForecastDataGrid.ItemsSource = view;
+		}
+
+		private void GetDepotSplits(DataTable forecastDataTable)
+		{
+			if (depotSplitDataTable == null || defaultDepotSplitsDataTable == null) { return; }
+			
+				foreach (DataRow forecastRow in forecastDataTable.Rows)
+				{
+					foreach (var _depotNameInEnum in Enum.GetNames(typeof(EnumClass.DEPOTS)).OrderBy(x => x))
+					{
+						var result_found = depotSplitDataTable.AsEnumerable().Where(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.WinNumber}") == (double)forecastRow[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.WinNumber}"]).Where(item => item.Field<string>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.DepotDate}") == forecastRow[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.DepotDate}"].ToString()).Where(item => item.Field<string>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.DepotName}") == _depotNameInEnum).Sum(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.Qty}"));
+
+						if (double.TryParse(result_found.ToString(), out double result))
+						{
+							if (result_found > 0)
+							{
+								forecastRow[_depotNameInEnum] = result_found;
+							}
+							else
+							{
+								var defaultSplit = defaultDepotSplitsDataTable.AsEnumerable().Where(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.WinNumber}") == (double)forecastRow[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.WinNumber}"]).Where(item => item.Field<string>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.DepotName}") == _depotNameInEnum).Sum(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.Qty}"));
+								forecastRow[_depotNameInEnum] = Math.Round((double)forecastRow[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.Qty}"] * defaultSplit);
+							}
+						}
+						else
+						{
+							forecastRow[_depotNameInEnum] = -1;
+						}
+					}
+				}
+			
 		}
 
 		private void CheckForecast(DataTable _dataTable)
 		{
-			bool forecastMatch = false;
+			if (packingplanDataTable == null) { return; }
+			
+				bool forecastMatch = false;
 
-			double packingQuantity = 0;
+				double packingQuantityToAssign = 0;
 
-			foreach (DataRow row in _dataTable.Rows)
-			{
-				packingQuantity = packingplanDataTable.AsEnumerable().Where(item => item.Field<double>(PACKINGPLAN_WINNUMBER) == (double)row[FORECAST_WINNUMBER]).Where(item => item.Field<string>(PACKINGPLAN_DEPOTDATE) == row[FORECAST_DEPOT_DATE].ToString()).Sum(item => item.Field<double>(PACKINGPLAN_QTY));
+				foreach (DataRow row in _dataTable.Rows)
+				{
+					packingQuantityToAssign = packingplanDataTable.AsEnumerable().Where(item => item.Field<double>($"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.WinNumber}") == (double)row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.WinNumber}"]).Where(item => item.Field<string>($"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.DepotDate}") == row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.DepotDate}"].ToString()).Sum(item => item.Field<double>($"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.PackingQuantity}"));
 
-				forecastMatch = Convert.ToDouble(row[FORECAST_PACK_QTY]) == packingQuantity;
+					forecastMatch = Convert.ToDouble(row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.PackQuantity}"]) == packingQuantityToAssign;
 
-				row[FORECAST_DIFFERENCE] = (double)row[FORECAST_QTY] - packingQuantity;
-				row[FORECAST_PACK_QTY] = packingQuantity;
-				row[FORECAST_MATCH] = forecastMatch;
-
-				forecastMatch = false;
-			}
+					row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.Difference}"] = (double)row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.Qty}"] - packingQuantityToAssign;
+					row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.PackQuantity}"] = packingQuantityToAssign;
+					row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.ForecastMatch}"] = forecastMatch;
+				}
+			
 		}
 
 		private void GenerateExtraColumns(DataTable _dataTable)
@@ -77,7 +108,7 @@ namespace DespatchEventPlanning.Views
 			forecastDifferenceColumn = new DataColumn();
 			packingQuantity = new DataColumn();
 
-			forecastMatchColumn.ColumnName = "Forecast Match";
+			forecastMatchColumn.ColumnName = "ForecastMatch";
 			forecastMatchColumn.DataType = typeof(string);
 			forecastMatchColumn.DefaultValue = false.ToString();
 
@@ -85,7 +116,7 @@ namespace DespatchEventPlanning.Views
 			forecastDifferenceColumn.DataType = typeof(int);
 			forecastDifferenceColumn.DefaultValue = 0;
 
-			packingQuantity.ColumnName = "Pack Quantity";
+			packingQuantity.ColumnName = "PackQuantity";
 			packingQuantity.DataType = typeof(int);
 			packingQuantity.DefaultValue = 0;
 
@@ -93,6 +124,15 @@ namespace DespatchEventPlanning.Views
 			_dataTable.Columns.Add(forecastDifferenceColumn);
 
 			_dataTable.Columns.Add(forecastMatchColumn);
+
+			foreach (var _enum in Enum.GetNames(typeof(EnumClass.DEPOTS)).OrderBy(x => x))
+			{
+				depotColumn = new DataColumn();
+				depotColumn.ColumnName = _enum;
+				depotColumn.DataType = typeof(double);
+				depotColumn.DefaultValue = 0;
+				_dataTable.Columns.Add(depotColumn);
+			}
 		}
 
 		private void DepotDateDatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
@@ -106,17 +146,23 @@ namespace DespatchEventPlanning.Views
 				temporaryDataTable = new DataTable();
 			}
 
-			var rows = forecastDataTable.AsEnumerable().Where(item => item.Field<string>(FORECAST_DEPOT_DATE) == DepotDateDatePicker.SelectedDate.Value.ToShortDateString());
-
-			if (rows.Count() > 0)
+			if (forecastDataTable != null && DepotDateDatePicker.SelectedDate != null)
 			{
-				temporaryDataTable = rows.CopyToDataTable();
+				var rows = forecastDataTable.AsEnumerable().Where(item => item.Field<string>($"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.DepotDate}") == DepotDateDatePicker.SelectedDate.Value.ToShortDateString());
+				if (rows.Any())
+				{
+					temporaryDataTable = rows.CopyToDataTable();
+				}
 			}
 			ForecastDataGrid.ItemsSource = temporaryDataTable.DefaultView;
 		}
 
 		private void SearchWinTextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
 		{
+			if (forecastDataTable == null)
+			{
+				return;
+			}
 			if (temporaryDataTable != null)
 			{
 				temporaryDataTable.Clear();
@@ -125,30 +171,33 @@ namespace DespatchEventPlanning.Views
 			{
 				temporaryDataTable = new DataTable();
 			}
+
 			if (Keyboard.IsKeyDown(System.Windows.Input.Key.Enter))
 			{
 				if (Double.TryParse(SearchWinTextBox.Text, out double value))
 				{
-					var rows = forecastDataTable.AsEnumerable().Where(item => item.Field<double>(FORECAST_WINNUMBER) == value);
-					if (rows.Count() > 0)
+					var rows = forecastDataTable.AsEnumerable().Where(item => item.Field<double>($"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.WinNumber}") == value);
+					if (rows.Any())
 					{
 						temporaryDataTable = rows.CopyToDataTable();
 						ForecastDataGrid.ItemsSource = temporaryDataTable.DefaultView;
 					}
 					else
 					{
-						ForecastDataGrid.ItemsSource = forecastDataTable.DefaultView;
+						ForecastDataGrid.ItemsSource = view;
 					}
 				}
 				else if (SearchWinTextBox.Text == string.Empty)
 				{
-					ForecastDataGrid.ItemsSource = forecastDataTable.DefaultView;
+					ForecastDataGrid.ItemsSource = view;
 				}
 			}
 		}
 
 		private void QuantityRemoveCheckbox_Checked(object sender, RoutedEventArgs e)
 		{
+			if (forecastDataTable == null) { return; }
+
 			double quantityToRemove = 0;
 			if (temporaryDataTable != null)
 			{
@@ -161,9 +210,9 @@ namespace DespatchEventPlanning.Views
 
 			if (QuantityRemoveCheckbox.IsChecked == true)
 			{
-				var rows = forecastDataTable.AsEnumerable().Where(item => item.Field<double>(FORECAST_QTY) != quantityToRemove);
+				var rows = forecastDataTable.AsEnumerable().Where(item => item.Field<double>($"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.Qty}") != quantityToRemove);
 
-				if (rows.Count() > 0)
+				if (rows.Any())
 				{
 					temporaryDataTable = rows.CopyToDataTable();
 				}
@@ -177,6 +226,8 @@ namespace DespatchEventPlanning.Views
 
 		private void ForecastMismatchCheckBox_Checked(object sender, RoutedEventArgs e)
 		{
+			if(forecastDataTable == null) { return; }
+
 			if (temporaryDataTable != null)
 			{
 				temporaryDataTable.Clear();
@@ -186,9 +237,9 @@ namespace DespatchEventPlanning.Views
 				temporaryDataTable = new DataTable();
 			}
 
-			var rows = forecastDataTable.AsEnumerable().Where(item => item.Field<string>(FORECAST_MATCH) == ForecastMismatchCheckBox.IsChecked.ToString());
+			var rows = forecastDataTable.AsEnumerable().Where(item => item.Field<string>($"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.ForecastMatch}") == ForecastMismatchCheckBox.IsChecked.ToString());
 
-			if (rows.Count() > 0)
+			if (rows.Any())
 			{
 				temporaryDataTable = rows.CopyToDataTable();
 			}
@@ -201,7 +252,7 @@ namespace DespatchEventPlanning.Views
 			if (temporaryDataTable != null)
 			{
 				temporaryDataTable.Clear();
-				ForecastDataGrid.ItemsSource = forecastDataTable.DefaultView;
+				ForecastDataGrid.ItemsSource = view;
 				//DepotDateDatePicker.SelectedDate
 			}
 		}
@@ -212,7 +263,7 @@ namespace DespatchEventPlanning.Views
 			{
 				temporaryDataTable.Clear();
 			}
-			ForecastDataGrid.ItemsSource = forecastDataTable.DefaultView;
+			ForecastDataGrid.ItemsSource = view;
 			ForecastMismatchCheckBox.IsChecked = false;
 			QuantityRemoveCheckbox.IsChecked = false;
 			SearchWinTextBox.Text = string.Empty;

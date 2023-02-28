@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using DespatchEventPlanning.Helpers;
+using DespatchEventPlanning.Models;
+
+using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Windows.Controls;
 
@@ -28,10 +32,14 @@ namespace DespatchEventPlanning.Views
 			new DepotInformation{DepotName="BEDFORD",depotNumber=7439 }
 		};
 
+		private DataTableModel dataTableModel;
+		private DataTable? depotSplitsDataTable;
+
 		public DepotSplitsUserControl()
 		{
 			InitializeComponent();
-			CreateColumns();
+			dataTableModel = new DataTableModel();
+			CreateDepotSplitGrid();
 		}
 
 		public void CreateColumns()
@@ -46,6 +54,12 @@ namespace DespatchEventPlanning.Views
 				column.Width = 100;
 				DepotSplitGrid.Columns.Add(column);
 			}
+		}
+
+		public void CreateDepotSplitGrid()
+		{
+			depotSplitsDataTable = dataTableModel.GetDataTable("DepotSplits", EnumClass.FILE_NAME.DepotSplits);
+			DepotSplitGrid.ItemsSource = depotSplitsDataTable.DefaultView;
 		}
 	}
 }
