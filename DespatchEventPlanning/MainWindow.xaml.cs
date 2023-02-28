@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using DespatchEventPlanning.Views;
+
+using System.Windows;
 
 namespace DespatchEventPlanning
 {
@@ -10,6 +12,8 @@ namespace DespatchEventPlanning
 		public MainWindow()
 		{
 			InitializeComponent();
+
+			
 		}
 
 		private void ImportPlanButton_Click(object sender, RoutedEventArgs e)

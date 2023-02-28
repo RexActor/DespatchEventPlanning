@@ -1,4 +1,7 @@
-﻿using DespatchEventPlanning.Helpers;
+﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Running;
+
+using DespatchEventPlanning.Helpers;
 using DespatchEventPlanning.Models;
 
 using System;
@@ -7,12 +10,16 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Diagnostics;
+
 
 namespace DespatchEventPlanning.Views
 {
 	/// <summary>
 	/// Interaction logic for ForecastView.xaml
 	/// </summary>
+	/// 
+	
 	public partial class ForecastView : UserControl
 	{
 		private DataTableModel? dataTableModel;
@@ -47,16 +54,17 @@ namespace DespatchEventPlanning.Views
 			view = forecastDataTable.AsEnumerable().Where(item => item.Field<double>($"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.Qty}") != 0).AsDataView();
 
 			ForecastDataGrid.ItemsSource = view;
+
+			
+
 		}
 
 		private void GetDepotSplits(DataTable forecastDataTable)
 		{
 			if (depotSplitDataTable == null || defaultDepotSplitsDataTable == null) { return; }
 
-			foreach (DataRow forecastRow in forecastDataTable.Rows)
+			forecastDataTable.Rows.Cast<DataRow>().ToList().ForEach(forecastRow =>
 			{
-
-
 
 				Enum.GetNames(typeof(EnumClass.DEPOTS)).OrderBy(x => x).ToList().ForEach(_depotNameInEnum
 					=>
@@ -81,10 +89,16 @@ namespace DespatchEventPlanning.Views
 					}
 				});
 
-				
-			}
-		}
 
+
+
+
+
+			});
+
+		
+		}
+		
 		private void CheckForecast(DataTable _dataTable)
 		{
 			if (packingplanDataTable == null) { return; }
@@ -93,7 +107,10 @@ namespace DespatchEventPlanning.Views
 
 			double packingQuantityToAssign = 0;
 
-			foreach (DataRow row in _dataTable.Rows)
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
+
+			_dataTable.Rows.Cast<DataRow>().ToList().ForEach(row =>
 			{
 				packingQuantityToAssign = packingplanDataTable.AsEnumerable().Where(item => item.Field<double>($"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.WinNumber}") == (double)row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.WinNumber}"]).Where(item => item.Field<string>($"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.DepotDate}") == row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.DepotDate}"].ToString()).Sum(item => item.Field<double>($"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.PackingQuantity}"));
 
@@ -102,7 +119,13 @@ namespace DespatchEventPlanning.Views
 				row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.Difference}"] = (double)row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.Qty}"] - packingQuantityToAssign;
 				row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.PackQuantity}"] = packingQuantityToAssign;
 				row[$"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.ForecastMatch}"] = forecastMatch;
-			}
+			});
+
+
+			sw.Stop();
+			Debug.WriteLine($"Elapsed = {sw.Elapsed}");
+
+		
 		}
 
 		private void GenerateExtraColumns(DataTable _dataTable)

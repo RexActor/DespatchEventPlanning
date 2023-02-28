@@ -68,15 +68,17 @@ namespace DespatchEventPlanning.Views
 
 			DataView temp_dataView = packingPlanDataTable.DefaultView;
 
-			foreach (DataRowView _dataRow in temp_dataView)
-			{
+			temp_dataView.Cast<DataRowView>().ToList().ForEach(_dataRow => {
 				DateTime packingDate = Convert.ToDateTime(_dataRow[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.RequiredDate}"]);
 
 				if (!allocatedDates.Contains(packingDate) && packingDate == _selectedPackingDate)
 				{
 					allocatedDates.Add(packingDate);
 				}
-			}
+
+			});
+
+			
 
 			if (allocatedDates.Count > rowLimit)
 			{
@@ -145,10 +147,15 @@ namespace DespatchEventPlanning.Views
 
 			_dataView = dataTableModel.FilterDataTable(_dataView, EnumClass.Filter_For_Data_Table.RequiredDate, packingDate.ToShortDateString());
 
-			foreach (DataRowView _dataRow in _dataView)
+
+			_dataView.Cast<DataRowView>().ToList().ForEach(_dataRow =>
 			{
 				totalPackingQuantity += (Double)_dataRow[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.PackingQuantity}"];
-			}
+			});
+
+
+
+		
 
 			return totalPackingQuantity;
 		}
