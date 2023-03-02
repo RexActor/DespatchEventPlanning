@@ -3,7 +3,6 @@ using DespatchEventPlanning.Helpers;
 
 using System;
 using System.Data;
-using System.Diagnostics.CodeAnalysis;
 
 namespace DespatchEventPlanning.Models
 {
@@ -14,12 +13,11 @@ namespace DespatchEventPlanning.Models
 		private readonly string depotSplitsPath = $"{AppDomain.CurrentDomain.BaseDirectory}DepotSplits.xlsx";
 		private readonly string defaultDepotSplitsPath = $"{AppDomain.CurrentDomain.BaseDirectory}DefaultDepotSplits.xlsx";
 
-		
 		public DataTable GetDataTable(string sheetName, EnumClass.FILE_NAME fileName)
-#pragma warning restore S125 // Sections of code should not be commented out
+
 		{
 			DataHandler importedData = new DataHandler();
-			DataTable generatedDataTable = null;
+			DataTable generatedDataTable;
 			string _chosenFilePath = string.Empty;
 			switch (fileName)
 			{
@@ -27,29 +25,29 @@ namespace DespatchEventPlanning.Models
 					_chosenFilePath = packingPlanFilePath;
 					generatedDataTable = importedData.ReadExcelFile(sheetName, _chosenFilePath);
 					generatedDataTable.DefaultView.Sort = $"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.RequiredDate} ASC";
-
-					break;
+					return generatedDataTable;
 
 				case EnumClass.FILE_NAME.DepotSplits:
 					_chosenFilePath = depotSplitsPath;
 					generatedDataTable = importedData.ReadExcelFile(sheetName, _chosenFilePath);
 					generatedDataTable.DefaultView.Sort = $"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.DepotDate} ASC";
-					break;
+					return generatedDataTable;
 
 				case EnumClass.FILE_NAME.DefaultDepotSplits:
 					_chosenFilePath = defaultDepotSplitsPath;
 					generatedDataTable = importedData.ReadExcelFile(sheetName, _chosenFilePath);
 					generatedDataTable.DefaultView.Sort = $"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.WinNumber} ASC";
-					break;
+					return generatedDataTable;
 
 				case EnumClass.FILE_NAME.Forecast:
 					_chosenFilePath = forecastFilePath;
 					generatedDataTable = importedData.ReadExcelFile(sheetName, _chosenFilePath);
 					generatedDataTable.DefaultView.Sort = $"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.DepotDate} ASC";
 
-					break;
+					return generatedDataTable;
+
+				default: throw new ArgumentNullException($"{_chosenFilePath} ");
 			}
-			return generatedDataTable;
 		}
 
 		/// <summary>

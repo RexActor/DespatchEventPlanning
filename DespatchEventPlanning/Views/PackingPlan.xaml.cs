@@ -17,13 +17,16 @@ namespace DespatchEventPlanning.Views
 	public partial class PackingPlan : UserControl
 	{
 		private DataTable packingPlanDataTable;
+		private DataTable depotSplitsDataTable;
+		private DataTable defaultDepotSplits;
 #pragma warning restore S125 // Sections of code should not be commented out
 
 		private DataView dataView;
 		private DataTableModel dataTableModel;
+
 		private Label? dateLabel;
 		private bool changesMade = false;
-
+		private DataColumn column;
 		private double totalPackingQuantity;
 
 		public DataTableModel GetPackingPlanDataTableModel()
@@ -39,21 +42,58 @@ namespace DespatchEventPlanning.Views
 
 			packingPlanDataTable = dataTableModel.GetDataTable("PackingPlan", EnumClass.FILE_NAME.PackingPlan);
 
-			dataView = packingPlanDataTable.DefaultView;
+			depotSplitsDataTable = dataTableModel.GetDataTable("DepotSplits", EnumClass.FILE_NAME.DepotSplits);
+			defaultDepotSplits = dataTableModel.GetDataTable("DepotSplits", EnumClass.FILE_NAME.DefaultDepotSplits);
+			
+			packingPlanDataTable = packingPlanDataTable.AsEnumerable().Where(item => item.Field<double>($"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.PackingQuantity}") != 0).CopyToDataTable();
 
+			dataView = packingPlanDataTable.DefaultView;
+			
+			GenerateDepotColumns();
 			excelDataGrid.ItemsSource = dataView;
 
 			PackingDateCalendar.SelectedDate = DateTime.Now.Date;
 		}
 
+		private void GenerateDepotColumns()
+		{
+			Enum.GetNames(typeof(EnumClass.DEPOTS)).OrderBy(x => x).ToList().ForEach(column =>
+			{
+				this.column = new DataColumn();
+				this.column.ColumnName = column;
+				this.column.DefaultValue = -1;
+				this.packingPlanDataTable.Columns.Add(this.column);
+			});
+
+			packingPlanDataTable.Rows.Cast<DataRow>().ToList().ForEach(packingRow =>
+			{
+				Enum.GetNames(typeof(EnumClass.DEPOTS)).OrderBy(x => x).ToList().ForEach(column =>
+				{
+					packingRow[column] = GetdepotSplit((double)packingRow[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.WinNumber}"], packingRow[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.DepotDate}"].ToString(), column, (double)packingRow[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.PackingQuantity}"]);
+				});
+			});
+		}
+
+		private double GetdepotSplit(double winNumber, string depotDate, string depotName,double qty=default)
+		{
+			double res = depotSplitsDataTable.AsEnumerable().Where(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.WinNumber}") == winNumber).Where(item => item.Field<string>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.DepotDate}") == depotDate).Where(item => item.Field<string>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.DepotName}") == depotName).Sum(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.Qty}"));
+
+			if (res == 0)
+			{
+				double split = defaultDepotSplits.AsEnumerable().Where(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.WinNumber}") == winNumber).Where(item => item.Field<string>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.DepotName}") == depotName).Sum(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.Qty}"));
+				res = Math.Round(split * qty);
+			}
+
+			return res;
+		}
+
 		private void SaveDataButton_Click(object sender, RoutedEventArgs e)
 		{
 			if (changesMade)
-#pragma warning disable S125 // Sections of code should not be commented out
+
 			{
 				//importedData.SaveDatatableToExcel(packingPlanDataTable, filePath);
 			}
-#pragma warning restore S125 // Sections of code should not be commented out
 		}
 
 		private void GenerateLabel(DateTime _selectedPackingDate)
@@ -68,17 +108,15 @@ namespace DespatchEventPlanning.Views
 
 			DataView temp_dataView = packingPlanDataTable.DefaultView;
 
-			temp_dataView.Cast<DataRowView>().ToList().ForEach(_dataRow => {
+			temp_dataView.Cast<DataRowView>().ToList().ForEach(_dataRow =>
+			{
 				DateTime packingDate = Convert.ToDateTime(_dataRow[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.RequiredDate}"]);
 
 				if (!allocatedDates.Contains(packingDate) && packingDate == _selectedPackingDate)
 				{
 					allocatedDates.Add(packingDate);
 				}
-
 			});
-
-			
 
 			if (allocatedDates.Count > rowLimit)
 			{
@@ -98,8 +136,6 @@ namespace DespatchEventPlanning.Views
 
 				DepotDateLabelGrid.RowDefinitions.Add(def);
 			}
-
-#pragma warning disable S3267 // Loops should be simplified with "LINQ" expressions
 
 			allocatedDates.ToList().ForEach(_allocatedDate =>
 			{
@@ -147,15 +183,10 @@ namespace DespatchEventPlanning.Views
 
 			_dataView = dataTableModel.FilterDataTable(_dataView, EnumClass.Filter_For_Data_Table.RequiredDate, packingDate.ToShortDateString());
 
-
 			_dataView.Cast<DataRowView>().ToList().ForEach(_dataRow =>
 			{
 				totalPackingQuantity += (Double)_dataRow[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.PackingQuantity}"];
 			});
-
-
-
-		
 
 			return totalPackingQuantity;
 		}
