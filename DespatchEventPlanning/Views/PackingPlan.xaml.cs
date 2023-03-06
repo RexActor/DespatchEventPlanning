@@ -4,6 +4,7 @@ using DespatchEventPlanning.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -29,6 +30,9 @@ namespace DespatchEventPlanning.Views
 		private DataColumn column;
 		private double totalPackingQuantity;
 
+		private bool dateChanged;
+		private DateTime previousSelectedDate;
+
 		public DataTableModel GetPackingPlanDataTableModel()
 		{
 			return dataTableModel;
@@ -51,8 +55,9 @@ namespace DespatchEventPlanning.Views
 			
 			GenerateDepotColumns();
 			excelDataGrid.ItemsSource = dataView;
-
+			dateChanged = false;
 			PackingDateCalendar.SelectedDate = DateTime.Now.Date;
+			
 		}
 
 		private void GenerateDepotColumns()
@@ -161,6 +166,8 @@ namespace DespatchEventPlanning.Views
 					rowLocation = 0;
 				}
 
+				
+
 				Grid.SetRow(dateLabel, rowLocation);
 				Grid.SetColumn(dateLabel, colLocation);
 
@@ -193,12 +200,27 @@ namespace DespatchEventPlanning.Views
 
 		private void Calendar_PackingDatesChanged(object sender, SelectionChangedEventArgs e)
 		{
-			UpdateDataGrid(EnumClass.FILTER_OPTION.PACKINGDATE);
+			
+
+			
+			
+
+				
+				UpdateDataGrid(EnumClass.FILTER_OPTION.PACKINGDATE);
+			if (dataView.Count == 0)
+			{
+				dataView.RowFilter = null;
+				dataView.Sort = $"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.RequiredDate} ASC";
+				excelDataGrid.ItemsSource = dataView;
+			}
+	
+
 		}
 
 		private void UpdateDataGrid(EnumClass.FILTER_OPTION filterOption)
 		{
 			if (PackingDateCalendar.SelectedDate == null) { return; }
+			
 
 			switch (filterOption)
 			{
@@ -208,7 +230,7 @@ namespace DespatchEventPlanning.Views
 
 				case EnumClass.FILTER_OPTION.PACKINGDATE:
 					dataView = dataTableModel.FilterDataTable(dataView, EnumClass.Filter_For_Data_Table.RequiredDate, PackingDateCalendar.SelectedDate.Value.ToShortDateString());
-
+					
 					break;
 
 				case EnumClass.FILTER_OPTION.BOTH:
@@ -216,8 +238,13 @@ namespace DespatchEventPlanning.Views
 					break;
 			}
 
-			GenerateLabel(PackingDateCalendar.SelectedDate.Value);
-			excelDataGrid.ItemsSource = dataView;
+			
+			
+				GenerateLabel(PackingDateCalendar.SelectedDate.Value);
+
+				excelDataGrid.ItemsSource = dataView;
+			
+		
 		}
 
 		private void ClearPackingDateButton_Click(object sender, RoutedEventArgs e)
@@ -226,5 +253,7 @@ namespace DespatchEventPlanning.Views
 			excelDataGrid.ItemsSource = dataView;
 			DepotDateLabelGrid.Children.Clear();
 		}
+
+	
 	}
 }
