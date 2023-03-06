@@ -1,4 +1,6 @@
-﻿namespace DespatchEventPlanning.Helpers
+﻿using System.Security.Permissions;
+
+namespace DespatchEventPlanning.Helpers
 {
 	public class EnumClass
 	{
@@ -8,7 +10,10 @@
 			depotSplitsDataTable,
 			defaultDepotSplits,
 			forecast,
+			productInformation
 		}
+
+
 
 		internal enum FILTER_OPTION
 		{
@@ -37,6 +42,7 @@
 			Forecast,
 			SDepotSplits,
 			DepotSplits,
+			ProductInformation,
 		}
 
 		public enum FILE_NAME
@@ -45,6 +51,7 @@
 			Forecast,
 			DepotSplits,
 			DefaultDepotSplits,
+			ProductInformation,
 		}
 
 		public enum Filter_For_Data_Table
@@ -71,6 +78,18 @@
 			RequiredDate,
 			WinNumber,
 		}
+
+		public enum PRODUCTINFORMATION_DATATABLE_COLUMN_NAMES
+		{
+			WinNumber,
+			ProductNumber,
+			ProductDescription,
+			PacksPerPallet,
+			ProductGroup,
+			WeightOfOuter,
+
+		}
+
 
 		public enum DEPOTSPLITS_DATATABLE_COLUMN_NAMES
 		{

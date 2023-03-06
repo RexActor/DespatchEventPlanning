@@ -12,6 +12,7 @@ namespace DespatchEventPlanning.Models
 		private readonly string forecastFilePath = $"{AppDomain.CurrentDomain.BaseDirectory}Forecast.xlsx";
 		private readonly string depotSplitsPath = $"{AppDomain.CurrentDomain.BaseDirectory}DepotSplits.xlsx";
 		private readonly string defaultDepotSplitsPath = $"{AppDomain.CurrentDomain.BaseDirectory}DefaultDepotSplits.xlsx";
+		private readonly string productInformationPath = $"{AppDomain.CurrentDomain.BaseDirectory}ProductInformation.xlsx";
 
 		public DataTable GetDataTable(string sheetName, EnumClass.FILE_NAME fileName)
 
@@ -25,6 +26,11 @@ namespace DespatchEventPlanning.Models
 					_chosenFilePath = packingPlanFilePath;
 					generatedDataTable = importedData.ReadExcelFile(sheetName, _chosenFilePath);
 					generatedDataTable.DefaultView.Sort = $"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.RequiredDate} ASC";
+					return generatedDataTable;
+
+				case EnumClass.FILE_NAME.ProductInformation:
+					_chosenFilePath = productInformationPath;
+					generatedDataTable = importedData.ReadExcelFile(sheetName, _chosenFilePath);
 					return generatedDataTable;
 
 				case EnumClass.FILE_NAME.DepotSplits:

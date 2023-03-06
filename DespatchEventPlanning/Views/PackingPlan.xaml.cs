@@ -4,6 +4,7 @@ using DespatchEventPlanning.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,6 +20,7 @@ namespace DespatchEventPlanning.Views
 		private DataTable packingPlanDataTable;
 		private DataTable depotSplitsDataTable;
 		private DataTable defaultDepotSplits;
+		private DataTable productInformation;
 
 		private DataView dataView;
 		private DataTableModel dataTableModel;
@@ -43,13 +45,16 @@ namespace DespatchEventPlanning.Views
 
 			packingPlanDataTable = DataSetClass.GetDataTable(EnumClass.DATATABLE_NAME.packingPlanDataTable);
 
+			productInformation = DataSetClass.GetDataTable(EnumClass.DATATABLE_NAME.productInformation);
+
 			dataView = packingPlanDataTable.DefaultView;
 
 			GenerateDepotColumns();
 
 			excelDataGrid.ItemsSource = dataView;
-			
+
 			PackingDateCalendar.SelectedDate = DateTime.Now.Date;
+			GetCapacity();
 		}
 
 		private void GenerateDepotColumns()
@@ -229,6 +234,39 @@ namespace DespatchEventPlanning.Views
 			dataView.RowFilter = null;
 			excelDataGrid.ItemsSource = dataView;
 			DepotDateLabelGrid.Children.Clear();
+		}
+
+		private void GetCapacity()
+		{
+			double palletsProduced = 0;
+			double packingQuantity = 0;
+
+			
+			
+
+			packingPlanDataTable.Rows.Cast<DataRow>().Select(item => item.Field<string>($"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.RequiredDate}")).Distinct().OrderBy(x => x).ToList().ForEach(m =>
+			{
+
+
+
+				packingPlanDataTable.AsEnumerable().Where(item => item.Field<string>($"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.RequiredDate}") == m).ToList().ForEach(subItem =>
+				{
+					double packsPerPallet = productInformation.AsEnumerable().Where(item => item.Field<double>($"{EnumClass.PRODUCTINFORMATION_DATATABLE_COLUMN_NAMES.WinNumber}") == (double)subItem[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.WinNumber}"]).Sum(item => item.Field<double>($"{EnumClass.PRODUCTINFORMATION_DATATABLE_COLUMN_NAMES.PacksPerPallet}"));
+
+					double palletsGenerated = Math.Ceiling((double)subItem[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.PackingQuantity}"] / packsPerPallet);
+
+					palletsProduced += palletsGenerated;
+
+
+
+					Debug.WriteLine($"On {m} Will be packed Depot {subItem[EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.DepotDate.ToString()]} with total of {palletsProduced}");
+
+
+				});
+
+
+				palletsProduced = 0;
+			});
 		}
 	}
 }
