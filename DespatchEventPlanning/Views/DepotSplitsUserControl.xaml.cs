@@ -32,13 +32,13 @@ namespace DespatchEventPlanning.Views
 			new DepotInformation{DepotName="BEDFORD",depotNumber=7439 }
 		};
 
-		private DataTableModel dataTableModel;
+		
 		private DataTable? depotSplitsDataTable;
 
 		public DepotSplitsUserControl()
 		{
 			InitializeComponent();
-			dataTableModel = new DataTableModel();
+	
 			CreateDepotSplitGrid();
 		}
 
@@ -60,7 +60,7 @@ namespace DespatchEventPlanning.Views
 
 		public void CreateDepotSplitGrid()
 		{
-			depotSplitsDataTable = dataTableModel.GetDataTable("DepotSplits", EnumClass.FILE_NAME.DepotSplits);
+			depotSplitsDataTable = DataSetClass.GetDataTable(EnumClass.DATATABLE_NAME.depotSplitsDataTable);
 			DepotSplitGrid.ItemsSource = depotSplitsDataTable.DefaultView;
 		}
 	}

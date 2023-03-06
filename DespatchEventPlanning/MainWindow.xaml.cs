@@ -1,6 +1,8 @@
 ﻿using DespatchEventPlanning.Views;
+using DespatchEventPlanning.Models;
 
 using System.Windows;
+using System.Diagnostics;
 
 namespace DespatchEventPlanning
 {
@@ -11,8 +13,13 @@ namespace DespatchEventPlanning
 	{
 		public MainWindow()
 		{
+			Stopwatch pw = new Stopwatch();
+			pw.Start();
+			DataSetClass.SetUpDataTables();
 			InitializeComponent();
 
+			pw.Stop();
+			Debug.WriteLine($"Elapsed: {pw.Elapsed}") ;
 			
 		}
 

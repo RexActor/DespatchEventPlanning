@@ -2,6 +2,13 @@
 {
 	public class EnumClass
 	{
+		public enum DATATABLE_NAME
+		{
+			packingPlanDataTable,
+			depotSplitsDataTable,
+			defaultDepotSplits,
+			forecast,
+		}
 
 		internal enum FILTER_OPTION
 		{

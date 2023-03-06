@@ -42,11 +42,13 @@ namespace DespatchEventPlanning.Views
 			dataTableModel = new DataTableModel();
 			view = new DataView();
 
-			forecastDataTable = dataTableModel.GetDataTable($"{EnumClass.SHEETNAMES.Forecast}", EnumClass.FILE_NAME.Forecast);
-			packingplanDataTable = dataTableModel.GetDataTable($"{EnumClass.SHEETNAMES.PackingPlan}", EnumClass.FILE_NAME.PackingPlan);
-			defaultDepotSplitsDataTable = dataTableModel.GetDataTable($"{EnumClass.SHEETNAMES.DepotSplits}", EnumClass.FILE_NAME.DefaultDepotSplits);
+			packingplanDataTable = DataSetClass.GetDataTable(EnumClass.DATATABLE_NAME.packingPlanDataTable);
+			defaultDepotSplitsDataTable = DataSetClass.GetDataTable(EnumClass.DATATABLE_NAME.defaultDepotSplits);
+			forecastDataTable = DataSetClass.GetDataTable(EnumClass.DATATABLE_NAME.forecast);
+			depotSplitDataTable = DataSetClass.GetDataTable(EnumClass.DATATABLE_NAME.depotSplitsDataTable);
+			
 
-			depotSplitDataTable = dataTableModel.GetDataTable($"{EnumClass.SHEETNAMES.DepotSplits}", EnumClass.FILE_NAME.DepotSplits);
+			
 			GenerateExtraColumns(forecastDataTable);
 			CheckForecast(forecastDataTable);
 			GetDepotSplits(forecastDataTable);
@@ -107,8 +109,7 @@ namespace DespatchEventPlanning.Views
 
 			double packingQuantityToAssign = 0;
 
-			Stopwatch sw = new Stopwatch();
-			sw.Start();
+			
 
 			_dataTable.Rows.Cast<DataRow>().ToList().ForEach(row =>
 			{
@@ -122,8 +123,6 @@ namespace DespatchEventPlanning.Views
 			});
 
 
-			sw.Stop();
-			Debug.WriteLine($"Elapsed = {sw.Elapsed}");
 
 		
 		}
