@@ -3,6 +3,7 @@ using DespatchEventPlanning.Models;
 
 using System.Windows;
 using System.Diagnostics;
+using System;
 
 namespace DespatchEventPlanning
 {
@@ -15,7 +16,7 @@ namespace DespatchEventPlanning
 		{
 			Stopwatch pw = new Stopwatch();
 			pw.Start();
-			DataSetClass.SetUpDataTables();
+			
 			InitializeComponent();
 
 			pw.Stop();
@@ -49,7 +50,7 @@ namespace DespatchEventPlanning
 
 		private void SaveButton_Click(object sender, RoutedEventArgs e)
 		{
-			//packingPlanUserControl.Visibility = Visibility.Hidden;
+			throw new  NotImplementedException();
 		}
 
 		private void ForecastButton_Click(object sender, RoutedEventArgs e)

@@ -74,6 +74,7 @@
 			RequiredDate,
 			WinNumber,
 			ProductDescription,
+			Group,
 		}
 
 		public enum PRODUCTINFORMATION_DATATABLE_COLUMN_NAMES
