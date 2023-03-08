@@ -11,10 +11,10 @@ namespace DespatchEventPlanning.ObjectClasses
 
 		public string depotName { get; set; } = string.Empty;
 		public int depotNumber { get; set; } = 0;
-		public float depotSplit { get; set; } = 0f;
-		public float allocatedQty { get; set; } = 0f;
+		public double depotSplit { get; set; } = 0f;
+		public double allocatedQty { get; set; } = 0f;
 
-		public float depotSplitOverSpill
+		public double depotSplitOverSpill
 		{
 			get { return depotSplit - allocatedQty; }
 		}
