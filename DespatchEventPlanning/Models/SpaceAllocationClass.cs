@@ -1,12 +1,20 @@
-﻿namespace DespatchEventPlanning.Models
+﻿using DocumentFormat.OpenXml.Office2010.ExcelAc;
+
+using System.Collections.Generic;
+
+namespace DespatchEventPlanning.Models
 {
 	internal class SpaceAllocationClass
 	{
-		public string PackingDate { get; private set; }
-		public string DepotDate { get; private set; }
-		public double WinNumber { get; private set; }
-		public string productDescription { get; private set; }
-		public double quantity { get; private set; }
-		public double orderQuantityt { get; private set; }
+		public double winNumber { get; set; }
+		public string productDescription { get; set; }
+		public string packingDate { get; set; }
+		public string depotDate { get; set; }
+		public double packingQuantity { get; set; }
+
+		public List<StorageClass> storageInformation { get; set; }
+
+		public double palletSpacesProduced { get; set; }
+		public double packsPerPallet { get; set; }
 	}
 }

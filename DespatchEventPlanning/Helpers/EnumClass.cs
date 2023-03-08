@@ -1,6 +1,4 @@
-﻿using System.Security.Permissions;
-
-namespace DespatchEventPlanning.Helpers
+﻿namespace DespatchEventPlanning.Helpers
 {
 	public class EnumClass
 	{
@@ -12,8 +10,6 @@ namespace DespatchEventPlanning.Helpers
 			forecast,
 			productInformation
 		}
-
-
 
 		internal enum FILTER_OPTION
 		{
@@ -77,6 +73,7 @@ namespace DespatchEventPlanning.Helpers
 			DepotDate,
 			RequiredDate,
 			WinNumber,
+			ProductDescription,
 		}
 
 		public enum PRODUCTINFORMATION_DATATABLE_COLUMN_NAMES
@@ -87,9 +84,7 @@ namespace DespatchEventPlanning.Helpers
 			PacksPerPallet,
 			ProductGroup,
 			WeightOfOuter,
-
 		}
-
 
 		public enum DEPOTSPLITS_DATATABLE_COLUMN_NAMES
 		{
