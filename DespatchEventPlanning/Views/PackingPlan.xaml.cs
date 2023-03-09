@@ -34,6 +34,13 @@ namespace DespatchEventPlanning.Views
 
 			excelDataGridItemSourceReset();
 
+			DatabaseClass db = new DatabaseClass();
+			db.saveProductionPlanIntoDatabase(111221);
+
+
+			db.getInformation();
+
+
 			/*
 			packingPlanList.ForEach(item => item.depotSplitInfotmation.ForEach(x =>
 			{

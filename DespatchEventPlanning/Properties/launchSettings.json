@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DespatchEventPlanning": {
+      "commandName": "Project",
+      "workingDirectory": "E:\\Visual Studio Projects\\Projects\\DespatchEventPlanning\\DespatchEventPlanning\\bin\\Debug\\net6.0-windows"
+    }
+  }
+}
