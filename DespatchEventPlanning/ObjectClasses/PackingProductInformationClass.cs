@@ -28,7 +28,7 @@ namespace DespatchEventPlanning.ObjectClasses
 
 
 
-
+		
 
 		public int winNumber { get; set; }
 		public string productDescription { get; set; } = string.Empty;

@@ -28,7 +28,7 @@
             <Button x:Name="DepotSplitsButton" Grid.Row="2" Content="Depot Splits" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="DepotSplitsButton_Click"/>
             <Button x:Name="ForecastButton" Grid.Row="3" Content="Forecast Data" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="ForecastButton_Click" />
 
-            <Button x:Name="SaveButton" Grid.Row="4" Content="Save Data" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="SaveButton_Click" />
+            <Button x:Name="GenerateDatabaseButton" Grid.Row="4" Content="Generate Database" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="GenerateDatabase_Click" />
 
 
         </Grid>
@@ -36,5 +36,7 @@
         <local:AllocateLoadsUserControl Grid.Column="1" x:Name="allocateLoadsUSerControl" Visibility="Hidden"/>
         <local:DepotSplitsUserControl Grid.Column="1" x:Name="depotSplitsUserControl" Visibility="Hidden"/>
         <local:ForecastView Grid.Column="1" x:Name="forecastUserControl" Visibility="Hidden"/>
+        <ProgressBar x:Name="progressBar" HorizontalAlignment="Center" Height="10" Margin="0,324,0,0" VerticalAlignment="Top" Width="100"/>
+
     </Grid>
 </Window>

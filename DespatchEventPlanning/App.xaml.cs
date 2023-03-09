@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 
 namespace DespatchEventPlanning
 {
@@ -7,5 +8,7 @@ namespace DespatchEventPlanning
 	/// </summary>
 	public partial class App : Application
 	{
+
+		
 	}
 }

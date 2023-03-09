@@ -4,6 +4,7 @@ using DespatchEventPlanning.Models;
 using System.Windows;
 using System.Diagnostics;
 using System;
+using DespatchEventPlanning.Database;
 
 namespace DespatchEventPlanning
 {
@@ -21,7 +22,11 @@ namespace DespatchEventPlanning
 
 			pw.Stop();
 			Debug.WriteLine($"Elapsed: {pw.Elapsed}") ;
+
 			
+
+
+
 		}
 
 		private void ImportPlanButton_Click(object sender, RoutedEventArgs e)
@@ -30,6 +35,7 @@ namespace DespatchEventPlanning
 			allocateLoadsUSerControl.Visibility = Visibility.Hidden;
 			depotSplitsUserControl.Visibility = Visibility.Hidden;
 			forecastUserControl.Visibility = Visibility.Hidden;
+			
 		}
 
 		private void AllocateLoadsButton_Click(object sender, RoutedEventArgs e)
@@ -48,9 +54,10 @@ namespace DespatchEventPlanning
 			forecastUserControl.Visibility = Visibility.Hidden;
 		}
 
-		private void SaveButton_Click(object sender, RoutedEventArgs e)
+		private void GenerateDatabase_Click(object sender, RoutedEventArgs e)
 		{
-			throw new  NotImplementedException();
+			HandleExcelFiles excelFilehandler = new HandleExcelFiles();
+			excelFilehandler.CheckDatabaseTable();
 		}
 
 		private void ForecastButton_Click(object sender, RoutedEventArgs e)
