@@ -15,8 +15,20 @@
 
 
         </Grid.ColumnDefinitions>
-        <DataGrid x:Name="excelDataGrid" IsReadOnly="True" ScrollViewer.CanContentScroll="True" AutoGenerateColumns="True"  Grid.Column="0" HorizontalAlignment="Left" ColumnWidth="*" Height="auto" Width="auto" d:ItemsSource="{d:SampleData ItemCount=5}"  RenderTransformOrigin="0.5,0.5" Margin="0,0,10,0">
-          
+        <DataGrid x:Name="excelDataGrid" IsReadOnly="True"  ScrollViewer.CanContentScroll="True" AutoGenerateColumns="False"  Grid.Column="0" HorizontalAlignment="Left" ColumnWidth="*" Height="auto" Width="auto" d:ItemsSource="{d:SampleData ItemCount=5}"  RenderTransformOrigin="0.5,0.5" Margin="0,0,10,0">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Win Number" Binding="{Binding winNumber}"/>
+                <DataGridTextColumn Header="Product Description" Binding="{Binding productDescription}"/>
+                <DataGridTextColumn Header="Product Group" Binding="{Binding productGroup}"/>
+                <DataGridTextColumn Header="Packing Date" Binding="{Binding packingDate}"/>
+                <DataGridTextColumn Header="Depot Date" Binding="{Binding depotDate}"/>
+                <DataGridTextColumn Header="Packing Quantity" Binding="{Binding packingQty}"/>
+                <DataGridTextColumn Header="Forecast" Binding="{Binding forecastQty}"/>
+                <DataGridTextColumn Header="Packs Per Pallet" Binding="{Binding packsPerPallet}"/>
+                <DataGridTextColumn Header="Difference" Binding="{Binding difference}"/>
+                <DataGridTextColumn Header="Pallets Generated" Binding="{Binding palletsGenerated}"/>
+                
+            </DataGrid.Columns>
         </DataGrid>
 
         <!--#region  Packing Date Calendar-->
