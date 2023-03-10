@@ -1,11 +1,14 @@
 ﻿using DespatchEventPlanning.ObjectClasses;
 
+
 using DocumentFormat.OpenXml.Office2010.ExcelAc;
 
 using Microsoft.Data.Sqlite;
 using Microsoft.Diagnostics.Runtime.DacInterface;
 
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 
@@ -175,9 +178,36 @@ namespace DespatchEventPlanning.Database
 					conn.Close();
 				}
 			}
-
+			
 			return output;
 
 		}
+	
+		public DataTable getInformationInDataTable()
+		{
+			var output = new DataTable();
+			
+			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}"))
+			{
+
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"SELECT * FROM ProductionPlan";
+					
+					 
+					cmd.Connection = conn;
+					conn.Open();
+					SqliteDataReader reader = cmd.ExecuteReader();
+
+					 output.Load(reader);
+
+					return output;
+					conn.Close();
+				}
+			}
+
+			
+		}
+	
 	}
 }

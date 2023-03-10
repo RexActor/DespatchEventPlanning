@@ -3,6 +3,7 @@ using DespatchEventPlanning.ObjectClasses;
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
@@ -23,6 +24,8 @@ namespace DespatchEventPlanning.Database
 		private readonly string productInformationPath = $"{AppDomain.CurrentDomain.BaseDirectory}ProductInformation.xlsx";
 		private DatabaseClass db = new DatabaseClass();
 
+		
+		
 		public void CheckDatabaseTable()
 		{
 			if (db.checkDatabaseTableExists("ProductionPlan"))

@@ -10,23 +10,23 @@
 
     <Grid Background="blue">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="219*"/>
+            <ColumnDefinition Width="150*"/>
             <ColumnDefinition Width="46*"/>
 
 
         </Grid.ColumnDefinitions>
-        <DataGrid x:Name="excelDataGrid" IsReadOnly="True"  ScrollViewer.CanContentScroll="True" AutoGenerateColumns="False"  Grid.Column="0" HorizontalAlignment="Left" ColumnWidth="*" Height="auto" Width="auto" d:ItemsSource="{d:SampleData ItemCount=5}"  RenderTransformOrigin="0.5,0.5" Margin="0,0,10,0">
+        <DataGrid x:Name="excelDataGrid" IsReadOnly="True"  ScrollViewer.CanContentScroll="True" AutoGenerateColumns="False"  Grid.Column="0" HorizontalAlignment="Left" Height="auto" Width="auto" d:ItemsSource="{d:SampleData ItemCount=5}"  RenderTransformOrigin="0.5,0.5" Margin="10,10,10,10">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Win Number" Binding="{Binding winNumber}"/>
-                <DataGridTextColumn Header="Product Description" Binding="{Binding productDescription}"/>
-                <DataGridTextColumn Header="Product Group" Binding="{Binding productGroup}"/>
-                <DataGridTextColumn Header="Packing Date" Binding="{Binding packingDate}"/>
-                <DataGridTextColumn Header="Depot Date" Binding="{Binding depotDate}"/>
-                <DataGridTextColumn Header="Packing Quantity" Binding="{Binding packingQty}"/>
-                <DataGridTextColumn Header="Forecast" Binding="{Binding forecastQty}"/>
-                <DataGridTextColumn Header="Packs Per Pallet" Binding="{Binding packsPerPallet}"/>
-                <DataGridTextColumn Header="Difference" Binding="{Binding difference}"/>
-                <DataGridTextColumn Header="Pallets Generated" Binding="{Binding palletsGenerated}"/>
+                <DataGridTextColumn Header="Win Number" Binding="{Binding winNumber}" MinWidth="80" Width="*" MaxWidth="100" />
+                <DataGridTextColumn Header="Product Description" Binding="{Binding productDescription}" MinWidth="150" Width="*"/>
+                <DataGridTextColumn Header="Product Group" Binding="{Binding productGroup}" Width="*"/>
+                <DataGridTextColumn Header="Packing Date" Binding="{Binding packingDate}" MaxWidth="100"/>
+                <DataGridTextColumn Header="Depot Date" Binding="{Binding depotDate}" MaxWidth="100" />
+                <DataGridTextColumn Header="Packing Quantity" Binding="{Binding packingQty}" MaxWidth="100"/>
+                <DataGridTextColumn Header="Forecast" Binding="{Binding forecastQty}" MaxWidth="70" />
+                <DataGridTextColumn Header="Packs Per Pallet" Binding="{Binding packsPerPallet}" MaxWidth="100"/>
+                <DataGridTextColumn Header="Difference" Binding="{Binding difference}" MaxWidth="70"/>
+                <DataGridTextColumn Header="Pallets Generated" Binding="{Binding palletsGenerated}" Width="*"/>
                 
             </DataGrid.Columns>
         </DataGrid>
@@ -34,32 +34,65 @@
         <!--#region  Packing Date Calendar-->
             <Grid x:Name="RightSideGridPanel"  Grid.Column="1" Background="orange">
                 <Grid.RowDefinitions>
-                    <RowDefinition  Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition  Height="*"/>
-                </Grid.RowDefinitions>
+                    <RowDefinition  Height="260"/>
+                    <RowDefinition Height="*" />
+                    <RowDefinition  Height="*" />
+                <RowDefinition  Height="*"/>
+            </Grid.RowDefinitions>
 
                 <Border BorderThickness="2" BorderBrush="Black" Grid.Row="0" Margin="10,10,10,10" Background="#62797f" >
-                <Grid Margin="0,0,0,-30">
-                        <Label Content="Packing Date" BorderBrush="DarkGreen" Background="LightBlue" HorizontalContentAlignment="Center" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,10,0,225" Width="178" />
-                        <Calendar x:Name="PackingDateCalendar" HorizontalAlignment="Center" Margin="0,42,0,54" SelectedDatesChanged="PackingDateCalendar_SelectedDatesChanged"  />
-                    <Button x:Name="ClearPackingDateButton" Content="Clear Packing Date" HorizontalAlignment="Center" Margin="0,218,0,42" Height="35"  Width="178" IsTabStop="False" BorderBrush="#3b4043" BorderThickness="1" Background="#98a7ab" Click="ClearPackingDateButton_Click" />
+                <Grid Margin="0,0,0,0">
+                        <Label Content="Packing Date" BorderBrush="DarkGreen" Background="LightBlue" HorizontalContentAlignment="Center" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,10,0,100" Width="178" />
+                        <Calendar x:Name="PackingDateCalendar" HorizontalAlignment="Center" Margin="0,30,0,0" SelectedDatesChanged="PackingDateCalendar_SelectedDatesChanged"  />
+                    <Button x:Name="ClearPackingDateButton" Content="Clear Packing Date" HorizontalAlignment="Center" Margin="0,200,0,0" Height="25"  Width="178" IsTabStop="False" BorderBrush="#3b4043" BorderThickness="1" Background="#98a7ab" Click="ClearPackingDateButton_Click" />
                     </Grid>
                 </Border>
 
-                <!--#endregion-->
-                <!--#region  Depot Date Calendar-->
-                
-                <!--<Border  BorderThickness="2" BorderBrush="Black" Grid.Row="1" Margin="10,10,10,10" Background="#62797f" >
-                    <Grid Margin="0,0,0,-30">
-                        <Label BorderBrush="DarkGreen" Background="LightBlue" BorderThickness="1" Content="Depot Date" HorizontalContentAlignment="Center" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,10,0,255"  Width="178" />
-                        <Calendar x:Name="DepotDateCalendar" HorizontalAlignment="Center" SelectedDatesChanged="Calendar_DepotDatesChanged"   Margin="0,42,0,54"/>
-                    <Button x:Name="ClearDepotDateButton" Content="Clear Depot Date" Height="35" HorizontalAlignment="Center" Margin="0,216,0,42" Width="178" IsTabStop="False" BorderBrush="#3b4043" BorderThickness="1" Background="#98a7ab" ClickMode="Press" Click="ClearDepotDateButton_Click"/>
-                    </Grid>
-                </Border>-->
-               
-                <Grid x:Name="DepotDateLabelGrid" Grid.Row="2" Height="auto" >
-                </Grid>
+            <Label Content="TOTAL CAPACITY" Grid.Row="1" Margin="0,-10,0,0" FontSize="12" FontWeight="Bold" Foreground="Black" HorizontalContentAlignment="Center" />
+            <DataGrid x:Name="siteCapacityGrid" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible" AutoGenerateColumns="False" Height="auto" Width="auto" Grid.Row="1" Margin="5,10,5,10">
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Date" Binding="{Binding produceDate}" Width="*" MinWidth="80" />
+                    <DataGridTextColumn Header="Generate" Binding="{Binding palletsGenerating}" Width="*"/>
+                    <DataGridTextColumn Header="Generated" Binding="{Binding palletsGeneratedTotal}" Width="*"/>
+                    <DataGridTextColumn Header="Delivered" Binding="{Binding palletsOutbound}" Width="*"/>
+                    <DataGridTextColumn Header="Storing" Binding="{Binding siteCapacity}" Width="*"/>
+
+                </DataGrid.Columns>
+            </DataGrid>
+            <Label Content="FLOWERS CAPACITY" Grid.Row="2" Margin="0,-10,0,0" FontSize="12" FontWeight="Bold" Foreground="Black" HorizontalContentAlignment="Center"/>
+            <DataGrid x:Name="siteCapacityFlowersGrid" HorizontalScrollBarVisibility="Hidden" AutoGenerateColumns="False" VerticalScrollBarVisibility="Visible" Height="auto" Width="auto" Grid.Row="2" Margin="5,10,5,10">
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Date" Binding="{Binding produceDate}" Width="*" MinWidth="80"/>
+                    <DataGridTextColumn Header="Generate" Binding="{Binding palletsGenerating}" Width="*"/>
+                    <DataGridTextColumn Header="Generated" Binding="{Binding palletsGeneratedTotal}" Width="*"/>
+                    <DataGridTextColumn Header="Delivered" Binding="{Binding palletsOutbound}" Width="*"/>
+                    <DataGridTextColumn Header="Storing" Binding="{Binding siteCapacity}" Width="*"/>
+
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <Label Content="PLANTS CAPACITY" Grid.Row="3" Margin="0,-10,0,0" FontSize="12" FontWeight="Bold" Foreground="Black" HorizontalContentAlignment="Center"/>
+
+            <DataGrid x:Name="siteCapacityPlantsGrid" HorizontalScrollBarVisibility="Hidden" AutoGenerateColumns="False" VerticalScrollBarVisibility="Visible" Height="auto" Width="auto" Grid.Row="3" Margin="5,10,5,10">
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Date" Binding="{Binding produceDate}" Width="*" MinWidth="80"/>
+                    <DataGridTextColumn Header="Generate" Binding="{Binding palletsGenerating}" Width="*"/>
+                    <DataGridTextColumn Header="Generated" Binding="{Binding palletsGeneratedTotal}" Width="*"/>
+                    <DataGridTextColumn Header="Delivered" Binding="{Binding palletsOutbound}" Width="*"/>
+                    <DataGridTextColumn Header="Storing" Binding="{Binding siteCapacity}" Width="*"/>
+
+                </DataGrid.Columns>
+            </DataGrid>
+
+
+            <Grid x:Name="DepotDateLabelGrid" Grid.Row="2" Height="auto" >
+
+            
+
+            </Grid>
 
 
             </Grid>

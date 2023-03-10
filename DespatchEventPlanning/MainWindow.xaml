@@ -7,7 +7,9 @@
     x:Class="DespatchEventPlanning.MainWindow"
     mc:Ignorable="d"
         Title="MainWindow"  Width="1600" Height="960" MaxWidth="1980" MaxHeight="1080"
-    WindowStartupLocation="CenterScreen">
+    WindowStartupLocation="CenterScreen" WindowState="Maximized" >
+
+    
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="160"/>
@@ -15,7 +17,11 @@
 
 
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0" >
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="20"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Column="0" Grid.Row="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" MinHeight="60"/>
                 <RowDefinition Height="auto" MinHeight="60"/>
@@ -28,15 +34,22 @@
             <Button x:Name="DepotSplitsButton" Grid.Row="2" Content="Depot Splits" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="DepotSplitsButton_Click"/>
             <Button x:Name="ForecastButton" Grid.Row="3" Content="Forecast Data" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="ForecastButton_Click" />
 
-            <Button x:Name="GenerateDatabaseButton" Grid.Row="4" Content="Generate Database" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="GenerateDatabase_Click" />
+            <Button x:Name="GenerateDatabaseButton" Grid.Row="4" Content="Generate Database" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="GenerateDatabaseButton_Click" />
 
 
         </Grid>
+        
         <local:PackingPlan Grid.Column="1" x:Name="packingPlanUserControl" Visibility="Hidden"/>
         <local:AllocateLoadsUserControl Grid.Column="1" x:Name="allocateLoadsUSerControl" Visibility="Hidden"/>
         <local:DepotSplitsUserControl Grid.Column="1" x:Name="depotSplitsUserControl" Visibility="Hidden"/>
         <local:ForecastView Grid.Column="1" x:Name="forecastUserControl" Visibility="Hidden"/>
         <ProgressBar x:Name="progressBar" HorizontalAlignment="Center" Height="10" Margin="0,324,0,0" VerticalAlignment="Top" Width="100"/>
+        <StatusBar Grid.ColumnSpan="2" Grid.Row="1" Height="20" Margin="0,0,0,0">
+            <StatusBarItem>
+                <TextBlock x:Name="StatusUpdate" Text="{Binding Status.Message}" />
+            </StatusBarItem>
+        </StatusBar>
 
     </Grid>
+   
 </Window>
