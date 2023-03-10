@@ -1,4 +1,6 @@
-﻿using System.Windows.Controls;
+﻿using DespatchEventPlanning.ObjectClasses;
+
+using System.Windows.Controls;
 
 namespace DespatchEventPlanning.Views
 {
@@ -7,9 +9,16 @@ namespace DespatchEventPlanning.Views
 	/// </summary>
 	public partial class AllocateLoadsUserControl : UserControl
 	{
+		StorageAllocationClass storage = new StorageAllocationClass();
 		public AllocateLoadsUserControl()
 		{
 			InitializeComponent();
+			storage.AllocateStorage();
+
+			allocatedLoads.ItemsSource = storage.GetAllocatedLoads();
+
+			storageSummary.ItemsSource = storage.GetAllocatedLoadsSummary(storage.GetAllocatedLoads());
+
 		}
 	}
 }
