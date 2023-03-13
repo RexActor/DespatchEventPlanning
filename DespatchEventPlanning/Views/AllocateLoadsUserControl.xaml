@@ -20,8 +20,14 @@
                 <DataGridTextColumn Header="Depot Date" Binding="{Binding depotDate}" />
                 <DataGridTextColumn Header="Pallet Quantity" Binding="{Binding quantityPallets}" />
                 <DataGridTextColumn Header="Case Quantity" Binding="{Binding quantityCases}" />
-                <DataGridTextColumn Header="" />
-                <DataGridTextColumn Header="" />
+               
+                <DataGridTemplateColumn Header="Allocate">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox x:Name="AllocationCheckbox"  Checked="AllocationCheckbox_Checked" Unchecked="AllocationCheckbox_Unchecked"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
         <DataGrid x:Name="storageSummary" Grid.Row="1" AutoGenerateColumns="False">

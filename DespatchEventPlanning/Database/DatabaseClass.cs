@@ -20,7 +20,7 @@ namespace DespatchEventPlanning.Database
 
 		public bool checkDatabaseTableExists(string tableName)
 		{
-			using (SqliteConnection conn = new SqliteConnection($"data source ={_databaseSource}"))
+			using (SqliteConnection conn = new SqliteConnection($"data source ={_databaseSource}; Mode=ReadWrite;"))
 			{
 				using (SqliteCommand cmd = new SqliteCommand())
 				{
@@ -44,7 +44,7 @@ namespace DespatchEventPlanning.Database
 
 		public void GenerateDatabaseTable(string tableName)
 		{
-			using (SqliteConnection conn = new SqliteConnection($"data source ={_databaseSource}"))
+			using (SqliteConnection conn = new SqliteConnection($"data source ={_databaseSource}; Mode=ReadWrite;"))
 			{
 				using (SqliteCommand cmd = new SqliteCommand())
 				{
@@ -83,7 +83,7 @@ namespace DespatchEventPlanning.Database
 
 		public void saveProductionPlanIntoDatabase(string database_name, int winNumber, string productDescription, string productGroup, string packingDate, string depotDate, int packingQuantity, int forecast, int difference, int packsPerPallet, int palletsGenerated, int bedford, int erith, int lutterworth, int rochdale, int skelmersdale, int wakefield, int washington, int falkirk, int larne, int bristol)
 		{
-			using (SqliteConnection conn = new SqliteConnection($"data source ={_databaseSource}"))
+			using (SqliteConnection conn = new SqliteConnection($"data source ={_databaseSource}; Mode=ReadWrite;"))
 			{
 				using (SqliteCommand cmd = new SqliteCommand())
 				{
@@ -103,7 +103,7 @@ namespace DespatchEventPlanning.Database
 
 		public void saveProductionPlanIntoDatabaseParameterized(string table_name, int winNumber, string productDescription, string productGroup, string packingDate, string depotDate, int packingQuantity, int forecast, int difference, int packsPerPallet, int palletsGenerated, int bedford, int erith, int lutterworth, int rochdale, int skelmersdale, int wakefield, int washington, int falkirk, int larne, int bristol)
 		{
-			using (SqliteConnection conn = new SqliteConnection($"data source ={_databaseSource}"))
+			using (SqliteConnection conn = new SqliteConnection($"data source ={_databaseSource}; Mode=ReadWrite;"))
 			{
 				using (SqliteCommand cmd = new SqliteCommand())
 				{
@@ -144,7 +144,7 @@ namespace DespatchEventPlanning.Database
 		{
 			var output = new List<PackingProductInformationClass>();
 			
-			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}"))
+			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
 			{
 				
 				using (SqliteCommand cmd = new SqliteCommand())
@@ -187,7 +187,7 @@ namespace DespatchEventPlanning.Database
 		{
 			var output = new DataTable();
 			
-			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}"))
+			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
 			{
 
 				using (SqliteCommand cmd = new SqliteCommand())
@@ -202,7 +202,7 @@ namespace DespatchEventPlanning.Database
 					 output.Load(reader);
 
 					return output;
-					conn.Close();
+					
 				}
 			}
 

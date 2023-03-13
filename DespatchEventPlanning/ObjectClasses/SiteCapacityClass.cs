@@ -11,13 +11,13 @@ namespace DespatchEventPlanning.ObjectClasses
 
 		public string produceDate { get; set; }
 		public int palletsGenerating { get; set; }
-
+		public int palletsOutbound { get; set; }
 		public int palletsGeneratedTotal { get; set; }
 
-		public int palletsOutbound { get; set; }
+	
 		public int palletsInBound { get; set; }
 
-		public int siteCapacity { get { return palletsGeneratedTotal+ palletsGenerating - palletsOutbound; } }
+		public int siteCapacity { get { return palletsGeneratedTotal- palletsOutbound; } }
 
 		public string productGroup { get; set; }
 	}

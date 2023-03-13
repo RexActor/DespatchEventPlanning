@@ -3,7 +3,9 @@ using DespatchEventPlanning.ObjectClasses;
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace DespatchEventPlanning.Views
@@ -56,12 +58,25 @@ namespace DespatchEventPlanning.Views
 					produceDate = x,
 					
 					palletsGenerating = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.packingDate) == Convert.ToDateTime(x)).Sum(item => item.palletsGenerated),
-					palletsGeneratedTotal= (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.packingDate) < Convert.ToDateTime(x)).Sum(item => item.palletsGenerated),
-					palletsInBound = 0,
-					palletsOutbound = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.depotDate) < Convert.ToDateTime(x).AddDays(1)).Sum(item => item.palletsGenerated)
+					palletsOutbound = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.depotDate) == Convert.ToDateTime(x).AddDays(1)).Sum(item => item.palletsGenerated),
+					//palletsGeneratedTotal= (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.packingDate) < Convert.ToDateTime(x)).Sum(item => item.palletsGenerated),
+
+					palletsGeneratedTotal = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.packingDate) <= Convert.ToDateTime(x)).Sum(item => item.palletsGenerated) - (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.depotDate) < Convert.ToDateTime(x).AddDays(1)).Sum(item => item.palletsGenerated),
+
+
+					palletsInBound = 0
+					
 				});
 			});
 			return siteCapacity;
+		}
+
+
+
+		private void AddToLoadAllocation_Click(object sender, RoutedEventArgs e)
+		{
+			SiteCapacityClass siteCapacityClass = (SiteCapacityClass)siteCapacityGrid.SelectedItem;
+			MessageBox.Show(siteCapacityClass.produceDate);
 		}
 	}
 }
