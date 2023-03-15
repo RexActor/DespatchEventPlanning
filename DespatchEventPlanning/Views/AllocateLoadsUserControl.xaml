@@ -3,46 +3,78 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             Loaded="UserControl_Loaded"
+             IsVisibleChanged="UserControl_IsVisibleChanged"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" Background="Green">
     <Grid>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="200" />
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <DataGrid x:Name="allocatedLoads" AutoGenerateColumns="False" Grid.Row="0">
+        <DataGrid x:Name="loadsToAllocateDataGrid" AutoGenerateColumns="False" Grid.Row="0"  HorizontalAlignment="Left">
 
             <DataGrid.Columns>
 
                 <DataGridTextColumn Header="Storage Date" Binding="{Binding storageDate}" />
+                <DataGridTextColumn Header="Product" Binding="{Binding productDescription}" />
                 <DataGridTextColumn Header="Depot Name" Binding="{Binding depotName}" />
-                <DataGridTextColumn Header="Load Reference" Binding="{Binding loadReference}" />
                 <DataGridTextColumn Header="Depot Date" Binding="{Binding depotDate}" />
-                <DataGridTextColumn Header="Pallet Quantity" Binding="{Binding quantityPallets}" />
-                <DataGridTextColumn Header="Case Quantity" Binding="{Binding quantityCases}" />
-               
+                <DataGridTextColumn Header="Cases Per Pallet" Binding="{Binding packsPerPallet}" />
+                <DataGridTextColumn Header="Pallets Produced" Binding="{Binding quantityPallets}" />
+                <DataGridTextColumn Header="Case Produced" Binding="{Binding quantityCases}" />
+                <DataGridTextColumn Header="Available Full Pallets" Binding="{Binding quantityPalletsToAllocate}" />
+
                 <DataGridTemplateColumn Header="Allocate">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <CheckBox x:Name="AllocationCheckbox"  Checked="AllocationCheckbox_Checked" Unchecked="AllocationCheckbox_Unchecked"/>
+                            <!--<CheckBox x:Name="AllocationCheckbox"  Checked="AllocationCheckbox_Checked" Unchecked="AllocationCheckbox_Unchecked" /> -->
+                            <Button x:Name="AllocateProductButton" Click="AllocateProductButton_Click" Background="DarkKhaki" Content="Allocate" VerticalContentAlignment="Center" Height="16" FontSize="10"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <DataGrid x:Name="storageSummary" Grid.Row="1" AutoGenerateColumns="False">
+        
+        <DataGrid x:Name="storageSummary" Grid.Row="1" AutoGenerateColumns="False" Margin="0,10,0,0">
 
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Load Reference" Binding="{Binding loadReference}" />
-                <DataGridTextColumn Header="Storage Date" Binding="{Binding storageDate}"/>
-                <DataGridTextColumn Header="Depot Name" Binding="{Binding depotName}"/>
-                
-                <DataGridTextColumn Header="Depot Date" Binding="{Binding depotDate}"/>
-                <DataGridTextColumn Header="Pallet Quantity" Binding="{Binding palletSummary}"/>
+                <DataGridTextColumn Header="Storage Date" Binding="{Binding storageDate}" />
+                <DataGridTextColumn Header="Depot Name" Binding="{Binding depotName}" />
+
+                <DataGridTextColumn Header="Depot Date" Binding="{Binding depotDate}" />
+                <DataGridTextColumn Header="Pallet Quantity" Binding="{Binding palletSummary}" />
                 <DataGridTextColumn Header="Total Cases" Binding="{Binding casesSummary}" />
-                <DataGridTextColumn Header="" /> 
+                <DataGridTextColumn Header="" />
                 <DataGridTextColumn Header="" />
             </DataGrid.Columns>
         </DataGrid>
+        <ComboBox x:Name="DepotListComboBox" Grid.Row="0" Grid.Column="1" Width="120" Height="25" SelectedIndex="0" SelectionChanged="DepotListComboBox_SelectionChanged" >
+
+            <ComboBoxItem Content="Please Select"/>
+            <ComboBoxItem Content="ERITH"/>
+            <ComboBoxItem Content="LUTTERWORTH"/>
+
+            <ComboBoxItem Content="ROCHDALE"/>
+            <ComboBoxItem Content="SKELMERSDALE"/>
+            <ComboBoxItem Content="WAKEFIELD"/>
+            <ComboBoxItem Content="WASHINGTON"/>
+            <ComboBoxItem Content="FALKIRK"/>
+            <ComboBoxItem Content="LARNE"/>
+            <ComboBoxItem Content="BRISTOL"/>
+            <ComboBoxItem Content="BEDFORD"/> 
+
+        </ComboBox>
+
+        <Grid Grid.Column="1" x:Name="informationGrid" Grid.Row="1">
+        </Grid>
+        <Grid>
+        </Grid>
     </Grid>
 </UserControl>

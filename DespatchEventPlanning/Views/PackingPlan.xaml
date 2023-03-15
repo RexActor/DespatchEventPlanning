@@ -47,7 +47,8 @@
                 <DataGrid.ContextMenu>
                     <ContextMenu VerticalContentAlignment="Center">
 
-                        <MenuItem  VerticalContentAlignment="Center" Header="Add for Storage Allocation" Click="AddToLoadAllocation_Click" ToolTip="Add Selected Date to Storage Allocation"/>
+                        <MenuItem  VerticalContentAlignment="Center" Header="Add ALL for Storage Allocation" Click="AddToLoadAllocation_Click" ToolTip="Add Selected Date to Storage Allocation"/>
+                        <MenuItem  VerticalContentAlignment="Center" Header="Add FLOWERS ONLY for Storage Allocation" Click="AddFlowersToLoadAllocation_Click" ToolTip="Add Selected Date to Storage Allocation"/>
 
 
                     </ContextMenu>
