@@ -1,6 +1,7 @@
 ﻿using DespatchEventPlanning.ObjectClasses;
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
@@ -15,6 +16,19 @@ namespace DespatchEventPlanning.Views
 	public partial class AllocateLoadsUserControl : UserControl
 	{
 		private StorageAllocationClass storage = new StorageAllocationClass();
+
+		private List<Storage> tempList = new();
+
+		private ComboBox depotDateComboBox = new ComboBox();
+		private Label storageDateLabel = new Label();
+		private ComboBox storageDatesComboBox = new ComboBox();
+		private Label depotNameLabel = new Label();
+		private ComboBox depotNamesComboBox = new ComboBox();
+		private Label depotDateLabel = new Label();
+
+		private string storageDateSelected = string.Empty;
+		private string depotNameSelected = string.Empty;
+		private string depotDateSelected = string.Empty;
 
 		public AllocateLoadsUserControl()
 		{
@@ -75,25 +89,8 @@ namespace DespatchEventPlanning.Views
 
 		private void GenerateInformationGrid()
 		{
-			/*
-			 <ComboBox x:Name="DepotListComboBox" Grid.Row="0" Grid.Column="1" Width="120" Height="25" SelectedIndex="0" SelectionChanged="DepotListComboBox_SelectionChanged" >
-
-			<ComboBoxItem Content="Please Select"/>
-			<ComboBoxItem Content="ERITH"/>
-			<ComboBoxItem Content="LUTTERWORTH"/>
-
-			<ComboBoxItem Content="ROCHDALE"/>
-			<ComboBoxItem Content="SKELMERSDALE"/>
-			<ComboBoxItem Content="WAKEFIELD"/>
-			<ComboBoxItem Content="WASHINGTON"/>
-			<ComboBoxItem Content="FALKIRK"/>
-			<ComboBoxItem Content="LARNE"/>
-			<ComboBoxItem Content="BRISTOL"/>
-			<ComboBoxItem Content="BEDFORD"/>
-
-		</ComboBox>
-			 */
 			informationGrid.Children.Clear();
+
 			informationGrid.RowDefinitions.Clear();
 			informationGrid.ColumnDefinitions.Clear();
 			for (int i = 0; i < 2; i++)
@@ -110,16 +107,15 @@ namespace DespatchEventPlanning.Views
 				informationGrid.RowDefinitions.Add(rowdef);
 			}
 
-			Label storageDateLabel = new Label();
 			storageDateLabel.Content = "Storage Date";
 			Grid.SetRow(storageDateLabel, 0);
 			Grid.SetColumn(storageDateLabel, 0);
 			informationGrid.Children.Add(storageDateLabel);
 
-			ComboBox storageDatesComboBox = new ComboBox();
 			storageDatesComboBox.SelectedIndex = 0;
 			storageDatesComboBox.Items.Add("Please Select");
 			storageDatesComboBox.Height = 25;
+			storageDatesComboBox.SelectionChanged += StorageDatesComboBox_SelectionChanged;
 			storageDatesComboBox.HorizontalAlignment = HorizontalAlignment.Left;
 			storageDatesComboBox.VerticalAlignment = VerticalAlignment.Top;
 
@@ -127,16 +123,14 @@ namespace DespatchEventPlanning.Views
 			Grid.SetColumn(storageDatesComboBox, 1);
 			informationGrid.Children.Add(storageDatesComboBox);
 
-			Label depotNameLabel = new Label();
 			depotNameLabel.Content = "Depot Name";
 			Grid.SetRow(depotNameLabel, 1);
 			Grid.SetColumn(depotNameLabel, 0);
 			informationGrid.Children.Add(depotNameLabel);
 
-
-			ComboBox depotNamesComboBox = new ComboBox();
 			depotNamesComboBox.SelectedIndex = 0;
 			depotNamesComboBox.Items.Add("Please Select");
+			depotNamesComboBox.SelectionChanged += DepotNamesComboBox_SelectionChanged;
 			depotNamesComboBox.Height = 25;
 			depotNamesComboBox.HorizontalAlignment = HorizontalAlignment.Left;
 			depotNamesComboBox.VerticalAlignment = VerticalAlignment.Top;
@@ -145,27 +139,21 @@ namespace DespatchEventPlanning.Views
 			Grid.SetColumn(depotNamesComboBox, 1);
 			informationGrid.Children.Add(depotNamesComboBox);
 
-
-
-			Label depotDateLabel = new Label();
 			depotDateLabel.Content = "Depot Date";
 			Grid.SetRow(depotDateLabel, 2);
 			Grid.SetColumn(depotDateLabel, 0);
 			informationGrid.Children.Add(depotDateLabel);
 
-
-			ComboBox depotDateComboBox = new ComboBox();
 			depotDateComboBox.SelectedIndex = 0;
 			depotDateComboBox.Items.Add("Please Select");
 			depotDateComboBox.Height = 25;
+			depotDateComboBox.SelectionChanged += DepotDateComboBox_SelectionChanged;
 			depotDateComboBox.HorizontalAlignment = HorizontalAlignment.Left;
 			depotDateComboBox.VerticalAlignment = VerticalAlignment.Top;
 
 			Grid.SetRow(depotDateComboBox, 2);
 			Grid.SetColumn(depotDateComboBox, 1);
 			informationGrid.Children.Add(depotDateComboBox);
-
-
 
 			storage.GetAllocatedLoads().AsEnumerable().Select(item => item.storageDate).OrderBy(item => item).Distinct().ToList().ForEach(item =>
 			{
@@ -181,23 +169,75 @@ namespace DespatchEventPlanning.Views
 			{
 				depotDateComboBox.Items.Add(item);
 			});
-
 		}
 
-		private void DepotListComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		private void FilterDataGrid()
 		{
-			ComboBoxItem selection = (ComboBoxItem)(sender as ComboBox).SelectedItem;
-
-			/*
-			if (DepotListComboBox.SelectedIndex != 0)
+			if (storageDateSelected != string.Empty && depotNameSelected == string.Empty)
 			{
-				loadsToAllocateDataGrid.ItemsSource = storage.GetAllocatedLoads().Where(item => item.depotName == selection.Content.ToString()).Where(item=>item.storageDate!=Convert.ToDateTime(item.depotDate).AddDays(-1).ToShortDateString()).OrderBy(item => item.storageDate).ThenBy(item => item.depotName).ThenBy(item=>item.depotDate).ThenByDescending(item => item.quantityPalletsToAllocate);
+				loadsToAllocateDataGrid.ItemsSource = storage.GetAllocatedLoads().Where(item => item.storageDate == storageDateSelected).Where(item => item.storageDate != Convert.ToDateTime(item.depotDate).AddDays(-1).ToShortDateString()).OrderBy(item => item.storageDate).ThenBy(item => item.depotName).ThenBy(item => item.depotDate).ThenByDescending(item => item.quantityPalletsToAllocate);
+			}
+			else if (storageDateSelected != string.Empty && depotNameSelected != string.Empty && depotDateSelected == string.Empty)
+			{
+				loadsToAllocateDataGrid.ItemsSource = storage.GetAllocatedLoads().Where(item => item.storageDate == storageDateSelected).Where(item => item.depotName == depotNameSelected).Where(item => item.storageDate != Convert.ToDateTime(item.depotDate).AddDays(-1).ToShortDateString()).OrderBy(item => item.storageDate).ThenBy(item => item.depotName).ThenBy(item => item.depotDate).ThenByDescending(item => item.quantityPalletsToAllocate);
+			}
+			else if (storageDateSelected != string.Empty && depotNameSelected != string.Empty && depotDateSelected != string.Empty)
+			{
+				loadsToAllocateDataGrid.ItemsSource = storage.GetAllocatedLoads().Where(item => item.storageDate == storageDateSelected).Where(item => item.depotName == depotNameSelected).Where(item => item.depotDate == depotDateSelected).Where(item => item.storageDate != Convert.ToDateTime(item.depotDate).AddDays(-1).ToShortDateString()).OrderBy(item => item.storageDate).ThenBy(item => item.depotName).ThenBy(item => item.depotDate).ThenByDescending(item => item.quantityPalletsToAllocate);
+			}
+		}
+
+		private void StorageDatesComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			ComboBox comboBoxSelection = sender as ComboBox;
+
+			if (comboBoxSelection.SelectedIndex != 0)
+			{
+				storageDateSelected = comboBoxSelection.SelectedItem.ToString();
+
+				depotNamesComboBox.SelectedIndex = 0;
+				FilterDataGrid();
 			}
 			else
 			{
-				loadsToAllocateDataGrid.ItemsSource = storage.GetAllocatedLoads().OrderBy(item => item.storageDate).ThenBy(item => item.depotName).ThenBy(item => item.depotDate).ThenByDescending(item => item.quantityPalletsToAllocate);
+				storageDateSelected = string.Empty;
+				FilterDataGrid();
 			}
-			*/
+		}
+
+		private void DepotNamesComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			ComboBox comboBoxSelection = sender as ComboBox;
+			if (storageDateSelected == String.Empty) { comboBoxSelection.SelectedIndex = 0; return; }
+
+			if (comboBoxSelection.SelectedIndex != 0)
+			{
+				depotNameSelected = comboBoxSelection.SelectedItem.ToString();
+
+				depotDateComboBox.SelectedIndex = 0;
+				FilterDataGrid();
+			}
+			else
+			{
+				depotNameSelected = string.Empty;
+				FilterDataGrid();
+			}
+		}
+
+		private void DepotDateComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			ComboBox comboBoxSelection = sender as ComboBox;
+			if (depotNameSelected == string.Empty && storageDateSelected == string.Empty) { comboBoxSelection.SelectedIndex = 0; return; }
+			if (comboBoxSelection.SelectedIndex != 0)
+			{
+				depotDateSelected = comboBoxSelection.SelectedItem.ToString();
+				FilterDataGrid();
+			}
+			else
+			{
+				depotDateSelected = string.Empty;
+				FilterDataGrid();
+			}
 		}
 
 		private void AllocateProductButton_Click(object sender, RoutedEventArgs e)
