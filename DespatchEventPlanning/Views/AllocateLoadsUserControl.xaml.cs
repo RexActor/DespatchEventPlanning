@@ -108,6 +108,7 @@ namespace DespatchEventPlanning.Views
 			}
 
 			storageDateLabel.Content = "Storage Date";
+			storageDateLabel.Margin = new Thickness(0, 5, 0, 0);
 			Grid.SetRow(storageDateLabel, 0);
 			Grid.SetColumn(storageDateLabel, 0);
 			informationGrid.Children.Add(storageDateLabel);
@@ -115,6 +116,7 @@ namespace DespatchEventPlanning.Views
 			storageDatesComboBox.SelectedIndex = 0;
 			storageDatesComboBox.Items.Add("Please Select");
 			storageDatesComboBox.Height = 25;
+			storageDatesComboBox.Margin = new Thickness(0, 5, 0, 0);
 			storageDatesComboBox.SelectionChanged += StorageDatesComboBox_SelectionChanged;
 			storageDatesComboBox.HorizontalAlignment = HorizontalAlignment.Left;
 			storageDatesComboBox.VerticalAlignment = VerticalAlignment.Top;
@@ -124,6 +126,7 @@ namespace DespatchEventPlanning.Views
 			informationGrid.Children.Add(storageDatesComboBox);
 
 			depotNameLabel.Content = "Depot Name";
+			depotNameLabel.Margin = new Thickness(0, 5, 0, 0);
 			Grid.SetRow(depotNameLabel, 1);
 			Grid.SetColumn(depotNameLabel, 0);
 			informationGrid.Children.Add(depotNameLabel);
@@ -132,6 +135,7 @@ namespace DespatchEventPlanning.Views
 			depotNamesComboBox.Items.Add("Please Select");
 			depotNamesComboBox.SelectionChanged += DepotNamesComboBox_SelectionChanged;
 			depotNamesComboBox.Height = 25;
+			depotNamesComboBox.Margin = new Thickness(0, 5, 0, 0);
 			depotNamesComboBox.HorizontalAlignment = HorizontalAlignment.Left;
 			depotNamesComboBox.VerticalAlignment = VerticalAlignment.Top;
 
@@ -140,6 +144,7 @@ namespace DespatchEventPlanning.Views
 			informationGrid.Children.Add(depotNamesComboBox);
 
 			depotDateLabel.Content = "Depot Date";
+			depotDateLabel.Margin = new Thickness(0, 5, 0, 0);
 			Grid.SetRow(depotDateLabel, 2);
 			Grid.SetColumn(depotDateLabel, 0);
 			informationGrid.Children.Add(depotDateLabel);
@@ -147,6 +152,7 @@ namespace DespatchEventPlanning.Views
 			depotDateComboBox.SelectedIndex = 0;
 			depotDateComboBox.Items.Add("Please Select");
 			depotDateComboBox.Height = 25;
+			depotDateComboBox.Margin = new Thickness(0, 5, 0, 0);
 			depotDateComboBox.SelectionChanged += DepotDateComboBox_SelectionChanged;
 			depotDateComboBox.HorizontalAlignment = HorizontalAlignment.Left;
 			depotDateComboBox.VerticalAlignment = VerticalAlignment.Top;
@@ -242,15 +248,100 @@ namespace DespatchEventPlanning.Views
 
 		private void AllocateProductButton_Click(object sender, RoutedEventArgs e)
 		{
-			Storage storage = ((FrameworkElement)sender).DataContext as Storage;
+			Storage storageItemToAdd = ((FrameworkElement)sender).DataContext as Storage;
+			string lastloadReference = string.Empty;
+			string loadReferenceToBeAssigned = $"{storageItemToAdd.depotName.Substring(0, 2)}";
+			
+			if (storage.GetAmountOfLoadsWithDepotDate(loadReferenceToBeAssigned, storageItemToAdd.depotDate) > 0)
+			{
+				lastloadReference = storage.GetLastLoadReferenceWithDepotDate(loadReferenceToBeAssigned,storageItemToAdd.depotDate);
+			}
 
-			MessageBox.Show($"Allocating product {storage.productDescription}\n" +
-				$"Packed On: {storage.storageDate}\n" +
-				$"For Depot Date: {storage.depotDate}\n" +
-				$"Available Pallets: {storage.quantityPalletsToAllocate}\n" +
-				$"For Depot: {storage.depotName}\n" +
-				$"Cases Packed: {storage.quantityCases}\n" +
-				$"With {storage.packsPerPallet} cases per Pallet");
+			else
+			{
+
+				if (storage.GetAmountOfLoads(loadReferenceToBeAssigned) > 0)
+				{
+					lastloadReference = storage.GetLastLoadReference(loadReferenceToBeAssigned);
+					
+
+					string[] reference = lastloadReference.Split('-');
+					int loadNumber = Convert.ToInt32(reference[1]);
+					lastloadReference = $"{reference[0]}-{loadNumber + 1}";
+				}
+				else
+				{
+
+
+
+
+					lastloadReference = $"{loadReferenceToBeAssigned}-1";
+				}
+				
+			}
+
+			
+
+			
+			int palletsAllocated = storageItemToAdd.quantityPalletsToAllocate;
+			int casesAllocated = palletsAllocated * storageItemToAdd.packsPerPallet;
+			int availablePalletSpaces = 26 - storage.GetTotalPalletsInLoad(lastloadReference);
+
+
+			if (availablePalletSpaces > palletsAllocated)
+			{
+				AddProductToLoad(storageItemToAdd, lastloadReference, palletsAllocated, casesAllocated);
+			}
+			else
+			{
+				
+
+				palletsAllocated = availablePalletSpaces;
+
+				casesAllocated = palletsAllocated * storageItemToAdd.packsPerPallet;
+				AddProductToLoad(storageItemToAdd, $"{lastloadReference}", palletsAllocated, casesAllocated);
+
+				palletsAllocated = storageItemToAdd.quantityPalletsToAllocate - palletsAllocated;
+				casesAllocated = palletsAllocated * storageItemToAdd.packsPerPallet;
+
+				string[] loadSplit = lastloadReference.Split('-');
+				int loadNumber = Convert.ToInt32(loadSplit[1]);
+
+
+
+				AddProductToLoad(storageItemToAdd, $"{loadSplit[0]}-{loadNumber+1}", palletsAllocated, casesAllocated);
+			}
+			
+
+
+			Button button = sender as Button;
+			button.IsEnabled = false;
+
+
+			
+		}
+
+		private void AddProductToLoad(Storage storageItemToAdd, string loadReference, int palletsAllocated, int casesAllocated)
+		{
+			Storage amendedProduct = new Storage()
+			{
+				winNumber = storageItemToAdd.winNumber,
+				loadReference = loadReference,
+				quantityPalletsAllocated = palletsAllocated,
+				quantityCases = casesAllocated,
+				depotDate = storageItemToAdd.depotDate,
+				storageDate = storageItemToAdd.storageDate
+			};
+
+			storage.AddProductToStorageTruck(amendedProduct);
+
+			storageSummary.ItemsSource = storage.GetAllocatedLoadsSummary();
+		}
+
+		private void storageSummary_SourceUpdated(object sender, System.Windows.Data.DataTransferEventArgs e)
+		{
+			//MessageBox.Show("Changed Source");
+			//storageSummary.ItemsSource = storage.GetAllocatedLoadsSummary();
 		}
 	}
 }

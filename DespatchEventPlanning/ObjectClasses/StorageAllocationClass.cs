@@ -1,5 +1,9 @@
 ﻿using DespatchEventPlanning.Database;
 
+using DocumentFormat.OpenXml.Office.CustomUI;
+
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +14,9 @@ namespace DespatchEventPlanning.ObjectClasses
 	{
 		private DatabaseClass db = new DatabaseClass();
 		private List<Storage> allocatedLoads = new List<Storage>();
+
+		private List<Storage>productsAllocatedForStorageTrucks = new List<Storage>();
+
 		private List<StorageSummary> allocatedLoadSummary;
 
 		public void AllocateStorage(string allocationDate)
@@ -228,11 +235,11 @@ namespace DespatchEventPlanning.ObjectClasses
 			allocatedLoads.Clear();
 		}
 
-		public List<StorageSummary> GetAllocatedLoadsSummary(List<Storage> list)
+		public List<StorageSummary> GetAllocatedLoadsSummary()
 		{
 			allocatedLoadSummary = new List<StorageSummary>();
 
-			list.AsEnumerable().ToList().Select(item => item.loadReference).Distinct().ToList().ForEach(subItem =>
+			productsAllocatedForStorageTrucks.AsEnumerable().ToList().Select(item => item.loadReference).Distinct().ToList().ForEach(subItem =>
 			{
 				allocatedLoadSummary.Add(new StorageSummary()
 				{
@@ -242,16 +249,74 @@ namespace DespatchEventPlanning.ObjectClasses
 
 			allocatedLoadSummary.AsEnumerable().ToList().ForEach(item =>
 			{
-				item.palletSummary = list.Where(x => x.loadReference == item.loadReference).Sum(x => x.quantityPallets);
-				item.casesSummary = list.Where(x => x.loadReference == item.loadReference).Sum(x => x.quantityCases);
-
-				item.storageDate = list.Where(x => x.loadReference == item.loadReference).Distinct().Select(x => x.storageDate).FirstOrDefault().ToString();
-				item.depotDate = list.Where(x => x.loadReference == item.loadReference).Distinct().Select(x => x.depotDate).FirstOrDefault().ToString();
+				
+				item.palletSummary = productsAllocatedForStorageTrucks.Where(x => x.loadReference == item.loadReference).Sum(x => x.quantityPalletsAllocated);
+				item.casesSummary = productsAllocatedForStorageTrucks.Where(x => x.loadReference == item.loadReference).Sum(x => x.quantityCases);
+				item.loadReference = productsAllocatedForStorageTrucks.Where(x => x.loadReference == item.loadReference).Distinct().Select(x => x.loadReference).FirstOrDefault().ToString();
+				item.storageDate = productsAllocatedForStorageTrucks.Where(x => x.loadReference == item.loadReference).Distinct().Select(x => x.storageDate).FirstOrDefault().ToString();
+				item.depotDate = productsAllocatedForStorageTrucks.Where(x => x.loadReference == item.loadReference).Distinct().Select(x => x.depotDate).FirstOrDefault().ToString();
 			});
 
 			return allocatedLoadSummary;
 		}
+
+		public int GetTotalPalletsInLoad(string loadReference)
+		{
+			return productsAllocatedForStorageTrucks.Where(item => item.loadReference.Contains(loadReference)).Sum(item => item.quantityPalletsAllocated);
+		}
+
+
+		public int GetTotalLoadsWithReference(string loadReference)
+		{
+			return GetAllocatedLoadsSummary().Where(item => item.loadReference.Contains(loadReference)).Distinct().Count();
+		}
+
+		public string GetLastLoadReferenceWithDepotDate(string loadReference,string depotDate)
+		{
+			
+				return productsAllocatedForStorageTrucks.Where(item => item.depotDate == depotDate).Where(item => item.loadReference.Contains(loadReference)).Distinct().Select(item => item.loadReference).LastOrDefault().ToString();
+			
+		}
+
+		public string GetLastLoadReference(string loadReference)
+		{
+
+			return productsAllocatedForStorageTrucks.Where(item => item.loadReference.Contains(loadReference)).Distinct().Select(item => item.loadReference).LastOrDefault().ToString();
+
+		}
+
+		public int GetAmountOfLoadsWithDepotDate(string loadReference,string depotDate)
+		{
+			return productsAllocatedForStorageTrucks.Where(item => item.depotDate == depotDate).Count(item=>item.loadReference.Contains(loadReference));
+		}
+
+		public int GetAmountOfLoads(string loadReference)
+		{
+			return productsAllocatedForStorageTrucks.Where(item => item.loadReference.Contains(loadReference)).Count();
+		}
+
+
+		public void AddProductToStorageTruck(Storage storage)
+		{
+
+			productsAllocatedForStorageTrucks.Add( new Storage() { 
+			
+				winNumber = storage.winNumber,
+				productDescription = storage.productDescription,
+				storageDate = storage.storageDate,
+				depotDate = storage.depotDate,
+				quantityPalletsAllocated= storage.quantityPalletsAllocated,
+				depotName=storage.depotName,
+				loadReference=storage.loadReference,
+				quantityCases=storage.quantityCases
+			
+			
+			
+			});
+		}
 	}
+
+	
 
 	internal class Storage
 	{
@@ -267,6 +332,7 @@ namespace DespatchEventPlanning.ObjectClasses
 		public string productGroup { get; set; }
 
 		public int quantityPalletsToAllocate { get; set; }
+		public int quantityPalletsAllocated { get; set; }
 
 		public int siteCapacityTarget { get; set; }
 	}
