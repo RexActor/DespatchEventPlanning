@@ -2,11 +2,14 @@
 
 using DocumentFormat.OpenXml.Office.CustomUI;
 
+using Microsoft.Diagnostics.Tracing.Parsers.MicrosoftAntimalwareEngine;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Windows;
 
 namespace DespatchEventPlanning.ObjectClasses
 {
@@ -227,6 +230,8 @@ namespace DespatchEventPlanning.ObjectClasses
 
 		public List<Storage> GetAllocatedLoads()
 		{
+			
+			
 			return allocatedLoads.ToList();
 		}
 
@@ -252,6 +257,7 @@ namespace DespatchEventPlanning.ObjectClasses
 				
 				item.palletSummary = productsAllocatedForStorageTrucks.Where(x => x.loadReference == item.loadReference).Sum(x => x.quantityPalletsAllocated);
 				item.casesSummary = productsAllocatedForStorageTrucks.Where(x => x.loadReference == item.loadReference).Sum(x => x.quantityCases);
+				item.depotName = productsAllocatedForStorageTrucks.Where(x => x.loadReference == item.loadReference).Distinct().Select(x => x.depotName).FirstOrDefault().ToString();
 				item.loadReference = productsAllocatedForStorageTrucks.Where(x => x.loadReference == item.loadReference).Distinct().Select(x => x.loadReference).FirstOrDefault().ToString();
 				item.storageDate = productsAllocatedForStorageTrucks.Where(x => x.loadReference == item.loadReference).Distinct().Select(x => x.storageDate).FirstOrDefault().ToString();
 				item.depotDate = productsAllocatedForStorageTrucks.Where(x => x.loadReference == item.loadReference).Distinct().Select(x => x.depotDate).FirstOrDefault().ToString();
@@ -299,27 +305,57 @@ namespace DespatchEventPlanning.ObjectClasses
 		public void AddProductToStorageTruck(Storage storage)
 		{
 
-			productsAllocatedForStorageTrucks.Add( new Storage() { 
-			
+			productsAllocatedForStorageTrucks.Add(new Storage() {
+
 				winNumber = storage.winNumber,
 				productDescription = storage.productDescription,
 				storageDate = storage.storageDate,
 				depotDate = storage.depotDate,
-				quantityPalletsAllocated= storage.quantityPalletsAllocated,
-				depotName=storage.depotName,
-				loadReference=storage.loadReference,
-				quantityCases=storage.quantityCases
-			
-			
-			
+				quantityPalletsAllocated = storage.quantityPalletsAllocated,
+				depotName = storage.depotName,
+				loadReference = storage.loadReference,
+				quantityCases = storage.quantityCases
+
+
+				
 			});
+
+			/*
+			MessageBox.Show($"WIN: \t{storage.winNumber}\n" +
+				$"Description: \t{storage.productDescription}\n" +
+				$"Storage Date: \t{storage.storageDate}\n" +
+				$"Depot Date: \t{storage.depotDate}\n" +
+				$"Allocated Pallets: \t{storage.quantityPalletsAllocated}\n" +
+				$"Depot Name: \t{storage.depotName}\n" +
+				$"Load Reference: \t{storage.loadReference}\n" +
+				$"Quantity Cases: \t{storage.quantityCases}\n");
+			*/
+
+			db.saveProductIntoStorageLoad("StorageAllocation", storage.winNumber, storage.productDescription, storage.storageDate, storage.depotDate, storage.depotName, storage.quantityCases, storage.loadReference, storage.quantityPalletsAllocated);
+
+
+
+
 		}
+
+
+
+
+
+
+
 	}
 
 	
 
 	internal class Storage
 	{
+
+
+
+	
+
+
 		public int winNumber { get; set; }
 		public string productDescription { get; set; }
 		public string storageDate { get; set; }

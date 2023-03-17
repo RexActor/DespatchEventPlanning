@@ -1,6 +1,5 @@
 ﻿using DespatchEventPlanning.ObjectClasses;
 
-
 using DocumentFormat.OpenXml.Office2010.ExcelAc;
 
 using Microsoft.Data.Sqlite;
@@ -182,7 +181,38 @@ namespace DespatchEventPlanning.Database
 			return output;
 
 		}
-	
+
+
+		public void saveProductIntoStorageLoad(string table_name, int winNumber, string productDescription, string storageDate, string depotDate, string depotName, int allocatedCases, string loadReference,int allocatedPallets)
+		{
+			using (SqliteConnection conn = new SqliteConnection($"data source ={_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"INSERT INTO [{table_name}] ([winNumber],[productDescription],[storageDate],[depotDate],[depotName],[allocatedCases],[loadReference],[allocatedPallets]) values(@winNumber,@productDescription,@storageDate,@depotDate,@depotName,@allocatedCases,@loadReference,@allocatedPallets)";
+
+					cmd.Parameters.AddWithValue("@winNumber", winNumber);
+					cmd.Parameters.AddWithValue("@productDescription", productDescription);
+					cmd.Parameters.AddWithValue("@storageDate", storageDate);
+					cmd.Parameters.AddWithValue("@depotDate", depotDate);
+					cmd.Parameters.AddWithValue("@depotName", depotName);
+					cmd.Parameters.AddWithValue("@allocatedCases", allocatedCases);
+					cmd.Parameters.AddWithValue("@loadReference", loadReference);
+					cmd.Parameters.AddWithValue("@allocatedPallets", allocatedPallets);
+				
+
+					cmd.Connection = conn;
+					conn.Open();
+
+					cmd.ExecuteNonQuery();
+
+					conn.Close();
+				}
+			}
+		}
+
+
+
 		public DataTable getInformationInDataTable()
 		{
 			var output = new DataTable();

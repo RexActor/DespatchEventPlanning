@@ -2,11 +2,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+
+using Utilities;
 
 namespace DespatchEventPlanning.Views
 {
@@ -30,16 +34,27 @@ namespace DespatchEventPlanning.Views
 		private string depotNameSelected = string.Empty;
 		private string depotDateSelected = string.Empty;
 
+
+	
+
+		
+	
+
 		public AllocateLoadsUserControl()
 		{
 			InitializeComponent();
 
 			ToolTip toolTip = new ToolTip();
+			
+			
 
 			toolTip.Content = $"This Grid displays product list for chosen packing date from which one storage should be allocated\n" +
 				$"Available pallets are total <b>SUM</b> of depot available pallets";
 
 			loadsToAllocateDataGrid.ToolTip = toolTip;
+
+			
+
 		}
 
 		private void AllocationCheckbox_Checked(object sender, RoutedEventArgs e)
@@ -52,9 +67,14 @@ namespace DespatchEventPlanning.Views
 			Debug.WriteLine("Removing product from list?");
 		}
 
+	
+
 		private void UserControl_Loaded(object sender, RoutedEventArgs e)
 		{
-			//MessageBox.Show("User Control loaded");
+
+		
+			
+
 		}
 
 		private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -304,6 +324,7 @@ namespace DespatchEventPlanning.Views
 				AddProductToLoad(storageItemToAdd, $"{loadSplit[0]}-{loadNumber + 1}", palletsAllocated, casesAllocated);
 			}
 
+			
 			Button button = sender as Button;
 			button.IsEnabled = false;
 		}
@@ -314,11 +335,17 @@ namespace DespatchEventPlanning.Views
 			{
 				winNumber = storageItemToAdd.winNumber,
 				loadReference = loadReference,
+				productDescription = storageItemToAdd.productDescription,
 				quantityPalletsAllocated = palletsAllocated,
+				depotName = storageItemToAdd.depotName,
 				quantityCases = casesAllocated,
 				depotDate = storageItemToAdd.depotDate,
-				storageDate = storageItemToAdd.storageDate
+				storageDate = storageItemToAdd.storageDate,
+				
 			};
+
+
+		
 
 			storage.AddProductToStorageTruck(amendedProduct);
 
@@ -330,5 +357,12 @@ namespace DespatchEventPlanning.Views
 			//MessageBox.Show("Changed Source");
 			//storageSummary.ItemsSource = storage.GetAllocatedLoadsSummary();
 		}
+
+		private void CommandBinding_CanExecute(object sender, System.Windows.Input.CanExecuteRoutedEventArgs e)
+		{
+
+		}
+
+		
 	}
 }

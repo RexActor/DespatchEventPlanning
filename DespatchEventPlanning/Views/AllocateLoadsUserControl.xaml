@@ -7,10 +7,14 @@
              IsVisibleChanged="UserControl_IsVisibleChanged"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" Background="Green">
+   
+      
+
+    
     <Grid>
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="900" />
+            <ColumnDefinition Width="950" />
             <ColumnDefinition Width="250"/>
             <ColumnDefinition Width="300" />
         </Grid.ColumnDefinitions>
@@ -18,11 +22,12 @@
             <RowDefinition />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <DataGrid x:Name="loadsToAllocateDataGrid" AutoGenerateColumns="False" Grid.Column="0" Grid.Row="0" Margin="0,0,0,0">
+        <DataGrid x:Name="loadsToAllocateDataGrid" AutoGenerateColumns="False" Grid.Column="0" Grid.Row="0" Margin="0,0,0,0" >
 
             <DataGrid.Columns>
 
                 <DataGridTextColumn Header="Storage Date" Binding="{Binding storageDate}" />
+                <DataGridTextColumn Header="Win Number" Binding="{Binding winNumber}"/>
                 <DataGridTextColumn Header="Product" Binding="{Binding productDescription}" />
                 <DataGridTextColumn Header="Depot Name" Binding="{Binding depotName}" />
                 <DataGridTextColumn Header="Depot Date" Binding="{Binding depotDate}" />
@@ -35,7 +40,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <!--<CheckBox x:Name="AllocationCheckbox"  Checked="AllocationCheckbox_Checked" Unchecked="AllocationCheckbox_Unchecked" /> -->
-                            <Button x:Name="AllocateProductButton" Click="AllocateProductButton_Click" Background="DarkKhaki" Content="Allocate" VerticalContentAlignment="Center" Height="16" FontSize="10"/>
+                            <Button x:Name="AllocateProductButton" Click="AllocateProductButton_Click"  Background="DarkKhaki" Content="Allocate"  VerticalContentAlignment="Center" Height="16" FontSize="10"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
