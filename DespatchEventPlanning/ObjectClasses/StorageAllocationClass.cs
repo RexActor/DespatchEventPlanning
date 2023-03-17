@@ -271,10 +271,10 @@ namespace DespatchEventPlanning.ObjectClasses
 			return GetAllocatedLoadsSummary().Where(item => item.loadReference.Contains(loadReference)).Distinct().Count();
 		}
 
-		public string GetLastLoadReferenceWithDepotDate(string loadReference,string depotDate)
+		public string GetLastLoadReferenceWithDepotDate(string loadReference,string depotDate,string storageDate)
 		{
 			
-				return productsAllocatedForStorageTrucks.Where(item => item.depotDate == depotDate).Where(item => item.loadReference.Contains(loadReference)).Distinct().Select(item => item.loadReference).LastOrDefault().ToString();
+				return productsAllocatedForStorageTrucks.Where(item => item.depotDate == depotDate).Where(item=>item.storageDate==storageDate).Where(item => item.loadReference.Contains(loadReference)).Distinct().Select(item => item.loadReference).LastOrDefault().ToString();
 			
 		}
 
@@ -285,9 +285,9 @@ namespace DespatchEventPlanning.ObjectClasses
 
 		}
 
-		public int GetAmountOfLoadsWithDepotDate(string loadReference,string depotDate)
+		public int GetAmountOfLoadsWithDepotDate(string loadReference,string depotDate,string storageDate)
 		{
-			return productsAllocatedForStorageTrucks.Where(item => item.depotDate == depotDate).Count(item=>item.loadReference.Contains(loadReference));
+			return productsAllocatedForStorageTrucks.Where(item => item.depotDate == depotDate).Where(item=>item.storageDate ==storageDate).Count(item=>item.loadReference.Contains(loadReference));
 		}
 
 		public int GetAmountOfLoads(string loadReference)

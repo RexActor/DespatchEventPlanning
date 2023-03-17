@@ -19,12 +19,12 @@ namespace DespatchEventPlanning.Views
 
 		private List<Storage> tempList = new();
 
-		private ComboBox depotDateComboBox = new ComboBox();
-		private Label storageDateLabel = new Label();
-		private ComboBox storageDatesComboBox = new ComboBox();
-		private Label depotNameLabel = new Label();
-		private ComboBox depotNamesComboBox = new ComboBox();
-		private Label depotDateLabel = new Label();
+		private ComboBox depotDateComboBox;
+		private Label storageDateLabel;
+		private ComboBox storageDatesComboBox;
+		private Label depotNameLabel;
+		private ComboBox depotNamesComboBox;
+		private Label depotDateLabel;
 
 		private string storageDateSelected = string.Empty;
 		private string depotNameSelected = string.Empty;
@@ -93,6 +93,14 @@ namespace DespatchEventPlanning.Views
 
 			informationGrid.RowDefinitions.Clear();
 			informationGrid.ColumnDefinitions.Clear();
+
+			depotDateComboBox = new ComboBox();
+			storageDateLabel = new Label();
+			storageDatesComboBox = new ComboBox();
+			depotNameLabel = new Label();
+			depotNamesComboBox = new ComboBox();
+			depotDateLabel = new Label();
+
 			for (int i = 0; i < 2; i++)
 			{
 				ColumnDefinition colDef = new ColumnDefinition();
@@ -251,19 +259,16 @@ namespace DespatchEventPlanning.Views
 			Storage storageItemToAdd = ((FrameworkElement)sender).DataContext as Storage;
 			string lastloadReference = string.Empty;
 			string loadReferenceToBeAssigned = $"{storageItemToAdd.depotName.Substring(0, 2)}";
-			
-			if (storage.GetAmountOfLoadsWithDepotDate(loadReferenceToBeAssigned, storageItemToAdd.depotDate) > 0)
-			{
-				lastloadReference = storage.GetLastLoadReferenceWithDepotDate(loadReferenceToBeAssigned,storageItemToAdd.depotDate);
-			}
 
+			if (storage.GetAmountOfLoadsWithDepotDate(loadReferenceToBeAssigned, storageItemToAdd.depotDate,storageItemToAdd.storageDate) > 0)
+			{
+				lastloadReference = storage.GetLastLoadReferenceWithDepotDate(loadReferenceToBeAssigned, storageItemToAdd.depotDate,storageItemToAdd.storageDate);
+			}
 			else
 			{
-
 				if (storage.GetAmountOfLoads(loadReferenceToBeAssigned) > 0)
 				{
 					lastloadReference = storage.GetLastLoadReference(loadReferenceToBeAssigned);
-					
 
 					string[] reference = lastloadReference.Split('-');
 					int loadNumber = Convert.ToInt32(reference[1]);
@@ -271,22 +276,13 @@ namespace DespatchEventPlanning.Views
 				}
 				else
 				{
-
-
-
-
 					lastloadReference = $"{loadReferenceToBeAssigned}-1";
 				}
-				
 			}
 
-			
-
-			
 			int palletsAllocated = storageItemToAdd.quantityPalletsToAllocate;
 			int casesAllocated = palletsAllocated * storageItemToAdd.packsPerPallet;
 			int availablePalletSpaces = 26 - storage.GetTotalPalletsInLoad(lastloadReference);
-
 
 			if (availablePalletSpaces > palletsAllocated)
 			{
@@ -294,8 +290,6 @@ namespace DespatchEventPlanning.Views
 			}
 			else
 			{
-				
-
 				palletsAllocated = availablePalletSpaces;
 
 				casesAllocated = palletsAllocated * storageItemToAdd.packsPerPallet;
@@ -307,18 +301,11 @@ namespace DespatchEventPlanning.Views
 				string[] loadSplit = lastloadReference.Split('-');
 				int loadNumber = Convert.ToInt32(loadSplit[1]);
 
-
-
-				AddProductToLoad(storageItemToAdd, $"{loadSplit[0]}-{loadNumber+1}", palletsAllocated, casesAllocated);
+				AddProductToLoad(storageItemToAdd, $"{loadSplit[0]}-{loadNumber + 1}", palletsAllocated, casesAllocated);
 			}
-			
-
 
 			Button button = sender as Button;
 			button.IsEnabled = false;
-
-
-			
 		}
 
 		private void AddProductToLoad(Storage storageItemToAdd, string loadReference, int palletsAllocated, int casesAllocated)
