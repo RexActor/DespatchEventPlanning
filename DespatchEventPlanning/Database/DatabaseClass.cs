@@ -238,6 +238,54 @@ namespace DespatchEventPlanning.Database
 
 			
 		}
-	
+
+
+		public List<Storage> getStorageInformationInList()
+		{
+			var output = new List<Storage>();
+
+			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
+			{
+
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"SELECT * FROM StorageAllocation";
+
+
+					cmd.Connection = conn;
+					conn.Open();
+
+					SqliteDataReader reader = cmd.ExecuteReader();
+
+					while (reader.Read())
+					{
+						output.Add(new Storage()
+						{
+							winNumber = (int)reader.GetInt64(reader.GetOrdinal("winNumber")),
+							productDescription = reader.GetString(reader.GetOrdinal("productDescription")),
+							storageDate = reader.GetString(reader.GetOrdinal("storageDate")),
+							depotDate = reader.GetString(reader.GetOrdinal("depotDate")),
+							depotName = reader.GetString(reader.GetOrdinal("depotName")),
+							quantityCases = (int)reader.GetInt64(reader.GetOrdinal("allocatedCases")),
+							loadReference = reader.GetString(reader.GetOrdinal("loadReference")),
+							quantityPalletsAllocated = (int)reader.GetInt64(reader.GetOrdinal("allocatedPallets"))
+
+						});
+
+
+					}
+
+					conn.Close();
+				}
+			}
+
+			return output;
+
+		}
+
+
+
+
+
 	}
 }

@@ -57,23 +57,13 @@ namespace DespatchEventPlanning.Views
 
 		}
 
-		private void AllocationCheckbox_Checked(object sender, RoutedEventArgs e)
-		{
-			Debug.WriteLine("Adding load to the list?");
-		}
-
-		private void AllocationCheckbox_Unchecked(object sender, RoutedEventArgs e)
-		{
-			Debug.WriteLine("Removing product from list?");
-		}
-
 	
 
 		private void UserControl_Loaded(object sender, RoutedEventArgs e)
 		{
 
-		
-			
+			storageSummary.ItemsSource = storage.GetAllocatedLoadsSummary();
+
 
 		}
 
@@ -103,6 +93,7 @@ namespace DespatchEventPlanning.Views
 					});
 
 					GenerateInformationGrid();
+				
 				}
 			}
 		}
@@ -278,7 +269,7 @@ namespace DespatchEventPlanning.Views
 		{
 			Storage storageItemToAdd = ((FrameworkElement)sender).DataContext as Storage;
 			string lastloadReference = string.Empty;
-			string loadReferenceToBeAssigned = $"{storageItemToAdd.depotName.Substring(0, 2)}";
+			string loadReferenceToBeAssigned = $"{storageItemToAdd.depotName.Substring(0, 3)}";
 
 			if (storage.GetAmountOfLoadsWithDepotDate(loadReferenceToBeAssigned, storageItemToAdd.depotDate,storageItemToAdd.storageDate) > 0)
 			{
@@ -304,7 +295,7 @@ namespace DespatchEventPlanning.Views
 			int casesAllocated = palletsAllocated * storageItemToAdd.packsPerPallet;
 			int availablePalletSpaces = 26 - storage.GetTotalPalletsInLoad(lastloadReference);
 
-			if (availablePalletSpaces > palletsAllocated)
+			if (availablePalletSpaces >= palletsAllocated)
 			{
 				AddProductToLoad(storageItemToAdd, lastloadReference, palletsAllocated, casesAllocated);
 			}

@@ -22,7 +22,7 @@
             <RowDefinition />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <DataGrid x:Name="loadsToAllocateDataGrid" AutoGenerateColumns="False" Grid.Column="0" Grid.Row="0" Margin="0,0,0,0" >
+        <DataGrid x:Name="loadsToAllocateDataGrid" IsReadOnly="True" AutoGenerateColumns="False" Grid.Column="0" Grid.Row="0" Margin="0,0,0,0" CanUserReorderColumns="False" CanUserAddRows="False" >
 
             <DataGrid.Columns>
 
@@ -36,7 +36,7 @@
                 <DataGridTextColumn Header="Case Produced" Binding="{Binding quantityCases}" />
                 <DataGridTextColumn Header="Available Full Pallets" Binding="{Binding quantityPalletsToAllocate}" />
 
-                <DataGridTemplateColumn Header="Allocate">
+                <DataGridTemplateColumn Header="Allocate" IsReadOnly="True">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <!--<CheckBox x:Name="AllocationCheckbox"  Checked="AllocationCheckbox_Checked" Unchecked="AllocationCheckbox_Unchecked" /> -->

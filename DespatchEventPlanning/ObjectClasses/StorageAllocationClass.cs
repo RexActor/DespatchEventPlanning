@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using System.Windows;
 
@@ -242,15 +243,32 @@ namespace DespatchEventPlanning.ObjectClasses
 
 		public List<StorageSummary> GetAllocatedLoadsSummary()
 		{
+
+
+
 			allocatedLoadSummary = new List<StorageSummary>();
 
-			productsAllocatedForStorageTrucks.AsEnumerable().ToList().Select(item => item.loadReference).Distinct().ToList().ForEach(subItem =>
-			{
+			productsAllocatedForStorageTrucks = db.getStorageInformationInList();
+
+			db.getStorageInformationInList().AsEnumerable().Select(item=>item.loadReference).Distinct().ToList().ForEach(subItem=> {
+
+
 				allocatedLoadSummary.Add(new StorageSummary()
 				{
 					loadReference = subItem
 				});
+
+
 			});
+
+
+			//productsAllocatedForStorageTrucks.AsEnumerable().ToList().Select(item => item.loadReference).Distinct().ToList().ForEach(subItem =>
+			//{
+			//	allocatedLoadSummary.Add(new StorageSummary()
+			//	{
+			//		loadReference = subItem
+			//	});
+			//});
 
 			allocatedLoadSummary.AsEnumerable().ToList().ForEach(item =>
 			{

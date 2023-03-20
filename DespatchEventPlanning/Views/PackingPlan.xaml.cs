@@ -24,7 +24,7 @@ namespace DespatchEventPlanning.Views
 			InitializeComponent();
 			db = new DatabaseClass();
 			storageInformationList = new List<StorageInformation>();
-			
+
 			excelDataGrid.ItemsSource = db.getInformationInList();
 			siteCapacityGrid.ItemsSource = DisplayCapacity(db.getInformationInList()).OrderBy(item => item.produceDate);
 			siteCapacityFlowersGrid.ItemsSource = DisplayCapacity(db.getInformationInList().Where(item => item.productGroup.Contains("FLOWERS")).ToList()).OrderBy(item => item.produceDate);
@@ -51,20 +51,67 @@ namespace DespatchEventPlanning.Views
 		{
 			List<SiteCapacityClass> siteCapacity = new List<SiteCapacityClass>();
 
-			productList.AsEnumerable().Select(x => x.packingDate).Distinct().ToList().ForEach(x =>
+			productList.AsEnumerable().Select(item => item.packingDate).Distinct().ToList().ForEach(packingDate =>
 			{
-				//(int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.depotDate) <= Convert.ToDateTime(x).AddDays(1)).Sum(item => item.palletsGenerated)
+				int palletsGenerated = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.packingDate) == Convert.ToDateTime(packingDate)).Sum(item => item.palletsGenerated);
+				int palletsDirect = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.depotDate) == Convert.ToDateTime(packingDate).AddDays(1)).Sum(item => item.palletsGenerated);
+
+				
+
+				int palletsToStorage = db.getStorageInformationInList().AsEnumerable().Where(item => Convert.ToDateTime(item.storageDate) == Convert.ToDateTime(packingDate)).Sum(item => item.quantityPalletsAllocated);
+				int storageForDepotDate = db.getStorageInformationInList().AsEnumerable().Where(item => Convert.ToDateTime(item.depotDate) == Convert.ToDateTime(packingDate).AddDays(1)).Sum(item => item.quantityPalletsAllocated);
+				int totalPalletsGenerated = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.packingDate) <= Convert.ToDateTime(packingDate)).Sum(item => item.palletsGenerated);
+
+
+				
+
+
+				int generatedPreviousDay = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.packingDate) == Convert.ToDateTime(packingDate).AddDays(-1)).Sum(item => item.palletsGenerated);
+				int palletsToStoragePreviousDay = db.getStorageInformationInList().AsEnumerable().Where(item => Convert.ToDateTime(item.storageDate) == Convert.ToDateTime(packingDate).AddDays(-1)).Sum(item => item.quantityPalletsAllocated);
+				int directsPreviousDay  = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.depotDate) == Convert.ToDateTime(packingDate)).Sum(item => item.palletsGenerated);
+
+
+				int totalDirects = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.depotDate) <= Convert.ToDateTime(packingDate).AddDays(1)).Sum(item => item.palletsGenerated);
+				int totalStorageForDepotDate = db.getStorageInformationInList().AsEnumerable().Where(item => Convert.ToDateTime(item.depotDate) <= Convert.ToDateTime(packingDate).AddDays(1)).Sum(item => item.quantityPalletsAllocated);
+
+				int totalStorage = db.getStorageInformationInList().AsEnumerable().Where(item => Convert.ToDateTime(item.storageDate) <= Convert.ToDateTime(packingDate)).Sum(item => item.quantityPalletsAllocated);
+
+
+				
+				int TotalOutbound = totalDirects - totalStorageForDepotDate + totalStorage;
+
+				int totalPalletsOutboundPreviousDay = directsPreviousDay - storageForDepotDate + palletsToStoragePreviousDay;
+
+				
+
+				int leftOnSitePreviousDay =  generatedPreviousDay - totalPalletsOutboundPreviousDay;
+
+				
+				
+				int directsWithRemovedStorage = palletsDirect - storageForDepotDate;
+				int totalPalletsOutbound = directsWithRemovedStorage  + palletsToStorage;
+
+				int leftOnSite = palletsGenerated  - totalPalletsOutbound;
+
+				
+
 				siteCapacity.Add(new SiteCapacityClass()
 				{
-					produceDate = x,
+					produceDate = packingDate,
 
-					palletsGenerating = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.packingDate) == Convert.ToDateTime(x)).Sum(item => item.palletsGenerated),
-					palletsOutbound = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.depotDate) == Convert.ToDateTime(x).AddDays(1)).Sum(item => item.palletsGenerated),
-					//palletsGeneratedTotal= (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.packingDate) < Convert.ToDateTime(x)).Sum(item => item.palletsGenerated),
+					palletsGenerating = palletsGenerated,
+					palletsGeneratedTotal = totalPalletsGenerated,
 
-					palletsGeneratedTotal = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.packingDate) <= Convert.ToDateTime(x)).Sum(item => item.palletsGenerated) - (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.depotDate) < Convert.ToDateTime(x).AddDays(1)).Sum(item => item.palletsGenerated),
+					palletsDirect = directsWithRemovedStorage,
 
-					palletsInBound = 0
+					palletsToStorage = palletsToStorage,
+
+					palletsOutbound = TotalOutbound,
+
+					leftOnSitePreviousDay = leftOnSitePreviousDay,
+					palletsInBound= TotalOutbound
+
+
 				});
 			});
 			return siteCapacity;
@@ -76,7 +123,6 @@ namespace DespatchEventPlanning.Views
 
 			if (!storageInformationList.Any(item => item.allocationDate == siteCapacityClass.produceDate))
 			{
-
 				storageInformationList.Add(new StorageInformation()
 				{
 					allocationDate = siteCapacityClass.produceDate,
@@ -84,15 +130,14 @@ namespace DespatchEventPlanning.Views
 					Group = "ALL"
 				});
 			}
-			
 		}
+
 		private void AddFlowersToLoadAllocation_Click(object sender, RoutedEventArgs e)
 		{
 			SiteCapacityClass siteCapacityClass = (SiteCapacityClass)siteCapacityGrid.SelectedItem;
 
 			if (!storageInformationList.Any(item => item.allocationDate == siteCapacityClass.produceDate))
 			{
-
 				storageInformationList.Add(new StorageInformation()
 				{
 					allocationDate = siteCapacityClass.produceDate,
@@ -100,7 +145,13 @@ namespace DespatchEventPlanning.Views
 					Group = "FLOWERS"
 				});
 			}
+		}
 
+		private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+		{
+			siteCapacityGrid.ItemsSource = DisplayCapacity(db.getInformationInList()).OrderBy(item => item.produceDate);
+			siteCapacityFlowersGrid.ItemsSource = DisplayCapacity(db.getInformationInList().Where(item => item.productGroup.Contains("FLOWERS")).ToList()).OrderBy(item => item.produceDate);
+			siteCapacityPlantsGrid.ItemsSource = DisplayCapacity(db.getInformationInList().Where(item => item.productGroup.Contains("PLANTS")).ToList()).OrderBy(item => item.produceDate);
 		}
 	}
 
