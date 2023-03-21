@@ -4,12 +4,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:local="clr-namespace:DespatchEventPlanning.Views"
-    x:Class="DespatchEventPlanning.MainWindow"
+    x:Class="DespatchEventPlanning.MainWindow" Loaded="RootWindow_Loaded"
     mc:Ignorable="d"
         Title="MainWindow"  Width="1600" Height="960" MaxWidth="1980" MaxHeight="1080"
     WindowStartupLocation="CenterScreen" WindowState="Maximized" >
 
-    
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="160"/>
@@ -34,16 +34,18 @@
             <Button x:Name="DepotSplitsButton" Grid.Row="2" Content="Depot Splits" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="DepotSplitsButton_Click"/>
             <Button x:Name="ForecastButton" Grid.Row="3" Content="Forecast Data" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="ForecastButton_Click" />
 
-            <Button x:Name="GenerateDatabaseButton" Grid.Row="4" Content="Generate Database" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="GenerateDatabaseButton_Click" />
+            <Button x:Name="ManageDatabaseButton" Grid.Row="4" Content="Manage Database" HorizontalAlignment="Center"  VerticalAlignment="Top"  Width="140" Height="35" Click="ManageDatabaseButton_Click" Margin="0,10,0,0" />
+            <Button x:Name="ClearDatabase" Grid.Row="4" Content="Clear Database" HorizontalAlignment="Center"  VerticalAlignment="Top"  Width="140" Height="35" Click="ClearDatabase_Click" Margin="0,72,0,0" />
 
 
         </Grid>
-        
+
         <local:PackingPlan Grid.Column="1" x:Name="packingPlanUserControl" Visibility="Hidden"/>
         <local:AllocateLoadsUserControl Grid.Column="1" x:Name="allocateLoadsUSerControl" Visibility="Hidden"/>
         <local:DepotSplitsUserControl Grid.Column="1" x:Name="depotSplitsUserControl" Visibility="Hidden"/>
         <local:ForecastView Grid.Column="1" x:Name="forecastUserControl" Visibility="Hidden"/>
-        <ProgressBar x:Name="progressBar" HorizontalAlignment="Center" Height="10" Margin="0,324,0,0" VerticalAlignment="Top" Width="100"/>
+        <local:ManageDatabaseUserControl Grid.Column="1" x:Name="manageDatabaseUserControl" Visibility="Hidden"/>
+        <ProgressBar x:Name="progressBar" HorizontalAlignment="Center" Height="10" Margin="0,424,0,0" VerticalAlignment="Top" Width="100"/>
         <StatusBar Grid.ColumnSpan="2" Grid.Row="1" Height="20" Margin="0,0,0,0">
             <StatusBarItem>
                 <TextBlock x:Name="StatusUpdate" Text="{Binding Status.Message}" />
@@ -51,5 +53,5 @@
         </StatusBar>
 
     </Grid>
-   
+
 </Window>

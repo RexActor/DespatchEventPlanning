@@ -77,7 +77,25 @@ namespace DespatchEventPlanning.Database
 			return convertedList;
 		}
 
+	
+		public List<ProductInformationClass> GenerateProductInformation()
+		{
+			handler = new DataHandler();
+
+			var convertedList = handler.ReadExcelFile($"{EnumClass.SHEETNAMES.ProductInformation}", productInformationPath).AsEnumerable().Select(item => new ProductInformationClass()
+			{
+				winNumber = Convert.ToInt32(item[$"{EnumClass.PRODUCTINFORMATION_DATATABLE_COLUMN_NAMES.WinNumber}"]),
+				productNumber = Convert.ToInt32(item[$"{EnumClass.PRODUCTINFORMATION_DATATABLE_COLUMN_NAMES.ProductNumber}"]),
+				productDescription = Convert.ToString(item[$"{EnumClass.PRODUCTINFORMATION_DATATABLE_COLUMN_NAMES.ProductDescription}"]),
+				packsPerPallet = Convert.ToInt32(item[$"{EnumClass.PRODUCTINFORMATION_DATATABLE_COLUMN_NAMES.PacksPerPallet}"]),
+				productGroup = Convert.ToString(item[$"{EnumClass.PRODUCTINFORMATION_DATATABLE_COLUMN_NAMES.ProductGroup}"]),
+				weightOfOuter = Convert.ToInt32(item[$"{EnumClass.PRODUCTINFORMATION_DATATABLE_COLUMN_NAMES.WeightOfOuter}"])
 
 
+			}).ToList();
+
+
+			return convertedList;
+		}
 	}
 }

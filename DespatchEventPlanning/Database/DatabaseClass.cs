@@ -1,16 +1,10 @@
 ﻿using DespatchEventPlanning.ObjectClasses;
 
-using DocumentFormat.OpenXml.Office2010.ExcelAc;
-
 using Microsoft.Data.Sqlite;
-using Microsoft.Diagnostics.Runtime.DacInterface;
 
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
-using System.Diagnostics;
-using System.Linq;
 
 namespace DespatchEventPlanning.Database
 {
@@ -36,8 +30,6 @@ namespace DespatchEventPlanning.Database
 						return true;
 					}
 					else { return false; }
-
-					
 				}
 			}
 		}
@@ -94,7 +86,6 @@ namespace DespatchEventPlanning.Database
 					conn.Open();
 
 					cmd.ExecuteNonQuery();
-					
 
 					conn.Close();
 				}
@@ -143,20 +134,18 @@ namespace DespatchEventPlanning.Database
 		public List<PackingProductInformationClass> getInformationInList()
 		{
 			var output = new List<PackingProductInformationClass>();
-			
+
 			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
 			{
-				
 				using (SqliteCommand cmd = new SqliteCommand())
 				{
 					cmd.CommandText = $"SELECT * FROM ProductionPlan";
 
-					
 					cmd.Connection = conn;
 					conn.Open();
-					
+
 					SqliteDataReader reader = cmd.ExecuteReader();
-				
+
 					while (reader.Read())
 					{
 						output.Add(new PackingProductInformationClass()
@@ -168,23 +157,47 @@ namespace DespatchEventPlanning.Database
 							depotDate = reader.GetString(reader.GetOrdinal("depotDate")),
 							packingQty = reader.GetInt64(reader.GetOrdinal("packingQuantity")),
 							forecastQty = reader.GetInt64(reader.GetOrdinal("forecast")),
-							packsPerPallet =(int) reader.GetInt64(reader.GetOrdinal("packsPerPallet"))
-
+							packsPerPallet = (int)reader.GetInt64(reader.GetOrdinal("packsPerPallet"))
 						});
-						
-						
 					}
-				
+
 					conn.Close();
 				}
 			}
-			
-			return output;
 
+			return output;
+		}
+
+		public void saveProductInformation(string table_name, int winNumber, int productNumber, string productDescription,  int packsPerPallet, string productGroup, int weightOfOuter)
+		{
+			using (SqliteConnection conn = new SqliteConnection($"data source ={_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"INSERT INTO [{table_name}] ([winNumber],[productNumber],[productDescription],[packsPerPallet],[productGroup],[weightOfOuter]) values(@winNumber,@productNumber,@productDescription,@packsPerPallet,@productGroup,@weightOfOuter)";
+
+					
+					cmd.Parameters.AddWithValue("@winNumber", winNumber);
+					cmd.Parameters.AddWithValue("@productNumber", productNumber);
+					cmd.Parameters.AddWithValue("@productDescription", productDescription);
+					cmd.Parameters.AddWithValue("@packsPerPallet", packsPerPallet);
+					cmd.Parameters.AddWithValue("@productGroup", productGroup);
+					cmd.Parameters.AddWithValue("@weightOfOuter", weightOfOuter);
+
+					cmd.Connection = conn;
+					conn.Open();
+
+					cmd.ExecuteNonQuery();
+
+					conn.Close();
+				}
+			}
 		}
 
 
-		public void saveProductIntoStorageLoad(string table_name, int winNumber, string productDescription, string storageDate, string depotDate, string depotName, int allocatedCases, string loadReference,int allocatedPallets)
+
+
+		public void saveProductIntoStorageLoad(string table_name, int winNumber, string productDescription, string storageDate, string depotDate, string depotName, int allocatedCases, string loadReference, int allocatedPallets)
 		{
 			using (SqliteConnection conn = new SqliteConnection($"data source ={_databaseSource}; Mode=ReadWrite;"))
 			{
@@ -200,7 +213,6 @@ namespace DespatchEventPlanning.Database
 					cmd.Parameters.AddWithValue("@allocatedCases", allocatedCases);
 					cmd.Parameters.AddWithValue("@loadReference", loadReference);
 					cmd.Parameters.AddWithValue("@allocatedPallets", allocatedPallets);
-				
 
 					cmd.Connection = conn;
 					conn.Open();
@@ -212,34 +224,26 @@ namespace DespatchEventPlanning.Database
 			}
 		}
 
-
-
 		public DataTable getInformationInDataTable()
 		{
 			var output = new DataTable();
-			
+
 			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
 			{
-
 				using (SqliteCommand cmd = new SqliteCommand())
 				{
 					cmd.CommandText = $"SELECT * FROM ProductionPlan";
-					
-					 
+
 					cmd.Connection = conn;
 					conn.Open();
 					SqliteDataReader reader = cmd.ExecuteReader();
 
-					 output.Load(reader);
+					output.Load(reader);
 
 					return output;
-					
 				}
 			}
-
-			
 		}
-
 
 		public List<Storage> getStorageInformationInList()
 		{
@@ -247,11 +251,9 @@ namespace DespatchEventPlanning.Database
 
 			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
 			{
-
 				using (SqliteCommand cmd = new SqliteCommand())
 				{
 					cmd.CommandText = $"SELECT * FROM StorageAllocation";
-
 
 					cmd.Connection = conn;
 					conn.Open();
@@ -270,10 +272,7 @@ namespace DespatchEventPlanning.Database
 							quantityCases = (int)reader.GetInt64(reader.GetOrdinal("allocatedCases")),
 							loadReference = reader.GetString(reader.GetOrdinal("loadReference")),
 							quantityPalletsAllocated = (int)reader.GetInt64(reader.GetOrdinal("allocatedPallets"))
-
 						});
-
-
 					}
 
 					conn.Close();
@@ -281,17 +280,14 @@ namespace DespatchEventPlanning.Database
 			}
 
 			return output;
-
 		}
 
-
-		public string productExistsInStorage(int winNumber,string depotDate, string storageDate,string depotName)
+		public string productExistsInStorage(int winNumber, string depotDate, string storageDate, string depotName)
 		{
 			string result = string.Empty;
 
 			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
 			{
-
 				using (SqliteCommand cmd = new SqliteCommand())
 				{
 					cmd.CommandText = $"SELECT Count(*) FROM StorageAllocation Where winNumber = {winNumber} AND  storageDate =@storageDate AND depotDate =@depotDate AND depotName =@depotName";
@@ -302,11 +298,9 @@ namespace DespatchEventPlanning.Database
 					cmd.Connection = conn;
 					conn.Open();
 
-					//SqliteDataReader reader = cmd.ExecuteReader();
-
 					int entryFound = (int)Convert.ToInt64(cmd.ExecuteScalar());
 
-					if(entryFound > 0)
+					if (entryFound > 0)
 					{
 						result = "FALSE";
 					}
@@ -324,5 +318,24 @@ namespace DespatchEventPlanning.Database
 
 
 
+
+
+
+		public void clearDatbaseTable(string tableName)
+		{
+			string result = string.Empty;
+
+			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"DELETE FROM {tableName}";
+
+					cmd.Connection = conn;
+					conn.Open();
+					cmd.ExecuteNonQuery();
+				}
+			}
+		}
 	}
 }

@@ -25,10 +25,10 @@ namespace DespatchEventPlanning.Views
 			db = new DatabaseClass();
 			storageInformationList = new List<StorageInformation>();
 
-			excelDataGrid.ItemsSource = db.getInformationInList();
-			siteCapacityGrid.ItemsSource = DisplayCapacity(db.getInformationInList()).OrderBy(item => item.produceDate);
-			siteCapacityFlowersGrid.ItemsSource = DisplayCapacity(db.getInformationInList().Where(item => item.productGroup.Contains("FLOWERS")).ToList()).OrderBy(item => item.produceDate);
-			siteCapacityPlantsGrid.ItemsSource = DisplayCapacity(db.getInformationInList().Where(item => item.productGroup.Contains("PLANTS")).ToList()).OrderBy(item => item.produceDate);
+			excelDataGrid.ItemsSource = db.getInformationInList().OrderBy(item=>item.packingDate);
+			siteCapacityGrid.ItemsSource = DisplayCapacity(db.getInformationInList()).ToList();
+			siteCapacityFlowersGrid.ItemsSource = DisplayCapacity(db.getInformationInList().Where(item => item.productGroup.Contains("FLOWERS")).ToList());
+			siteCapacityPlantsGrid.ItemsSource = DisplayCapacity(db.getInformationInList().Where(item => item.productGroup.Contains("PLANTS")).ToList());
 			//excelDataGrid.ItemsSource = db.getInformationInDataTable().DefaultView;
 		}
 
@@ -51,7 +51,7 @@ namespace DespatchEventPlanning.Views
 		{
 			List<SiteCapacityClass> siteCapacity = new List<SiteCapacityClass>();
 
-			productList.AsEnumerable().Select(item => item.packingDate).Distinct().ToList().ForEach(packingDate =>
+			productList.AsEnumerable().OrderByDescending(item => Convert.ToDateTime(item.packingDate)).Select(item => item.packingDate).Distinct().ToList().ForEach(packingDate =>
 			{
 				int palletsGenerated = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.packingDate) == Convert.ToDateTime(packingDate)).Sum(item => item.palletsGenerated);
 				int palletsDirect = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.depotDate) == Convert.ToDateTime(packingDate).AddDays(1)).Sum(item => item.palletsGenerated);
@@ -149,9 +149,21 @@ namespace DespatchEventPlanning.Views
 
 		private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
 		{
-			siteCapacityGrid.ItemsSource = DisplayCapacity(db.getInformationInList()).OrderBy(item => item.produceDate);
+			siteCapacityGrid.ItemsSource = DisplayCapacity(db.getInformationInList()).OrderBy(item => item.produceDate).ToList().OrderBy(item=>item.produceDate);
 			siteCapacityFlowersGrid.ItemsSource = DisplayCapacity(db.getInformationInList().Where(item => item.productGroup.Contains("FLOWERS")).ToList()).OrderBy(item => item.produceDate);
 			siteCapacityPlantsGrid.ItemsSource = DisplayCapacity(db.getInformationInList().Where(item => item.productGroup.Contains("PLANTS")).ToList()).OrderBy(item => item.produceDate);
+		}
+
+		private void UpdateProductInformation_Click(object sender, RoutedEventArgs e)
+		{
+			PackingProductInformationClass selectedProduct = (PackingProductInformationClass)excelDataGrid.SelectedItem;
+
+			MessageBox.Show($"{selectedProduct.packingDate}");
+		}
+
+		private void AddProductInformation_Click(object sender, RoutedEventArgs e)
+		{
+
 		}
 	}
 

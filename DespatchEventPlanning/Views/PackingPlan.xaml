@@ -12,6 +12,13 @@
             <ColumnDefinition Width="46*" />
         </Grid.ColumnDefinitions>
         <DataGrid x:Name="excelDataGrid" IsReadOnly="True"  ScrollViewer.CanContentScroll="True" AutoGenerateColumns="False"  Grid.Column="0" HorizontalAlignment="Left" Height="auto" Width="auto" d:ItemsSource="{d:SampleData ItemCount=5}"  RenderTransformOrigin="0.5,0.5" Margin="10,10,10,10">
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem x:Name="UpdateProductInformation" IsEnabled="True" Header="Update Product Information" Click="UpdateProductInformation_Click"/>
+                    <MenuItem x:Name="AddProductInformation" IsEnabled="False" Header="Add Product Information" Click="AddProductInformation_Click"/> 
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+            
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Win Number" Binding="{Binding winNumber}" MinWidth="80" Width="*" MaxWidth="100" />
                 <DataGridTextColumn Header="Product Description" Binding="{Binding productDescription}" MinWidth="150" Width="*" />
@@ -74,12 +81,12 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Date" Binding="{Binding produceDate}" Width="*" MinWidth="80" />
                     <DataGridTextColumn Header="Generate" Binding="{Binding palletsGenerating}" Width="*" />
-                    <DataGridTextColumn Header="Generated" Binding="{Binding palletsGeneratedTotal}" Width="*" />
+                    <!-- <DataGridTextColumn Header="Generated" Binding="{Binding palletsGeneratedTotal}" Width="*" /> -->
                     <DataGridTextColumn Header="Storage" Binding="{Binding palletsToStorage}"/>
                     <DataGridTextColumn Header="DIRECTS" Binding="{Binding palletsDirect}"/>
-                    <DataGridTextColumn Header="Outbound" Binding="{Binding palletsOutbound}" Width="*" />
-                    
-                   
+                    <!--<DataGridTextColumn Header="Outbound" Binding="{Binding palletsOutbound}" Width="*" /> -->
+
+                    <!--  <DataGridTextColumn Header="Test" Binding="{Binding palletsInBound}"/>-->
                     <DataGridTextColumn Header="Left On Site" Binding="{Binding siteCapacity}" Width="*" />
                 </DataGrid.Columns>
             </DataGrid>
@@ -91,11 +98,13 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Date" Binding="{Binding produceDate}" Width="*" MinWidth="80" />
                     <DataGridTextColumn Header="Generate" Binding="{Binding palletsGenerating}" Width="*" />
-                    <DataGridTextColumn Header="Generated" Binding="{Binding palletsGeneratedTotal}" Width="*" />
-                    <DataGridTextColumn Header="Delivered" Binding="{Binding palletsOutbound}" Width="*" />
-                    <DataGridTextColumn Header="Storing" Binding="{Binding siteCapacity}" Width="*" />
-                    <DataGridTextColumn Header="Test - Storage" Binding="{Binding palletsToStorage}"/>
+                    <!-- <DataGridTextColumn Header="Generated" Binding="{Binding palletsGeneratedTotal}" Width="*" /> -->
+                    <DataGridTextColumn Header="Storage" Binding="{Binding palletsToStorage}"/>
                     <DataGridTextColumn Header="DIRECTS" Binding="{Binding palletsDirect}"/>
+                    <!--<DataGridTextColumn Header="Outbound" Binding="{Binding palletsOutbound}" Width="*" /> -->
+
+                    <!--  <DataGridTextColumn Header="Test" Binding="{Binding palletsInBound}"/>-->
+                    <DataGridTextColumn Header="Left On Site" Binding="{Binding siteCapacity}" Width="*" />
                 </DataGrid.Columns>
             </DataGrid>
 

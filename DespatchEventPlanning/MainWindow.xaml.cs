@@ -1,8 +1,12 @@
 ﻿using DespatchEventPlanning.Database;
 using DespatchEventPlanning.ObjectClasses;
 
+using DocumentFormat.OpenXml.Office.CustomUI;
+
+using System;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace DespatchEventPlanning
 {
@@ -31,6 +35,7 @@ namespace DespatchEventPlanning
 			allocateLoadsUSerControl.Visibility = Visibility.Hidden;
 			depotSplitsUserControl.Visibility = Visibility.Hidden;
 			forecastUserControl.Visibility = Visibility.Hidden;
+			manageDatabaseUserControl.Visibility = Visibility.Hidden;
 		}
 
 		private void ForecastButton_Click(object sender, RoutedEventArgs e)
@@ -39,6 +44,7 @@ namespace DespatchEventPlanning
 			allocateLoadsUSerControl.Visibility = Visibility.Hidden;
 			depotSplitsUserControl.Visibility = Visibility.Hidden;
 			forecastUserControl.Visibility = Visibility.Visible;
+			manageDatabaseUserControl.Visibility = Visibility.Hidden;
 		}
 
 		private void AllocateLoadsButton_Click(object sender, RoutedEventArgs e)
@@ -48,6 +54,7 @@ namespace DespatchEventPlanning
 			allocateLoadsUSerControl.Visibility = Visibility.Visible;
 			depotSplitsUserControl.Visibility = Visibility.Hidden;
 			forecastUserControl.Visibility = Visibility.Hidden;
+			manageDatabaseUserControl.Visibility = Visibility.Hidden;
 		}
 
 		private void DepotSplitsButton_Click(object sender, RoutedEventArgs e)
@@ -57,13 +64,44 @@ namespace DespatchEventPlanning
 			allocateLoadsUSerControl.Visibility = Visibility.Hidden;
 			depotSplitsUserControl.Visibility = Visibility.Visible;
 			forecastUserControl.Visibility = Visibility.Hidden;
+			manageDatabaseUserControl.Visibility = Visibility.Hidden;
 		}
 
-		private void GenerateDatabaseButton_Click(object sender, RoutedEventArgs e)
+		private void ManageDatabaseButton_Click(object sender, RoutedEventArgs e)
 		{
-			this.Status.Message = "Uploading database...";
-			HandleExcelFiles excelFilehandler = new HandleExcelFiles();
-			excelFilehandler.CheckDatabaseTable();
+
+			packingPlanUserControl.Visibility = Visibility.Hidden;
+			allocateLoadsUSerControl.Visibility = Visibility.Hidden;
+			depotSplitsUserControl.Visibility = Visibility.Hidden;
+			forecastUserControl.Visibility = Visibility.Hidden;
+			manageDatabaseUserControl.Visibility = Visibility.Visible;
+		}
+			
+			
+			
+		
+		
+
+		private void ClearDatabase_Click(object sender, RoutedEventArgs e)
+		{
+			DatabaseClass db = new DatabaseClass();
+
+			db.clearDatbaseTable("ProductionPlan");
+			db.clearDatbaseTable("StorageAllocation");
+
+		}
+
+		private void RootWindow_Loaded(object sender, RoutedEventArgs e)
+		{
+
+			string dir = AppDomain.CurrentDomain.BaseDirectory;
+
+			ListBox fileList = new ListBox();
+			fileList.Items.Add("test1");
+			fileList.Items.Add("test2");
+
+
+		
 		}
 	}
 }
