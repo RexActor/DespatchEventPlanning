@@ -5,6 +5,7 @@ using DocumentFormat.OpenXml.Office2010.ExcelAc;
 using Microsoft.Data.Sqlite;
 using Microsoft.Diagnostics.Runtime.DacInterface;
 
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -284,6 +285,42 @@ namespace DespatchEventPlanning.Database
 		}
 
 
+		public string productExistsInStorage(int winNumber,string depotDate, string storageDate,string depotName)
+		{
+			string result = string.Empty;
+
+			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
+			{
+
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"SELECT Count(*) FROM StorageAllocation Where winNumber = {winNumber} AND  storageDate =@storageDate AND depotDate =@depotDate AND depotName =@depotName";
+					cmd.Parameters.Add("@storageDate", SqliteType.Text).Value = storageDate;
+					cmd.Parameters.Add("@depotDate", SqliteType.Text).Value = depotDate;
+					cmd.Parameters.Add("@depotName", SqliteType.Text).Value = depotName;
+
+					cmd.Connection = conn;
+					conn.Open();
+
+					//SqliteDataReader reader = cmd.ExecuteReader();
+
+					int entryFound = (int)Convert.ToInt64(cmd.ExecuteScalar());
+
+					if(entryFound > 0)
+					{
+						result = "FALSE";
+					}
+					else
+					{
+						result = "TRUE";
+					}
+
+					conn.Close();
+				}
+			}
+
+			return result;
+		}
 
 
 

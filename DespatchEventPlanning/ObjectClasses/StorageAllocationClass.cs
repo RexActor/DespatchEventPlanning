@@ -45,6 +45,7 @@ namespace DespatchEventPlanning.ObjectClasses
 									depotName = x.Name,
 									productDescription = item.productDescription,
 									packsPerPallet = item.packsPerPallet,
+									inStorage = db.productExistsInStorage(item.winNumber,item.depotDate,item.packingDate,"BEDFORD"),
 									quantityCases = (int)item.BEDFORD,
 									productGroup = item.productGroup,
 									quantityPallets = (int)Math.Ceiling(item.BEDFORD / item.packsPerPallet),
@@ -66,6 +67,7 @@ namespace DespatchEventPlanning.ObjectClasses
 									packsPerPallet = item.packsPerPallet,
 									quantityCases = (int)item.ERITH,
 									productGroup = item.productGroup,
+									inStorage = db.productExistsInStorage(item.winNumber, item.depotDate, item.packingDate, "ERITH"),
 
 									quantityPallets = (int)Math.Ceiling(item.ERITH / item.packsPerPallet),
 									quantityPalletsToAllocate = (int)(item.ERITH - (item.ERITH % item.packsPerPallet)) / item.packsPerPallet
@@ -86,6 +88,7 @@ namespace DespatchEventPlanning.ObjectClasses
 									packsPerPallet = item.packsPerPallet,
 									quantityCases = (int)item.LUTTERWORTH,
 									productGroup = item.productGroup,
+									inStorage = db.productExistsInStorage(item.winNumber, item.depotDate, item.packingDate, "LUTTERWORTH"),
 									quantityPallets = (int)Math.Ceiling(item.LUTTERWORTH / item.packsPerPallet),
 									quantityPalletsToAllocate = (int)(item.LUTTERWORTH - (item.LUTTERWORTH % item.packsPerPallet)) / item.packsPerPallet
 								});
@@ -106,6 +109,7 @@ namespace DespatchEventPlanning.ObjectClasses
 									quantityCases = (int)item.ROCHDALE,
 									productGroup = item.productGroup,
 									quantityPallets = (int)Math.Ceiling(item.ROCHDALE / item.packsPerPallet),
+									inStorage = db.productExistsInStorage(item.winNumber, item.depotDate, item.packingDate, "ROCHDALE"),
 									quantityPalletsToAllocate = (int)(item.ROCHDALE - (item.ROCHDALE % item.packsPerPallet)) / item.packsPerPallet
 								});
 							}
@@ -124,6 +128,7 @@ namespace DespatchEventPlanning.ObjectClasses
 									packsPerPallet = item.packsPerPallet,
 									quantityCases = (int)item.SKELMERSDALE,
 									productGroup = item.productGroup,
+									inStorage = db.productExistsInStorage(item.winNumber, item.depotDate, item.packingDate, "SKELMERSDALE"),
 									quantityPallets = (int)Math.Ceiling(item.SKELMERSDALE / item.packsPerPallet),
 									quantityPalletsToAllocate = (int)(item.SKELMERSDALE - (item.SKELMERSDALE % item.packsPerPallet)) / item.packsPerPallet
 								});
@@ -144,6 +149,7 @@ namespace DespatchEventPlanning.ObjectClasses
 									quantityCases = (int)item.WAKEFIELD,
 									productGroup = item.productGroup,
 									quantityPallets = (int)Math.Ceiling(item.WAKEFIELD / item.packsPerPallet),
+									inStorage = db.productExistsInStorage(item.winNumber, item.depotDate, item.packingDate, "WAKEFIELD"),
 									quantityPalletsToAllocate = (int)(item.WAKEFIELD - (item.WAKEFIELD % item.packsPerPallet)) / item.packsPerPallet
 								});
 							}
@@ -162,6 +168,7 @@ namespace DespatchEventPlanning.ObjectClasses
 									packsPerPallet = item.packsPerPallet,
 									quantityCases = (int)item.WASHINGTON,
 									productGroup = item.productGroup,
+									inStorage = db.productExistsInStorage(item.winNumber, item.depotDate, item.packingDate, "WASHINGTON"),
 									quantityPallets = (int)Math.Ceiling(item.WASHINGTON / item.packsPerPallet),
 									quantityPalletsToAllocate = (int)(item.WASHINGTON - (item.WASHINGTON % item.packsPerPallet)) / item.packsPerPallet
 								});
@@ -181,6 +188,7 @@ namespace DespatchEventPlanning.ObjectClasses
 									packsPerPallet = item.packsPerPallet,
 									quantityCases = (int)item.FALKIRK,
 									productGroup = item.productGroup,
+									inStorage = db.productExistsInStorage(item.winNumber, item.depotDate, item.packingDate, "FALKIRK"),
 									quantityPallets = (int)Math.Ceiling(item.FALKIRK / item.packsPerPallet),
 									quantityPalletsToAllocate = (int)(item.FALKIRK - (item.FALKIRK % item.packsPerPallet)) / item.packsPerPallet
 								});
@@ -200,6 +208,7 @@ namespace DespatchEventPlanning.ObjectClasses
 									packsPerPallet = item.packsPerPallet,
 									quantityCases = (int)item.LARNE,
 									productGroup = item.productGroup,
+									inStorage = db.productExistsInStorage(item.winNumber, item.depotDate, item.packingDate, "LARNE"),
 									quantityPallets = (int)Math.Ceiling(item.LARNE / item.packsPerPallet),
 									quantityPalletsToAllocate = (int)(item.LARNE - (item.LARNE % item.packsPerPallet)) / item.packsPerPallet
 								});
@@ -219,6 +228,7 @@ namespace DespatchEventPlanning.ObjectClasses
 									packsPerPallet = item.packsPerPallet,
 									quantityCases = (int)item.BRISTOL,
 									productGroup = item.productGroup,
+									inStorage = db.productExistsInStorage(item.winNumber, item.depotDate, item.packingDate, "BRISTOL"),
 									quantityPallets = (int)Math.Ceiling(item.BRISTOL / item.packsPerPallet),
 									quantityPalletsToAllocate = (int)(item.BRISTOL - (item.BRISTOL % item.packsPerPallet)) / item.packsPerPallet
 								});
@@ -384,6 +394,8 @@ namespace DespatchEventPlanning.ObjectClasses
 		public string loadReference { get; set; }
 		public int packsPerPallet { get; set; }
 		public string productGroup { get; set; }
+
+		public string inStorage { get; set; }
 
 		public int quantityPalletsToAllocate { get; set; }
 		public int quantityPalletsAllocated { get; set; }
