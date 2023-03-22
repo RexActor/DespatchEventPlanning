@@ -35,6 +35,10 @@
 
         <Button x:Name="importDefaultDepotSplitsButton" Grid.Column="0" Grid.Row="2" Content="Import Default depots Splits" HorizontalAlignment="Center" VerticalAlignment="Center" Width="170" Height="45"  Click="importDefaultDepotSplitsButton_Click"/>
         <ProgressBar x:Name="defaultDepotSplitProgressBar" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" Height="25"  VerticalAlignment="Center" Width="200"/>
+        <TextBlock x:Name="defaultDepotSplitProgressBarProgressText" Grid.Column="1" Grid.Row="2" Text="" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/>
+        <TextBlock x:Name="defaultDepotSplitsTextBlock" Grid.Column="2" Grid.Row="2" Text="" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center" Height="auto" Width="auto"/>
+        
+        
 
         <Button x:Name="importForecastButton" Grid.Column="0" Grid.Row="3" Content="Import Forecast" HorizontalAlignment="Center" VerticalAlignment="Center" Width="170" Height="45"  Click="importForecastButton_Click"/>
         <ProgressBar x:Name="forecastProgressBar" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left" Height="25"  VerticalAlignment="Center" Width="200"/>

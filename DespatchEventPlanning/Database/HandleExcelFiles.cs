@@ -24,6 +24,7 @@ namespace DespatchEventPlanning.Database
 
 		private readonly string productInformationPath = $"{AppDomain.CurrentDomain.BaseDirectory}ProductInformation.xlsx";
 		private readonly string depotSplitPath = $"{AppDomain.CurrentDomain.BaseDirectory}DepotSplits.xlsx";
+		private readonly string defaultDepotSplitsPath = $"{AppDomain.CurrentDomain.BaseDirectory}DefaultDepotSplits.xlsx";
 		private DatabaseClass db = new DatabaseClass();
 
 		
@@ -118,6 +119,26 @@ namespace DespatchEventPlanning.Database
 
 
 			return convertedList;
+		}
+
+
+		public List<DefaultDepotSplitsClass> GenerateDefaultDepotSplits()
+		{
+			handler = new DataHandler();
+			var convertedList = handler.ReadExcelFile($"{EnumClass.SHEETNAMES.DepotSplits}", defaultDepotSplitsPath).AsEnumerable().Select(item => new DefaultDepotSplitsClass()
+			{
+
+				productGroup= Convert.ToString(item["ProductGroup"]),
+				winNumber = Convert.ToInt32(item["WinNumber"]),
+				productDescription = Convert.ToString(item["ProductDescription"]),
+				depotName = Convert.ToString(item["DepotName"]),
+				qty= (float)Convert.ToDouble(item["Qty"])
+
+			}).ToList();
+
+
+
+				return convertedList;
 		}
 
 	}
