@@ -234,7 +234,7 @@ namespace DespatchEventPlanning.Database
 					cmd.Parameters.AddWithValue("@winNumber", winNumber);
 					cmd.Parameters.AddWithValue("@productDescription", productDescription);
 					cmd.Parameters.AddWithValue("@depotName", depotName);
-					cmd.Parameters.AddWithValue("@qty", qty);
+					cmd.Parameters.AddWithValue("@qty",Math.Round(qty,3));
 					
 
 					cmd.Connection = conn;
@@ -246,6 +246,61 @@ namespace DespatchEventPlanning.Database
 				}
 			}
 		}
+
+
+		public void saveForecast(string table_name, int winNumber, string productDescription, string depotDate, int qty)
+		{
+			using (SqliteConnection conn = new SqliteConnection($"data source ={_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"INSERT INTO [{table_name}] ([winNumber],[productDescription],[depotDate],[qty]) values(@winNumber,@productDescription,@depotDate,@qty)";
+
+
+					cmd.Parameters.AddWithValue("@winNumber", winNumber);
+					cmd.Parameters.AddWithValue("@productDescription", productDescription);
+					cmd.Parameters.AddWithValue("@depotDate", depotDate);
+					cmd.Parameters.AddWithValue("@qty", qty);
+					
+
+
+					cmd.Connection = conn;
+					conn.Open();
+
+					cmd.ExecuteNonQuery();
+
+					conn.Close();
+				}
+			}
+		}
+		public void savePackingPlan(string table_name, int winNumber, string productDescription, string productGroup,string packingDate,string depotDate, int packingQuantity)
+		{
+			using (SqliteConnection conn = new SqliteConnection($"data source ={_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"INSERT INTO [{table_name}] ([winNumber],[productDescription],[productGroup],[packingDate],[depotDate],[packingQuantity]) values(@winNumber,@productDescription,@productGroup,@packingDate,@depotDate,@packingQuantity)";
+
+
+					cmd.Parameters.AddWithValue("@winNumber", winNumber);
+					cmd.Parameters.AddWithValue("@productDescription", productDescription);
+					cmd.Parameters.AddWithValue("@productGroup", productGroup);
+					cmd.Parameters.AddWithValue("@packingDate", packingDate);
+					cmd.Parameters.AddWithValue("@depotDate", depotDate);
+					cmd.Parameters.AddWithValue("@packingQuantity", packingQuantity);
+					
+
+
+					cmd.Connection = conn;
+					conn.Open();
+
+					cmd.ExecuteNonQuery();
+
+					conn.Close();
+				}
+			}
+		}
+
 
 
 		public void saveProductIntoStorageLoad(string table_name, int winNumber, string productDescription, string storageDate, string depotDate, string depotName, int allocatedCases, string loadReference, int allocatedPallets)

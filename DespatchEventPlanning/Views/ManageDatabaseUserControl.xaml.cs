@@ -19,10 +19,16 @@ namespace DespatchEventPlanning.Views
 		private string productInformationText = string.Empty;
 		private string depotSplitText = string.Empty;
 		private string defaultSplitText = string.Empty;
+		private string forecastText = string.Empty;
+		private string packingPlanText = string.Empty;
+
 
 		private ToolTip depotSplitsToolTip;
 		private ToolTip productInformationToolTip;
 		private ToolTip defaultDepotSplitsToolTip;
+		private ToolTip forecastToolTip;
+		private ToolTip packingPlanTooltip;
+
 
 		public ManageDatabaseUserControl()
 		{
@@ -33,6 +39,8 @@ namespace DespatchEventPlanning.Views
 			productInformationProgressBar.Maximum = handler.GenerateProductInformation().Count;
 			depotSplitProgressBar.Maximum = handler.GenerateDepotSplits().Count;
 			defaultDepotSplitProgressBar.Maximum = handler.GenerateDefaultDepotSplits().Count;
+			forecastProgressBar.Maximum = handler.GenerateForecast().Count;
+			packingPlanProgressBar.Maximum = handler.GeneratePackingPlan().Count;
 		}
 
 		#region productInformation import section
@@ -83,7 +91,6 @@ namespace DespatchEventPlanning.Views
 		{
 			productInformationTextBlock.Text = "Product information upload completed!!!";
 			productInformationToolTip.Content = $"Complted! In Total uploaded {productInformationProgressBar.Maximum} entries!";
-	
 		}
 
 		#endregion productInformation import section
@@ -108,7 +115,6 @@ namespace DespatchEventPlanning.Views
 		{
 			depotSplitsTextBlock.Text = "Depot splits uploaded successfully";
 			depotSplitsToolTip.Content = $"Complted! In Total uploaded  {depotSplitProgressBar.Maximum} entries!";
-			
 		}
 
 		private void ImportDepotSplitsBackgroundWorker_ProgressChanged(object? sender, ProgressChangedEventArgs e)
@@ -196,21 +202,110 @@ namespace DespatchEventPlanning.Views
 
 		#endregion default Depot Split import
 
-
-
 		#region forecast Import
+
 		private void importForecastButton_Click(object sender, RoutedEventArgs e)
 		{
+			BackgroundWorker forecastBackgroundWorker = new BackgroundWorker();
+			forecastBackgroundWorker.WorkerReportsProgress = true;
+			forecastBackgroundWorker.DoWork += ForecastBackgroundWorker_DoWork;
+			forecastBackgroundWorker.ProgressChanged += ForecastBackgroundWorker_ProgressChanged;
+			forecastBackgroundWorker.RunWorkerCompleted += ForecastBackgroundWorker_RunWorkerCompleted;
+			forecastBackgroundWorker.RunWorkerAsync();
+			forecastToolTip = new ToolTip();
+			forecastProgressBar.ToolTip = forecastToolTip;
 
+		}
+
+		private void ForecastBackgroundWorker_RunWorkerCompleted(object? sender, RunWorkerCompletedEventArgs e)
+		{
+			forecastTextBlock.Text = "Upload Completed";
+			forecastToolTip.Content = $"Complted! In Total uploaded {forecastProgressBar.Maximum} entries!";
+		}
+
+		private void ForecastBackgroundWorker_ProgressChanged(object? sender, ProgressChangedEventArgs e)
+		{
+			float progressValue = e.ProgressPercentage;
+
+			forecastProgressBar.Value = progressValue;
+
+			forecastBarProgressText.Text = $"{Math.Round((progressValue / forecastProgressBar.Maximum) * 100)}%";
+			forecastTextBlock.Text = forecastText;
+			forecastToolTip.Content = $"Loading {progressValue} from {forecastProgressBar.Maximum}";
+		}
+
+		private void ForecastBackgroundWorker_DoWork(object? sender, DoWorkEventArgs e)
+		{
+			int increase = 0;
+			handler.GenerateForecast().AsEnumerable().ToList().ForEach(item =>
+			{
+				db.saveForecast("Forecast", item.winNumber, item.productDescription, item.depotDate, item.qty);
+
+				forecastText = $"Uploading: WIN {item.winNumber} " +
+				$"has {item.productDescription} as description " +
+				$"and have {item.depotDate} as depot date " +
+
+				$"and have {item.qty} as forecast.";
+
+				increase++;
+				(sender as BackgroundWorker).ReportProgress(increase);
+			});
+		}
+
+		#endregion forecast Import
+
+		private void importPackingPlanButton_Click(object sender, RoutedEventArgs e)
+		{
+			BackgroundWorker packingPlanBackgroundWorker = new BackgroundWorker();
+
+			packingPlanBackgroundWorker.WorkerReportsProgress = true;
+			packingPlanBackgroundWorker.DoWork += PackingPlanBackgroundWorker_DoWork;
+			packingPlanBackgroundWorker.ProgressChanged += PackingPlanBackgroundWorker_ProgressChanged;
+			packingPlanBackgroundWorker.RunWorkerCompleted += PackingPlanBackgroundWorker_RunWorkerCompleted;
+			packingPlanBackgroundWorker.RunWorkerAsync();
+
+			packingPlanTooltip = new ToolTip();
+			packingPlanProgressBar.ToolTip = packingPlanTooltip;
 
 
 
 		}
 
-		#endregion
-
-		private void importPackingPlanButton_Click(object sender, RoutedEventArgs e)
+		private void PackingPlanBackgroundWorker_RunWorkerCompleted(object? sender, RunWorkerCompletedEventArgs e)
 		{
+			packingPlanTextBlock.Text = "Upload Completed";
+			packingPlanTooltip.Content = $"Complted! In Total uploaded {packingPlanProgressBar.Maximum} entries!";
+		}
+
+		private void PackingPlanBackgroundWorker_ProgressChanged(object? sender, ProgressChangedEventArgs e)
+		{
+			float progressValue = e.ProgressPercentage;
+
+			packingPlanProgressBar.Value = progressValue;
+
+			packingPlanProgressText.Text = $"{Math.Round((progressValue / packingPlanProgressBar.Maximum) * 100)}%";
+			packingPlanTextBlock.Text = packingPlanText;
+			packingPlanTooltip.Content = $"Loading {progressValue} from {packingPlanProgressBar.Maximum}";
+		}
+
+		private void PackingPlanBackgroundWorker_DoWork(object? sender, DoWorkEventArgs e)
+		{
+			int increase = 0;
+			handler.GeneratePackingPlan().AsEnumerable().ToList().ForEach(item =>
+			{
+				db.savePackingPlan("PackingPlan", item.winNumber, item.productDescription, item.productGroup, item.packingDate, item.depotDate,item.packingQuantity);
+
+				packingPlanText = $"Uploading: WIN {item.winNumber} " +
+				$"has {item.productDescription} as description " +
+				$"and have {item.depotDate} as depot date " +
+				$"which belongs to {item.productGroup} product group " +
+
+				$"and {item.packingQuantity} is " +
+				$"being packed on {item.packingDate} ";
+
+				increase++;
+				(sender as BackgroundWorker).ReportProgress(increase);
+			});
 		}
 	}
 }

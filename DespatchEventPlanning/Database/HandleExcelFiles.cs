@@ -132,13 +132,54 @@ namespace DespatchEventPlanning.Database
 				winNumber = Convert.ToInt32(item["WinNumber"]),
 				productDescription = Convert.ToString(item["ProductDescription"]),
 				depotName = Convert.ToString(item["DepotName"]),
-				qty= (float)Convert.ToDouble(item["Qty"])
+				qty= (float)Math.Round(Convert.ToDouble(item["Qty"]),3)
 
 			}).ToList();
 
 
 
 				return convertedList;
+		}
+
+
+		public List<PackingPlanClass> GeneratePackingPlan()
+		{
+			handler = new DataHandler();
+
+			var convertedList = handler.ReadExcelFile($"{EnumClass.SHEETNAMES.PackingPlan}", packingPlanFilePath).AsEnumerable().Select(item => new PackingPlanClass()
+			{
+				winNumber = Convert.ToInt32(item["WinNumber"]),
+				productDescription = Convert.ToString(item["ProductDescription"]),
+				productGroup = Convert.ToString(item["Group"]),
+				packingDate = Convert.ToString(item["RequiredDate"]),
+				depotDate = Convert.ToString(item["DepotDate"]),
+				packingQuantity = Convert.ToInt32(item["PackingQuantity"])
+
+
+
+
+
+
+			}).ToList();
+
+			return convertedList;
+		}
+
+
+
+		public List<ForecastClass> GenerateForecast()
+		{
+			handler = new DataHandler();
+			var convertedList = handler.ReadExcelFile($"{EnumClass.SHEETNAMES.Forecast}", forecastFilePath).AsEnumerable().Select(item => new ForecastClass() { 
+			
+			winNumber = Convert.ToInt32(item["WinNumber"]),
+			productDescription = Convert.ToString(item["ProductDescription"]),
+			depotDate = Convert.ToString(item["DepotDate"]),
+			qty = Convert.ToInt32(item["Qty"])
+			
+			}).ToList();
+
+			return convertedList;
 		}
 
 	}
