@@ -423,8 +423,174 @@ namespace DespatchEventPlanning.Database
 		}
 
 
+		public bool productExistsInProductInformationTable(int winNumber, int productNumber)
+		{
+			bool result = false;
+
+			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"SELECT Count(*) FROM ProductInformation Where winNumber = {winNumber} AND  productNumber =@productNumber";
+					cmd.Parameters.Add("@productNumber", SqliteType.Integer).Value = productNumber;
+					
+
+					cmd.Connection = conn;
+					conn.Open();
+
+					int entryFound = (int)Convert.ToInt64(cmd.ExecuteScalar());
+
+					if (entryFound > 0)
+					{
+						result = true;
+					}
+					else
+					{
+						result = false;
+					}
+
+					conn.Close();
+				}
+			}
+
+			return result;
+		}
+
+		public bool productExistsIndepotSplitTable(int winNumber, int depotNumber,string depotDate)
+		{
+			bool result = false;
+
+			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"SELECT Count(*) FROM DepotSplits Where winNumber = {winNumber} AND  depotNumber =@depotNumber AND depotDate=@depotDate";
+					cmd.Parameters.Add("@depotNumber", SqliteType.Integer).Value = depotNumber;
+					cmd.Parameters.Add("@depotDate", SqliteType.Text).Value = depotDate;
 
 
+					cmd.Connection = conn;
+					conn.Open();
+
+					int entryFound = (int)Convert.ToInt64(cmd.ExecuteScalar());
+
+					if (entryFound > 0)
+					{
+						result = true;
+					}
+					else
+					{
+						result = false;
+					}
+
+					conn.Close();
+				}
+			}
+
+			return result;
+		}
+
+		public bool productExistsInDefaultDepotSplitTable(int winNumber, string depotName)
+		{
+			bool result = false;
+
+			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"SELECT Count(*) FROM DefaultDepotSplits Where winNumber = {winNumber} AND  depotName =@depotName";
+					cmd.Parameters.Add("@depotName", SqliteType.Text).Value = depotName;
+					
+
+
+					cmd.Connection = conn;
+					conn.Open();
+
+					int entryFound = (int)Convert.ToInt64(cmd.ExecuteScalar());
+
+					if (entryFound > 0)
+					{
+						result = true;
+					}
+					else
+					{
+						result = false;
+					}
+
+					conn.Close();
+				}
+			}
+
+			return result;
+		}
+		public bool productExistsInForecastTable(int winNumber, string depotDate)
+		{
+			bool result = false;
+
+			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"SELECT Count(*) FROM Forecast Where winNumber = {winNumber} AND  depotDate =@depotDate";
+					cmd.Parameters.Add("@depotDate", SqliteType.Text).Value = depotDate;
+
+
+
+					cmd.Connection = conn;
+					conn.Open();
+
+					int entryFound = (int)Convert.ToInt64(cmd.ExecuteScalar());
+
+					if (entryFound > 0)
+					{
+						result = true;
+					}
+					else
+					{
+						result = false;
+					}
+
+					conn.Close();
+				}
+			}
+
+			return result;
+		}
+
+		public bool productExistsInPackingPlanTable(int winNumber, string packingDate,string depotDate)
+		{
+			bool result = false;
+
+			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"SELECT Count(*) FROM PackingPlan Where winNumber = {winNumber}  AND packingDate=@packingDate AND  depotDate=@depotDate";
+					cmd.Parameters.Add("@packingDate", SqliteType.Text).Value = packingDate;
+					cmd.Parameters.Add("@depotDate", SqliteType.Text).Value = depotDate;
+					
+
+
+					cmd.Connection = conn;
+					conn.Open();
+
+					int entryFound = (int)Convert.ToInt64(cmd.ExecuteScalar());
+
+					if (entryFound > 0)
+					{
+						result = true;
+					}
+					else
+					{
+						result = false;
+					}
+
+					conn.Close();
+				}
+			}
+
+			return result;
+		}
 
 
 		public void clearDatbaseTable(string tableName)
