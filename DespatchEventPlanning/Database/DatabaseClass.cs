@@ -194,6 +194,31 @@ namespace DespatchEventPlanning.Database
 			}
 		}
 
+		public void saveDepotSplits(string table_name, int winNumber, string productDescription, int depotNumber, string depotName, string depotDate, int qty)
+		{
+			using (SqliteConnection conn = new SqliteConnection($"data source ={_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"INSERT INTO [{table_name}] ([winNumber],[productDescription],[depotNumber],[depotName],[depotDate],[qty]) values(@winNumber,@productDescription,@depotNumber,@depotName,@depotDate,@qty)";
+
+
+					cmd.Parameters.AddWithValue("@winNumber", winNumber);
+					cmd.Parameters.AddWithValue("@productDescription", productDescription);
+					cmd.Parameters.AddWithValue("@depotNumber", depotNumber);
+					cmd.Parameters.AddWithValue("@depotName", depotName);
+					cmd.Parameters.AddWithValue("@depotDate", depotDate);
+					cmd.Parameters.AddWithValue("@qty", qty);
+
+					cmd.Connection = conn;
+					conn.Open();
+
+					cmd.ExecuteNonQuery();
+
+					conn.Close();
+				}
+			}
+		}
 
 
 

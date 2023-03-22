@@ -7,7 +7,39 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" Background="pink">
     <Grid>
-        <Button x:Name="importProductInformationButton" Content="Import Product Information" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="170" Height="35" Click="importProductInformationButton_Click"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="*"/>
 
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+        
+        <Button x:Name="importProductInformationButton" Grid.Column="0" Grid.Row="0" Content="Import Product Information" HorizontalAlignment="Center" VerticalAlignment="Center" Width="170" Height="45" Click="importProductInformationButton_Click"/>
+        <ProgressBar x:Name="productInformationProgressBar" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" Height="25"  VerticalAlignment="Center" Width="200"/>
+        <TextBlock x:Name="productInformationProgressBarProgressText" Grid.Column="1" Grid.Row="0" Text="" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/>
+        <TextBlock x:Name="productInformationTextBlock" Grid.Column="2" Grid.Row="0" Text="" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center" Height="auto" Width="auto"/>
+
+        <Button x:Name="importDepotSplitsButton" Grid.Column="0" Grid.Row="1" Content="Import Depot Splits" HorizontalAlignment="Center" VerticalAlignment="Center" Width="170" Height="45"  Click="importDepotSplitsButton_Click"/>
+        <ProgressBar x:Name="depotSplitProgressBar" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Height="25"  VerticalAlignment="Center" Width="200"/>
+        <TextBlock x:Name="depotSplitProgressBarProgressText" Grid.Column="1" Grid.Row="1" Text="" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/>
+        <TextBlock x:Name="depotSplitsTextBlock" Grid.Column="2" Grid.Row="1" Text="" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center" Height="auto" Width="auto"/>
+
+
+        <Button x:Name="importDefaultDepotSplitsButton" Grid.Column="0" Grid.Row="2" Content="Import Default depots Splits" HorizontalAlignment="Center" VerticalAlignment="Center" Width="170" Height="45"  Click="importDefaultDepotSplitsButton_Click"/>
+        <ProgressBar x:Name="defaultDepotSplitProgressBar" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" Height="25"  VerticalAlignment="Center" Width="200"/>
+
+        <Button x:Name="importForecastButton" Grid.Column="0" Grid.Row="3" Content="Import Forecast" HorizontalAlignment="Center" VerticalAlignment="Center" Width="170" Height="45"  Click="importForecastButton_Click"/>
+        <ProgressBar x:Name="forecastProgressBar" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left" Height="25"  VerticalAlignment="Center" Width="200"/>
+
+        <Button x:Name="importPackingPlanButton" Grid.Column="0" Grid.Row="4" Content="Import Packing Plan" HorizontalAlignment="Center" VerticalAlignment="Center" Width="170" Height="45"  Click="importPackingPlanButton_Click"/>
+        <ProgressBar x:Name="packingPlanProgressBar" Grid.Column="1" Grid.Row="4" HorizontalAlignment="Left" Height="25"  VerticalAlignment="Center" Width="200"/>
     </Grid>
 </UserControl>

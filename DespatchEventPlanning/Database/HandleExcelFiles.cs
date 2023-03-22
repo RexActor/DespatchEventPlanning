@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,6 +23,7 @@ namespace DespatchEventPlanning.Database
 		private readonly string forecastFilePath = $"{AppDomain.CurrentDomain.BaseDirectory}Forecast.xlsx";
 
 		private readonly string productInformationPath = $"{AppDomain.CurrentDomain.BaseDirectory}ProductInformation.xlsx";
+		private readonly string depotSplitPath = $"{AppDomain.CurrentDomain.BaseDirectory}DepotSplits.xlsx";
 		private DatabaseClass db = new DatabaseClass();
 
 		
@@ -97,5 +99,26 @@ namespace DespatchEventPlanning.Database
 
 			return convertedList;
 		}
+
+
+
+		public List<depotSplitClass> GenerateDepotSplits()
+		{
+			handler = new DataHandler();
+			var convertedList = handler.ReadExcelFile($"{EnumClass.SHEETNAMES.DepotSplits}", depotSplitPath).AsEnumerable().Select(item => new depotSplitClass()
+			{
+
+				winNumber = Convert.ToInt32(item[$"WinNumber"]),
+				productDescription = Convert.ToString(item[$"ProductDescription"]),
+				depotNumber = Convert.ToInt32(item[$"DepotNumber"]),
+				depotName= Convert.ToString(item[$"DepotName"]),
+				depotDate = Convert.ToString(item[$"DepotDate"]),
+				qty = Convert.ToInt32(item[$"Qty"]),
+			}).ToList();
+
+
+			return convertedList;
+		}
+
 	}
 }
