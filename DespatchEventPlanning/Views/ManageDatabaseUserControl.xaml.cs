@@ -24,12 +24,15 @@ namespace DespatchEventPlanning.Views
 		private string defaultSplitText = string.Empty;
 		private string forecastText = string.Empty;
 		private string packingPlanText = string.Empty;
+		private string selectedDatabaseTable = string.Empty;
 
-		private bool depotSplitsExists = false;
-		private bool productInformationExists = false;
-		private bool defaultDepotSplitsExists = false;
-		private bool forecastExists = false;
-		private bool packingPlanExists = false;
+
+
+		private bool depotSplitsExists;
+		private bool productInformationExists;
+		private bool defaultDepotSplitsExists;
+		private bool forecastExists;
+		private bool packingPlanExists;
 
 
 		private ToolTip depotSplitsToolTip;
@@ -49,6 +52,15 @@ namespace DespatchEventPlanning.Views
 			InitializeComponent();
 
 			handler = new HandleExcelFiles();
+
+			databaseTableList.Items.Add("Please choose table");
+			databaseTableList.SelectedIndex = 0;
+			db.GetDatabaseTables().AsEnumerable().ToList().ForEach(dbTable => {
+
+				databaseTableList.Items.Add(dbTable.ToString());
+
+
+			});
 
 			productInformationProgressBar.Maximum = handler.GenerateProductInformation().Count;
 			depotSplitProgressBar.Maximum = handler.GenerateDepotSplits().Count;
@@ -73,6 +85,7 @@ namespace DespatchEventPlanning.Views
 		private void importProductInformationButton_Click(object sender, RoutedEventArgs e)
 		{
 			if (IsSomethingBeingUpdated()==true) { MessageBox.Show("Already Uploading items...! Please be patient!");return; }
+
 			
 			importProductInformationBackgroundWorker.WorkerReportsProgress = true;
 			importProductInformationBackgroundWorker.DoWork += importProductInformationBackgroundWorker_DoWork;
@@ -94,20 +107,23 @@ namespace DespatchEventPlanning.Views
 			productInformationProgressBarProgressText.Text = $"{Math.Round((progressValue / productInformationProgressBar.Maximum) * 100)}%";
 			productInformationTextBlock.Text = productInformationText;
 			productInformationToolTip.Content = $"Uploading {progressValue} from {productInformationProgressBar.Maximum}";
+			
 		}
 
 		private void importProductInformationBackgroundWorker_DoWork(object? sender, DoWorkEventArgs e)
 		{
 			int increase = 0;
+			
 			handler.GenerateProductInformation().AsEnumerable().ToList().ForEach(item =>
 			{
+				
 				if (db.productExistsInProductInformationTable(item.winNumber, item.productNumber) == true)
 				{
 					increase++;
 					productInformationExists = true;
 
+					(sender as BackgroundWorker).ReportProgress(increase);
 
-				
 				}
 				else
 				{
@@ -125,6 +141,7 @@ namespace DespatchEventPlanning.Views
 					increase++;
 					(sender as BackgroundWorker).ReportProgress(increase);
 				}
+				
 			});
 		}
 
@@ -195,6 +212,7 @@ namespace DespatchEventPlanning.Views
 		private void ImportDepotSplitsBackgroundWorker_DoWork(object? sender, DoWorkEventArgs e)
 		{
 			int increase = 0;
+			depotSplitsExists = false;
 			handler.GenerateDepotSplits().AsEnumerable().ToList().ForEach(item =>
 			{
 				if (db.productExistsIndepotSplitTable(item.winNumber, item.depotNumber, item.depotDate) == true)
@@ -271,6 +289,7 @@ namespace DespatchEventPlanning.Views
 		private void DefaultDepotSplitBackgroundWorker_DoWork(object? sender, DoWorkEventArgs e)
 		{
 			int increase = 0;
+			defaultDepotSplitsExists = false;
 			handler.GenerateDefaultDepotSplits().AsEnumerable().ToList().ForEach(item =>
 			{
 				if (db.productExistsInDefaultDepotSplitTable(item.winNumber, item.depotName) == true)
@@ -345,6 +364,7 @@ namespace DespatchEventPlanning.Views
 		private void ForecastBackgroundWorker_DoWork(object? sender, DoWorkEventArgs e)
 		{
 			int increase = 0;
+			forecastExists = false;
 			handler.GenerateForecast().AsEnumerable().ToList().ForEach(item =>
 			{
 				if (db.productExistsInForecastTable(item.winNumber, item.depotDate) == true)
@@ -424,6 +444,7 @@ namespace DespatchEventPlanning.Views
 		private void PackingPlanBackgroundWorker_DoWork(object? sender, DoWorkEventArgs e)
 		{
 			int increase = 0;
+			packingPlanExists = false;
 
 			handler.GeneratePackingPlan().AsEnumerable().ToList().ForEach(item =>
 			{
@@ -456,5 +477,30 @@ namespace DespatchEventPlanning.Views
 		}
 
 		#endregion packing Plan Import
+
+		private void clearDatabaseButton_Click(object sender, RoutedEventArgs e)
+		{
+			
+			if(databaseTableList.SelectedItem != null && databaseTableList.SelectedIndex!=0)
+			{
+				db.clearDatbaseTable(databaseTableList.SelectedItem.ToString());
+				databaseTableList.SelectedIndex = 0;
+				databaseClearTextbox.Text = "Database Cleared";
+			}
+			else
+			{
+				databaseClearTextbox.Text = "Unable To Clear this database table! Please select different table";
+			}
+			
+			
+		}
+
+		private void databaseTableList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+
+			selectedDatabaseTable = databaseTableList.SelectedItem.ToString();
+			databaseClearTextbox.Text = string.Empty;
+			
+		}
 	}
 }

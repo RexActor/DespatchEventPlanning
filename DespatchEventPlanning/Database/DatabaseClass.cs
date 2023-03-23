@@ -168,7 +168,7 @@ namespace DespatchEventPlanning.Database
 			return output;
 		}
 
-		public void saveProductInformation(string table_name, int winNumber, int productNumber, string productDescription,  int packsPerPallet, string productGroup, int weightOfOuter)
+		public void saveProductInformation(string table_name, int winNumber, int productNumber, string productDescription, int packsPerPallet, string productGroup, int weightOfOuter)
 		{
 			using (SqliteConnection conn = new SqliteConnection($"data source ={_databaseSource}; Mode=ReadWrite;"))
 			{
@@ -176,7 +176,6 @@ namespace DespatchEventPlanning.Database
 				{
 					cmd.CommandText = $"INSERT INTO [{table_name}] ([winNumber],[productNumber],[productDescription],[packsPerPallet],[productGroup],[weightOfOuter]) values(@winNumber,@productNumber,@productDescription,@packsPerPallet,@productGroup,@weightOfOuter)";
 
-					
 					cmd.Parameters.AddWithValue("@winNumber", winNumber);
 					cmd.Parameters.AddWithValue("@productNumber", productNumber);
 					cmd.Parameters.AddWithValue("@productDescription", productDescription);
@@ -202,7 +201,6 @@ namespace DespatchEventPlanning.Database
 				{
 					cmd.CommandText = $"INSERT INTO [{table_name}] ([winNumber],[productDescription],[depotNumber],[depotName],[depotDate],[qty]) values(@winNumber,@productDescription,@depotNumber,@depotName,@depotDate,@qty)";
 
-
 					cmd.Parameters.AddWithValue("@winNumber", winNumber);
 					cmd.Parameters.AddWithValue("@productDescription", productDescription);
 					cmd.Parameters.AddWithValue("@depotNumber", depotNumber);
@@ -220,7 +218,6 @@ namespace DespatchEventPlanning.Database
 			}
 		}
 
-
 		public void saveDefaultDepotSplits(string table_name, string productGroup, int winNumber, string productDescription, string depotName, float qty)
 		{
 			using (SqliteConnection conn = new SqliteConnection($"data source ={_databaseSource}; Mode=ReadWrite;"))
@@ -229,13 +226,11 @@ namespace DespatchEventPlanning.Database
 				{
 					cmd.CommandText = $"INSERT INTO [{table_name}] ([productGroup],[winNumber],[productDescription],[depotName],[qty]) values(@productGroup,@winNumber,@productDescription,@depotName,@qty)";
 
-
 					cmd.Parameters.AddWithValue("@productGroup", productGroup);
 					cmd.Parameters.AddWithValue("@winNumber", winNumber);
 					cmd.Parameters.AddWithValue("@productDescription", productDescription);
 					cmd.Parameters.AddWithValue("@depotName", depotName);
-					cmd.Parameters.AddWithValue("@qty",Math.Round(qty,3));
-					
+					cmd.Parameters.AddWithValue("@qty", Math.Round(qty, 3));
 
 					cmd.Connection = conn;
 					conn.Open();
@@ -246,7 +241,6 @@ namespace DespatchEventPlanning.Database
 				}
 			}
 		}
-
 
 		public void saveForecast(string table_name, int winNumber, string productDescription, string depotDate, int qty)
 		{
@@ -256,13 +250,10 @@ namespace DespatchEventPlanning.Database
 				{
 					cmd.CommandText = $"INSERT INTO [{table_name}] ([winNumber],[productDescription],[depotDate],[qty]) values(@winNumber,@productDescription,@depotDate,@qty)";
 
-
 					cmd.Parameters.AddWithValue("@winNumber", winNumber);
 					cmd.Parameters.AddWithValue("@productDescription", productDescription);
 					cmd.Parameters.AddWithValue("@depotDate", depotDate);
 					cmd.Parameters.AddWithValue("@qty", qty);
-					
-
 
 					cmd.Connection = conn;
 					conn.Open();
@@ -273,7 +264,8 @@ namespace DespatchEventPlanning.Database
 				}
 			}
 		}
-		public void savePackingPlan(string table_name, int winNumber, string productDescription, string productGroup,string packingDate,string depotDate, int packingQuantity)
+
+		public void savePackingPlan(string table_name, int winNumber, string productDescription, string productGroup, string packingDate, string depotDate, int packingQuantity)
 		{
 			using (SqliteConnection conn = new SqliteConnection($"data source ={_databaseSource}; Mode=ReadWrite;"))
 			{
@@ -281,15 +273,12 @@ namespace DespatchEventPlanning.Database
 				{
 					cmd.CommandText = $"INSERT INTO [{table_name}] ([winNumber],[productDescription],[productGroup],[packingDate],[depotDate],[packingQuantity]) values(@winNumber,@productDescription,@productGroup,@packingDate,@depotDate,@packingQuantity)";
 
-
 					cmd.Parameters.AddWithValue("@winNumber", winNumber);
 					cmd.Parameters.AddWithValue("@productDescription", productDescription);
 					cmd.Parameters.AddWithValue("@productGroup", productGroup);
 					cmd.Parameters.AddWithValue("@packingDate", packingDate);
 					cmd.Parameters.AddWithValue("@depotDate", depotDate);
 					cmd.Parameters.AddWithValue("@packingQuantity", packingQuantity);
-					
-
 
 					cmd.Connection = conn;
 					conn.Open();
@@ -300,8 +289,6 @@ namespace DespatchEventPlanning.Database
 				}
 			}
 		}
-
-
 
 		public void saveProductIntoStorageLoad(string table_name, int winNumber, string productDescription, string storageDate, string depotDate, string depotName, int allocatedCases, string loadReference, int allocatedPallets)
 		{
@@ -422,7 +409,6 @@ namespace DespatchEventPlanning.Database
 			return result;
 		}
 
-
 		public bool productExistsInProductInformationTable(int winNumber, int productNumber)
 		{
 			bool result = false;
@@ -433,7 +419,6 @@ namespace DespatchEventPlanning.Database
 				{
 					cmd.CommandText = $"SELECT Count(*) FROM ProductInformation Where winNumber = {winNumber} AND  productNumber =@productNumber";
 					cmd.Parameters.Add("@productNumber", SqliteType.Integer).Value = productNumber;
-					
 
 					cmd.Connection = conn;
 					conn.Open();
@@ -456,7 +441,7 @@ namespace DespatchEventPlanning.Database
 			return result;
 		}
 
-		public bool productExistsIndepotSplitTable(int winNumber, int depotNumber,string depotDate)
+		public bool productExistsIndepotSplitTable(int winNumber, int depotNumber, string depotDate)
 		{
 			bool result = false;
 
@@ -467,7 +452,6 @@ namespace DespatchEventPlanning.Database
 					cmd.CommandText = $"SELECT Count(*) FROM DepotSplits Where winNumber = {winNumber} AND  depotNumber =@depotNumber AND depotDate=@depotDate";
 					cmd.Parameters.Add("@depotNumber", SqliteType.Integer).Value = depotNumber;
 					cmd.Parameters.Add("@depotDate", SqliteType.Text).Value = depotDate;
-
 
 					cmd.Connection = conn;
 					conn.Open();
@@ -500,8 +484,6 @@ namespace DespatchEventPlanning.Database
 				{
 					cmd.CommandText = $"SELECT Count(*) FROM DefaultDepotSplits Where winNumber = {winNumber} AND  depotName =@depotName";
 					cmd.Parameters.Add("@depotName", SqliteType.Text).Value = depotName;
-					
-
 
 					cmd.Connection = conn;
 					conn.Open();
@@ -523,6 +505,7 @@ namespace DespatchEventPlanning.Database
 
 			return result;
 		}
+
 		public bool productExistsInForecastTable(int winNumber, string depotDate)
 		{
 			bool result = false;
@@ -534,8 +517,6 @@ namespace DespatchEventPlanning.Database
 					cmd.CommandText = $"SELECT Count(*) FROM Forecast Where winNumber = {winNumber} AND  depotDate =@depotDate";
 					cmd.Parameters.Add("@depotDate", SqliteType.Text).Value = depotDate;
 
-
-
 					cmd.Connection = conn;
 					conn.Open();
 
@@ -557,7 +538,7 @@ namespace DespatchEventPlanning.Database
 			return result;
 		}
 
-		public bool productExistsInPackingPlanTable(int winNumber, string packingDate,string depotDate)
+		public bool productExistsInPackingPlanTable(int winNumber, string packingDate, string depotDate)
 		{
 			bool result = false;
 
@@ -568,8 +549,6 @@ namespace DespatchEventPlanning.Database
 					cmd.CommandText = $"SELECT Count(*) FROM PackingPlan Where winNumber = {winNumber}  AND packingDate=@packingDate AND  depotDate=@depotDate";
 					cmd.Parameters.Add("@packingDate", SqliteType.Text).Value = packingDate;
 					cmd.Parameters.Add("@depotDate", SqliteType.Text).Value = depotDate;
-					
-
 
 					cmd.Connection = conn;
 					conn.Open();
@@ -592,6 +571,32 @@ namespace DespatchEventPlanning.Database
 			return result;
 		}
 
+		public List<string> GetDatabaseTables()
+		{
+			List<string> result = new List<string>();
+
+			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"SELECT name FROM sqlite_sequence";
+
+					cmd.Connection = conn;
+					conn.Open();
+					cmd.ExecuteNonQuery();
+
+					SqliteDataReader reader = cmd.ExecuteReader();
+
+					while (reader.Read())
+					{
+						result.Add(reader.GetString(0));
+					}
+
+					conn.Close();
+				}
+			}
+			return result;
+		}
 
 		public void clearDatbaseTable(string tableName)
 		{

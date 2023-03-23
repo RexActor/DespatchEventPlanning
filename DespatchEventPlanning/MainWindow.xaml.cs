@@ -84,21 +84,14 @@ namespace DespatchEventPlanning
 
 		private void ClearDatabase_Click(object sender, RoutedEventArgs e)
 		{
-			DatabaseClass db = new DatabaseClass();
-
-			db.clearDatbaseTable("ProductionPlan");
-			db.clearDatbaseTable("StorageAllocation");
+			
 
 		}
 
 		private void RootWindow_Loaded(object sender, RoutedEventArgs e)
 		{
 
-			string dir = AppDomain.CurrentDomain.BaseDirectory;
-
-			ListBox fileList = new ListBox();
-			fileList.Items.Add("test1");
-			fileList.Items.Add("test2");
+			
 
 
 		
