@@ -33,6 +33,7 @@ namespace DespatchEventPlanning.Views
 		private string storageDateSelected = string.Empty;
 		private string depotNameSelected = string.Empty;
 		private string depotDateSelected = string.Empty;
+		private string selectedProductionPlanVersion = string.Empty;
 
 
 	
@@ -61,9 +62,10 @@ namespace DespatchEventPlanning.Views
 
 		private void UserControl_Loaded(object sender, RoutedEventArgs e)
 		{
+			
 
-			storageSummary.ItemsSource = storage.GetAllocatedLoadsSummary();
-
+				storageSummary.ItemsSource = storage.GetAllocatedLoadsSummary(selectedProductionPlanVersion);
+			
 
 		}
 
@@ -71,7 +73,7 @@ namespace DespatchEventPlanning.Views
 		{
 			if ((bool)e.NewValue)
 			{
-				Debug.WriteLine(PackingPlan.storageInformationList.Count);
+				
 				if (PackingPlan.storageInformationList.Count > 0)
 				{
 					storage.ClearAllocatedLoads();
@@ -79,7 +81,8 @@ namespace DespatchEventPlanning.Views
 					PackingPlan.storageInformationList.AsEnumerable().ToList().ForEach(item =>
 					{
 						storage.AllocateStorage(item.allocationDate,item.productionPlanVersion);
-
+						selectedProductionPlanVersion = item.productionPlanVersion;
+						Debug.WriteLine(selectedProductionPlanVersion);
 						switch (item.Group)
 						{
 							case "FLOWERS":
@@ -93,7 +96,8 @@ namespace DespatchEventPlanning.Views
 					});
 
 					GenerateInformationGrid();
-				
+
+					storageSummary.ItemsSource = storage.GetAllocatedLoadsSummary(selectedProductionPlanVersion);
 				}
 			}
 		}
@@ -332,15 +336,18 @@ namespace DespatchEventPlanning.Views
 				quantityCases = casesAllocated,
 				depotDate = storageItemToAdd.depotDate,
 				storageDate = storageItemToAdd.storageDate,
-				
+				productionPlanVersion = selectedProductionPlanVersion
+
 			};
 
 
-		
+
 
 			storage.AddProductToStorageTruck(amendedProduct);
 
-			storageSummary.ItemsSource = storage.GetAllocatedLoadsSummary();
+
+				storageSummary.ItemsSource = storage.GetAllocatedLoadsSummary(selectedProductionPlanVersion);
+			
 		}
 
 		private void storageSummary_SourceUpdated(object sender, System.Windows.Data.DataTransferEventArgs e)

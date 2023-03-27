@@ -17,7 +17,7 @@ namespace DespatchEventPlanning.Views
 	{
 		private DatabaseClass db;
 
-		public static List<StorageInformation> storageInformationList;
+		public static List<StorageInformation> storageInformationList= new List<StorageInformation>();
 		string selectedProductionPlanVersion = string.Empty;
 
 		public PackingPlan()
@@ -36,7 +36,7 @@ namespace DespatchEventPlanning.Views
 
 			});
 			
-			storageInformationList = new List<StorageInformation>();
+			
 
 			
 			
@@ -74,8 +74,8 @@ namespace DespatchEventPlanning.Views
 
 				
 
-				int palletsToStorage = db.getStorageInformationInList().AsEnumerable().Where(item => Convert.ToDateTime(item.storageDate) == Convert.ToDateTime(packingDate)).Sum(item => item.quantityPalletsAllocated);
-				int storageForDepotDate = db.getStorageInformationInList().AsEnumerable().Where(item => Convert.ToDateTime(item.depotDate) == Convert.ToDateTime(packingDate).AddDays(1)).Sum(item => item.quantityPalletsAllocated);
+				int palletsToStorage = db.getStorageInformationInList(selectedProductionPlanVersion).AsEnumerable().Where(item => Convert.ToDateTime(item.storageDate) == Convert.ToDateTime(packingDate)).Sum(item => item.quantityPalletsAllocated);
+				int storageForDepotDate = db.getStorageInformationInList(selectedProductionPlanVersion).AsEnumerable().Where(item => Convert.ToDateTime(item.depotDate) == Convert.ToDateTime(packingDate).AddDays(1)).Sum(item => item.quantityPalletsAllocated);
 				int totalPalletsGenerated = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.packingDate) <= Convert.ToDateTime(packingDate)).Sum(item => item.palletsGenerated);
 
 
@@ -83,14 +83,14 @@ namespace DespatchEventPlanning.Views
 
 
 				int generatedPreviousDay = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.packingDate) == Convert.ToDateTime(packingDate).AddDays(-1)).Sum(item => item.palletsGenerated);
-				int palletsToStoragePreviousDay = db.getStorageInformationInList().AsEnumerable().Where(item => Convert.ToDateTime(item.storageDate) == Convert.ToDateTime(packingDate).AddDays(-1)).Sum(item => item.quantityPalletsAllocated);
+				int palletsToStoragePreviousDay = db.getStorageInformationInList(selectedProductionPlanVersion).AsEnumerable().Where(item => Convert.ToDateTime(item.storageDate) == Convert.ToDateTime(packingDate).AddDays(-1)).Sum(item => item.quantityPalletsAllocated);
 				int directsPreviousDay  = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.depotDate) == Convert.ToDateTime(packingDate)).Sum(item => item.palletsGenerated);
 
 
 				int totalDirects = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.depotDate) <= Convert.ToDateTime(packingDate).AddDays(1)).Sum(item => item.palletsGenerated);
-				int totalStorageForDepotDate = db.getStorageInformationInList().AsEnumerable().Where(item => Convert.ToDateTime(item.depotDate) <= Convert.ToDateTime(packingDate).AddDays(1)).Sum(item => item.quantityPalletsAllocated);
+				int totalStorageForDepotDate = db.getStorageInformationInList(selectedProductionPlanVersion).AsEnumerable().Where(item => Convert.ToDateTime(item.depotDate) <= Convert.ToDateTime(packingDate).AddDays(1)).Sum(item => item.quantityPalletsAllocated);
 
-				int totalStorage = db.getStorageInformationInList().AsEnumerable().Where(item => Convert.ToDateTime(item.storageDate) <= Convert.ToDateTime(packingDate)).Sum(item => item.quantityPalletsAllocated);
+				int totalStorage = db.getStorageInformationInList(selectedProductionPlanVersion).AsEnumerable().Where(item => Convert.ToDateTime(item.storageDate) <= Convert.ToDateTime(packingDate)).Sum(item => item.quantityPalletsAllocated);
 
 
 				
@@ -159,7 +159,8 @@ namespace DespatchEventPlanning.Views
 				{
 					allocationDate = siteCapacityClass.produceDate,
 					allocationQuantity = siteCapacityClass.siteCapacity,
-					Group = "FLOWERS"
+					Group = "FLOWERS",
+					productionPlanVersion = selectedProductionPlanVersion
 				});
 			}
 		}
@@ -188,6 +189,12 @@ namespace DespatchEventPlanning.Views
 
 		private void availableProductionPlansList_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
+
+			if (storageInformationList.Count > 0)
+			{
+				storageInformationList.Clear();
+			}
+
 			if (availableProductionPlansList.SelectedIndex > 0)
 			{
 				selectedProductionPlanVersion = availableProductionPlansList.SelectedItem.ToString();

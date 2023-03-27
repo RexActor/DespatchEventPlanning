@@ -194,13 +194,13 @@ namespace DespatchEventPlanning.Database
 			}
 		}
 
-		public void saveProductIntoStorageLoad(string table_name, int winNumber, string productDescription, string storageDate, string depotDate, string depotName, int allocatedCases, string loadReference, int allocatedPallets)
+		public void saveProductIntoStorageLoad(string table_name, int winNumber, string productDescription, string storageDate, string depotDate, string depotName, int allocatedCases, string loadReference, int allocatedPallets,string productionPlanVersion)
 		{
 			using (SqliteConnection conn = new SqliteConnection($"data source ={_databaseSource}; Mode=ReadWrite;"))
 			{
 				using (SqliteCommand cmd = new SqliteCommand())
 				{
-					cmd.CommandText = $"INSERT INTO [{table_name}] ([winNumber],[productDescription],[storageDate],[depotDate],[depotName],[allocatedCases],[loadReference],[allocatedPallets]) values(@winNumber,@productDescription,@storageDate,@depotDate,@depotName,@allocatedCases,@loadReference,@allocatedPallets)";
+					cmd.CommandText = $"INSERT INTO [{table_name}] ([winNumber],[productDescription],[storageDate],[depotDate],[depotName],[allocatedCases],[loadReference],[allocatedPallets],[productionPlanVersion]) values(@winNumber,@productDescription,@storageDate,@depotDate,@depotName,@allocatedCases,@loadReference,@allocatedPallets,@productionPlanVersion)";
 
 					cmd.Parameters.AddWithValue("@winNumber", winNumber);
 					cmd.Parameters.AddWithValue("@productDescription", productDescription);
@@ -210,6 +210,7 @@ namespace DespatchEventPlanning.Database
 					cmd.Parameters.AddWithValue("@allocatedCases", allocatedCases);
 					cmd.Parameters.AddWithValue("@loadReference", loadReference);
 					cmd.Parameters.AddWithValue("@allocatedPallets", allocatedPallets);
+					cmd.Parameters.AddWithValue("@productionPlanVersion", productionPlanVersion);
 
 					cmd.Connection = conn;
 					conn.Open();
@@ -267,7 +268,7 @@ namespace DespatchEventPlanning.Database
 			}
 		}
 
-		public List<Storage> getStorageInformationInList()
+		public List<Storage> getStorageInformationInList(string productionPlanVersion)
 		{
 			var output = new List<Storage>();
 
@@ -275,7 +276,7 @@ namespace DespatchEventPlanning.Database
 			{
 				using (SqliteCommand cmd = new SqliteCommand())
 				{
-					cmd.CommandText = $"SELECT * FROM StorageAllocation";
+					cmd.CommandText = $"SELECT * FROM StorageAllocation WHERE productionPlanVersion = '{productionPlanVersion}'";
 
 					cmd.Connection = conn;
 					conn.Open();
@@ -603,7 +604,7 @@ namespace DespatchEventPlanning.Database
 			}
 		}
 
-		public string productExistsInStorage(int winNumber, string depotDate, string storageDate, string depotName)
+		public string productExistsInStorage(int winNumber, string depotDate, string storageDate, string depotName,string productionPlanVersion)
 		{
 			string result = string.Empty;
 
@@ -611,10 +612,11 @@ namespace DespatchEventPlanning.Database
 			{
 				using (SqliteCommand cmd = new SqliteCommand())
 				{
-					cmd.CommandText = $"SELECT Count(*) FROM StorageAllocation Where winNumber = {winNumber} AND  storageDate =@storageDate AND depotDate =@depotDate AND depotName =@depotName";
+					cmd.CommandText = $"SELECT Count(*) FROM StorageAllocation Where winNumber = {winNumber} AND  storageDate =@storageDate AND depotDate =@depotDate AND depotName =@depotName AND productionPlanVersion = @productionPlanVersion";
 					cmd.Parameters.Add("@storageDate", SqliteType.Text).Value = storageDate;
 					cmd.Parameters.Add("@depotDate", SqliteType.Text).Value = depotDate;
 					cmd.Parameters.Add("@depotName", SqliteType.Text).Value = depotName;
+					cmd.Parameters.Add("@productionPlanVersion", SqliteType.Text).Value = productionPlanVersion;
 
 					cmd.Connection = conn;
 					conn.Open();
