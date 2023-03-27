@@ -157,7 +157,7 @@ namespace DespatchEventPlanning.Views
 		private void AddFlowersToLoadAllocation_Click(object sender, RoutedEventArgs e)
 		{
 			SiteCapacityClass siteCapacityClass = (SiteCapacityClass)siteCapacityGrid.SelectedItem;
-
+			
 			if (!storageInformationList.Any(item => item.allocationDate == siteCapacityClass.produceDate))
 			{
 				storageInformationList.Add(new StorageInformation()
@@ -194,10 +194,7 @@ namespace DespatchEventPlanning.Views
 
 		private void availableProductionPlansList_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			if (storageInformationList.Count > 0)
-			{
-				storageInformationList.Clear();
-			}
+			
 
 			if (availableProductionPlansList.SelectedIndex > 0)
 			{

@@ -249,7 +249,7 @@ namespace DespatchEventPlanning.ObjectClasses
 		{
 			allocatedLoadSummary = new List<StorageSummary>();
 
-			productsAllocatedForStorageTrucks = db.getStorageInformationInList(selectedProductionPlanVersion);
+			productsAllocatedForStorageTrucks = db.getStorageInformationInList(productionPlanVersion);
 
 			db.getStorageInformationInList(productionPlanVersion).AsEnumerable().Select(item => item.loadReference).Distinct().ToList().ForEach(subItem =>
 			{

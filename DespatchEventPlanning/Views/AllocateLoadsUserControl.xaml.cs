@@ -47,30 +47,36 @@ namespace DespatchEventPlanning.Views
 
 		private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
 		{
-			if ((bool)e.NewValue && PackingPlan.storageInformationList.Count > 0)
+
+			if ((bool)e.NewValue)
 			{
-				storage.ClearAllocatedLoads();
 
-				PackingPlan.storageInformationList.AsEnumerable().ToList().ForEach(item =>
+				if (PackingPlan.storageInformationList.Count > 0)
 				{
-					storage.AllocateStorage(item.allocationDate, item.productionPlanVersion);
-					selectedProductionPlanVersion = item.productionPlanVersion;
-					Debug.WriteLine(selectedProductionPlanVersion);
-					switch (item.Group)
+					storage.ClearAllocatedLoads();
+
+					PackingPlan.storageInformationList.AsEnumerable().ToList().ForEach(item =>
 					{
-						case "FLOWERS":
-							loadsToAllocateDataGrid.ItemsSource = storage.GetAllocatedLoads().Where(item => item.productGroup.Contains("FLOWERS")).OrderBy(item => item.storageDate).ThenBy(item => item.depotName).ThenBy(item => item.depotDate).ThenByDescending(item => item.quantityPalletsToAllocate).Where(item => item.storageDate != Convert.ToDateTime(item.depotDate).AddDays(-1).ToShortDateString());
-							break;
+						storage.AllocateStorage(item.allocationDate, item.productionPlanVersion);
+						selectedProductionPlanVersion = item.productionPlanVersion;
+						Debug.WriteLine(item.productionPlanVersion);
+						switch (item.Group)
+						{
+							case "FLOWERS":
+								loadsToAllocateDataGrid.ItemsSource = storage.GetAllocatedLoads().Where(item => item.productGroup.Contains("FLOWERS")).OrderBy(item => item.storageDate).ThenBy(item => item.depotName).ThenBy(item => item.depotDate).ThenByDescending(item => item.quantityPalletsToAllocate).Where(item => item.storageDate != Convert.ToDateTime(item.depotDate).AddDays(-1).ToShortDateString());
+								break;
 
-						case "ALL":
-							loadsToAllocateDataGrid.ItemsSource = storage.GetAllocatedLoads().Where(item => item.storageDate != Convert.ToDateTime(item.depotDate).AddDays(-1).ToShortDateString()).OrderBy(item => item.storageDate).ThenBy(item => item.depotName).ThenBy(item => item.depotDate).ThenByDescending(item => item.quantityPalletsToAllocate);
-							break;
-					}
-				});
+							case "ALL":
+								loadsToAllocateDataGrid.ItemsSource = storage.GetAllocatedLoads().Where(item => item.storageDate != Convert.ToDateTime(item.depotDate).AddDays(-1).ToShortDateString()).OrderBy(item => item.storageDate).ThenBy(item => item.depotName).ThenBy(item => item.depotDate).ThenByDescending(item => item.quantityPalletsToAllocate);
+								break;
+						}
+					});
 
-				GenerateInformationGrid();
+					GenerateInformationGrid();
 
-				storageSummary.ItemsSource = storage.GetAllocatedLoadsSummary(selectedProductionPlanVersion);
+					storageSummary.ItemsSource = storage.GetAllocatedLoadsSummary(selectedProductionPlanVersion);
+				}
+				
 			}
 		}
 
