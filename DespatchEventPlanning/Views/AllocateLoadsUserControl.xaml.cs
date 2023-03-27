@@ -78,7 +78,7 @@ namespace DespatchEventPlanning.Views
 
 					PackingPlan.storageInformationList.AsEnumerable().ToList().ForEach(item =>
 					{
-						storage.AllocateStorage(item.allocationDate);
+						storage.AllocateStorage(item.allocationDate,item.productionPlanVersion);
 
 						switch (item.Group)
 						{

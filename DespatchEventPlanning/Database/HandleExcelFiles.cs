@@ -3,19 +3,14 @@ using DespatchEventPlanning.ObjectClasses;
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DespatchEventPlanning.Database
 {
 	internal class HandleExcelFiles
 	{
-
 		private List<PackingProductInformationClass> packingPlanList;
 		private DataHandler handler;
 
@@ -27,27 +22,21 @@ namespace DespatchEventPlanning.Database
 		private readonly string defaultDepotSplitsPath = $"{AppDomain.CurrentDomain.BaseDirectory}DefaultDepotSplits.xlsx";
 		private DatabaseClass db = new DatabaseClass();
 
-		
-		
 		public void CheckDatabaseTable()
 		{
 			if (db.checkDatabaseTableExists("ProductionPlan"))
 			{
+				//packingPlanList = GeneratePackingListFromExcelFile();
 
-				
-
-				packingPlanList = GeneratePackingListFromExcelFile();
+				packingPlanList = GeneratePackingListFromDatabase();
 
 				packingPlanList.AsEnumerable().ToList().ForEach(item =>
 				{
 					db.saveProductionPlanIntoDatabaseParameterized("ProductionPlan", item.winNumber, item.productDescription, item.productGroup, item.packingDate, item.depotDate, (int)item.packingQty, (int)item.forecastQty, (int)item.difference, item.packsPerPallet, (int)item.palletsGenerated, (int)item.BEDFORD, (int)item.ERITH, (int)item.LUTTERWORTH, (int)item.ROCHDALE, (int)item.SKELMERSDALE, (int)item.WAKEFIELD, (int)item.WASHINGTON, (int)item.FALKIRK, (int)item.LARNE, (int)item.BRISTOL);
-					
-					
 				});
-				
+
 				Debug.WriteLine($"Database Created and uploaded");
 			}
-			
 			else
 			{
 				db.GenerateDatabaseTable("ProductionPlan");
@@ -55,28 +44,24 @@ namespace DespatchEventPlanning.Database
 			}
 		}
 
-
-		private List<PackingProductInformationClass> GeneratePackingListFromExcelFile()
+		public List<PackingProductInformationClass> GeneratePackingListFromDatabase()
 		{
-			handler = new DataHandler();
+			DataTable packingPlan = db.getPackingPlanInDataTable();
 
-			DataTable table = handler.ReadExcelFile($"{EnumClass.SHEETNAMES.PackingPlan}", packingPlanFilePath);
-
-			DataTable forecastTable = handler.ReadExcelFile($"{EnumClass.SHEETNAMES.Forecast}", forecastFilePath);
-
-			DataTable productInfomation = handler.ReadExcelFile($"{EnumClass.SHEETNAMES.ProductInformation}", productInformationPath);
-
-			var convertedList = table.AsEnumerable().Select(row => new PackingProductInformationClass()
+			//List<PackingPlanClass> packingPlan = GeneratePackingPlan();
+			var convertedList = packingPlan.AsEnumerable().Select(item => new PackingProductInformationClass
 			{
-				winNumber = Convert.ToInt32(row[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.WinNumber}"]),
-				productDescription = Convert.ToString(row[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.ProductDescription}"]) ?? "N/A",
-				productGroup = Convert.ToString(row[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.Group}"]) ?? "N/A",
-				packingDate = row[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.RequiredDate}"].ToString() ?? "N/A",
-				depotDate = Convert.ToString(row[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.DepotDate}"]) ?? "N/A",
-				packingQty = Convert.ToDouble(row[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.PackingQuantity}"]),
-				forecastQty = forecastTable.AsEnumerable().Where(item => item.Field<string>($"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.DepotDate}") == row[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.DepotDate}"].ToString()).Where(item => item.Field<double>($"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.WinNumber}") == (double)row[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.WinNumber}"]).Sum(item => item.Field<double>($"{EnumClass.FORECAST_DATATABLE_COLUMN_NAMES.Qty}")),
-				packsPerPallet = (int)productInfomation.AsEnumerable().Where(item => item.Field<double>($"{EnumClass.PRODUCTINFORMATION_DATATABLE_COLUMN_NAMES.WinNumber}") == (double)row[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.WinNumber}"]).Sum(item => item.Field<double>($"{EnumClass.PRODUCTINFORMATION_DATATABLE_COLUMN_NAMES.PacksPerPallet}")),
+				winNumber = Convert.ToInt32(item[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.WinNumber}"]),
+				productDescription = Convert.ToString(item[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.ProductDescription}"]),
+				productGroup = Convert.ToString(item["productGroup"]),
+				packingDate = Convert.ToString(item[$"packingDate"]),
+				depotDate = Convert.ToString(item[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.DepotDate}"]),
+				packingQty = Convert.ToDouble(item[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.PackingQuantity}"])
+				
+				
+			
 			}).ToList();
+
 			return convertedList;
 		}
 
@@ -93,54 +78,41 @@ namespace DespatchEventPlanning.Database
 				packsPerPallet = Convert.ToInt32(item[$"{EnumClass.PRODUCTINFORMATION_DATATABLE_COLUMN_NAMES.PacksPerPallet}"]),
 				productGroup = Convert.ToString(item[$"{EnumClass.PRODUCTINFORMATION_DATATABLE_COLUMN_NAMES.ProductGroup}"]),
 				weightOfOuter = Convert.ToInt32(item[$"{EnumClass.PRODUCTINFORMATION_DATATABLE_COLUMN_NAMES.WeightOfOuter}"])
-
-
 			}).ToList();
-
 
 			return convertedList;
 		}
-
-
 
 		public List<depotSplitClass> GenerateDepotSplits()
 		{
 			handler = new DataHandler();
 			var convertedList = handler.ReadExcelFile($"{EnumClass.SHEETNAMES.DepotSplits}", depotSplitPath).AsEnumerable().Select(item => new depotSplitClass()
 			{
-
 				winNumber = Convert.ToInt32(item[$"WinNumber"]),
 				productDescription = Convert.ToString(item[$"ProductDescription"]),
 				depotNumber = Convert.ToInt32(item[$"DepotNumber"]),
-				depotName= Convert.ToString(item[$"DepotName"]),
+				depotName = Convert.ToString(item[$"DepotName"]),
 				depotDate = Convert.ToString(item[$"DepotDate"]),
 				qty = Convert.ToInt32(item[$"Qty"]),
 			}).ToList();
 
-
 			return convertedList;
 		}
-
 
 		public List<DefaultDepotSplitsClass> GenerateDefaultDepotSplits()
 		{
 			handler = new DataHandler();
 			var convertedList = handler.ReadExcelFile($"{EnumClass.SHEETNAMES.DepotSplits}", defaultDepotSplitsPath).AsEnumerable().Select(item => new DefaultDepotSplitsClass()
 			{
-
-				productGroup= Convert.ToString(item["ProductGroup"]),
+				productGroup = Convert.ToString(item["ProductGroup"]),
 				winNumber = Convert.ToInt32(item["WinNumber"]),
 				productDescription = Convert.ToString(item["ProductDescription"]),
 				depotName = Convert.ToString(item["DepotName"]),
-				qty= (float)Math.Round(Convert.ToDouble(item["Qty"]),3)
-
+				qty = (float)Math.Round(Convert.ToDouble(item["Qty"]), 3)
 			}).ToList();
 
-
-
-				return convertedList;
+			return convertedList;
 		}
-
 
 		public List<PackingPlanClass> GeneratePackingPlan()
 		{
@@ -154,33 +126,23 @@ namespace DespatchEventPlanning.Database
 				packingDate = Convert.ToString(item["RequiredDate"]),
 				depotDate = Convert.ToString(item["DepotDate"]),
 				packingQuantity = Convert.ToInt32(item["PackingQuantity"])
-
-
-
-
-
-
 			}).ToList();
 
 			return convertedList;
 		}
-
-
 
 		public List<ForecastClass> GenerateForecast()
 		{
 			handler = new DataHandler();
-			var convertedList = handler.ReadExcelFile($"{EnumClass.SHEETNAMES.Forecast}", forecastFilePath).AsEnumerable().Select(item => new ForecastClass() { 
-			
-			winNumber = Convert.ToInt32(item["WinNumber"]),
-			productDescription = Convert.ToString(item["ProductDescription"]),
-			depotDate = Convert.ToString(item["DepotDate"]),
-			qty = Convert.ToInt32(item["Qty"])
-			
+			var convertedList = handler.ReadExcelFile($"{EnumClass.SHEETNAMES.Forecast}", forecastFilePath).AsEnumerable().Select(item => new ForecastClass()
+			{
+				winNumber = Convert.ToInt32(item["WinNumber"]),
+				productDescription = Convert.ToString(item["ProductDescription"]),
+				depotDate = Convert.ToString(item["DepotDate"]),
+				qty = Convert.ToInt32(item["Qty"])
 			}).ToList();
 
 			return convertedList;
 		}
-
 	}
 }

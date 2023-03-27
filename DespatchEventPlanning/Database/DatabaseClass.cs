@@ -12,66 +12,7 @@ namespace DespatchEventPlanning.Database
 	{
 		private readonly string _databaseSource = "Database\\despatchPlan.db";
 
-		public bool checkDatabaseTableExists(string tableName)
-		{
-			using (SqliteConnection conn = new SqliteConnection($"data source ={_databaseSource}; Mode=ReadWrite;"))
-			{
-				using (SqliteCommand cmd = new SqliteCommand())
-				{
-					cmd.CommandText = $"SELECT name FROM sqlite_master WHERE type='table' AND name='{tableName}';";
-
-					cmd.Connection = conn;
-					conn.Open();
-
-					SqliteDataReader reader = cmd.ExecuteReader();
-
-					if (reader.HasRows)
-					{
-						return true;
-					}
-					else { return false; }
-				}
-			}
-		}
-
-		public void GenerateDatabaseTable(string tableName)
-		{
-			using (SqliteConnection conn = new SqliteConnection($"data source ={_databaseSource}; Mode=ReadWrite;"))
-			{
-				using (SqliteCommand cmd = new SqliteCommand())
-				{
-					cmd.CommandText = $"CREATE TABLE {tableName} (id INTEGER PRIMARY KEY, " +
-						$"winNumber numeric," +
-						$"productDescription Text," +
-						$"productGroup Text," +
-						$"packingDate Text," +
-						$"depotDate Text," +
-						$"packingQuantity INT," +
-						$"forecast INT," +
-						$"difference INT," +
-						$"packsPerPallet INT," +
-						$"palletsGenerated INT," +
-						$"BEDFORD INT," +
-						$"ERITH INT," +
-						$"LUTTERWORTH INT," +
-						$"ROCHDALE INT," +
-						$"SKELMERSDALE INT," +
-						$"WAKEFIELD INT," +
-						$"WASHINGTON INT," +
-						$"FALKIRK INT," +
-						$"LARNE INT," +
-						$"BRISTOL INT" +
-						$");";
-
-					cmd.Connection = conn;
-					conn.Open();
-
-					cmd.ExecuteNonQuery();
-
-					conn.Close();
-				}
-			}
-		}
+		#region save data into database
 
 		public void saveProductionPlanIntoDatabase(string database_name, int winNumber, string productDescription, string productGroup, string packingDate, string depotDate, int packingQuantity, int forecast, int difference, int packsPerPallet, int palletsGenerated, int bedford, int erith, int lutterworth, int rochdale, int skelmersdale, int wakefield, int washington, int falkirk, int larne, int bristol)
 		{
@@ -129,43 +70,6 @@ namespace DespatchEventPlanning.Database
 					conn.Close();
 				}
 			}
-		}
-
-		public List<PackingProductInformationClass> getInformationInList()
-		{
-			var output = new List<PackingProductInformationClass>();
-
-			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
-			{
-				using (SqliteCommand cmd = new SqliteCommand())
-				{
-					cmd.CommandText = $"SELECT * FROM ProductionPlan";
-
-					cmd.Connection = conn;
-					conn.Open();
-
-					SqliteDataReader reader = cmd.ExecuteReader();
-
-					while (reader.Read())
-					{
-						output.Add(new PackingProductInformationClass()
-						{
-							winNumber = (int)reader.GetInt64(reader.GetOrdinal("winNumber")),
-							productDescription = reader.GetString(reader.GetOrdinal("productDescription")),
-							productGroup = reader.GetString(reader.GetOrdinal("productGroup")),
-							packingDate = reader.GetString(reader.GetOrdinal("packingDate")),
-							depotDate = reader.GetString(reader.GetOrdinal("depotDate")),
-							packingQty = reader.GetInt64(reader.GetOrdinal("packingQuantity")),
-							forecastQty = reader.GetInt64(reader.GetOrdinal("forecast")),
-							packsPerPallet = (int)reader.GetInt64(reader.GetOrdinal("packsPerPallet"))
-						});
-					}
-
-					conn.Close();
-				}
-			}
-
-			return output;
 		}
 
 		public void saveProductInformation(string table_name, int winNumber, int productNumber, string productDescription, int packsPerPallet, string productGroup, int weightOfOuter)
@@ -317,6 +221,10 @@ namespace DespatchEventPlanning.Database
 			}
 		}
 
+		#endregion save data into database
+
+		#region get data out of database
+
 		public DataTable getInformationInDataTable()
 		{
 			var output = new DataTable();
@@ -326,6 +234,27 @@ namespace DespatchEventPlanning.Database
 				using (SqliteCommand cmd = new SqliteCommand())
 				{
 					cmd.CommandText = $"SELECT * FROM ProductionPlan";
+
+					cmd.Connection = conn;
+					conn.Open();
+					SqliteDataReader reader = cmd.ExecuteReader();
+
+					output.Load(reader);
+
+					return output;
+				}
+			}
+		}
+
+		public DataTable getPackingPlanInDataTable()
+		{
+			var output = new DataTable();
+
+			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"SELECT * FROM PackingPlan";
 
 					cmd.Connection = conn;
 					conn.Open();
@@ -373,6 +302,305 @@ namespace DespatchEventPlanning.Database
 			}
 
 			return output;
+		}
+
+		public List<PackingProductInformationClass> getInformationInList(int tableName)
+		{
+			var output = new List<PackingProductInformationClass>();
+
+			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"SELECT * FROM {tableName}";
+
+					cmd.Connection = conn;
+					conn.Open();
+
+					SqliteDataReader reader = cmd.ExecuteReader();
+
+					while (reader.Read())
+					{
+						output.Add(new PackingProductInformationClass()
+						{
+							winNumber = (int)reader.GetInt64(reader.GetOrdinal("winNumber")),
+							productDescription = reader.GetString(reader.GetOrdinal("productDescription")),
+							productGroup = reader.GetString(reader.GetOrdinal("productGroup")),
+							packingDate = reader.GetString(reader.GetOrdinal("packingDate")),
+							depotDate = reader.GetString(reader.GetOrdinal("depotDate")),
+							packingQty = reader.GetInt64(reader.GetOrdinal("packingQuantity")),
+						});
+					}
+
+					conn.Close();
+				}
+			}
+
+			return output;
+		}
+
+		public List<PackingProductInformationClass> getInformationInList(string tableName)
+		{
+			var output = new List<PackingProductInformationClass>();
+
+			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"SELECT * FROM {tableName}";
+
+					cmd.Connection = conn;
+					conn.Open();
+
+					SqliteDataReader reader = cmd.ExecuteReader();
+
+					while (reader.Read())
+					{
+						output.Add(new PackingProductInformationClass()
+						{
+							winNumber = (int)reader.GetInt64(reader.GetOrdinal("winNumber")),
+							productDescription = reader.GetString(reader.GetOrdinal("productDescription")),
+							productGroup = reader.GetString(reader.GetOrdinal("productGroup")),
+							packingDate = reader.GetString(reader.GetOrdinal("packingDate")),
+							depotDate = reader.GetString(reader.GetOrdinal("depotDate")),
+							packingQty = reader.GetInt64(reader.GetOrdinal("packingQuantity")),
+						});
+					}
+
+					conn.Close();
+				}
+			}
+
+			return output;
+		}
+
+		public List<string> GetDatabaseTables()
+		{
+			List<string> result = new List<string>();
+
+			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"SELECT name FROM sqlite_sequence ORDER BY name ASC";
+
+					cmd.Connection = conn;
+					conn.Open();
+					cmd.ExecuteNonQuery();
+
+					SqliteDataReader reader = cmd.ExecuteReader();
+
+					while (reader.Read())
+					{
+						result.Add(reader.GetString(0));
+					}
+
+					conn.Close();
+				}
+			}
+			return result;
+		}
+
+
+		public List<string> GetProductionPlanTables()
+		{
+			List<string> result = new List<string>();
+
+			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"SELECT name FROM sqlite_sequence WHERE name LIKE 'ProductionPlanV%' ORDER BY name ASC";
+
+					cmd.Connection = conn;
+					conn.Open();
+					cmd.ExecuteNonQuery();
+
+					SqliteDataReader reader = cmd.ExecuteReader();
+
+					while (reader.Read())
+					{
+						result.Add(reader.GetString(0));
+					}
+
+					conn.Close();
+				}
+			}
+			return result;
+		}
+
+		public string GetLastProductionPlanVersion(string tableName)
+		{
+			string result = string.Empty;
+
+			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"SELECT name FROM sqlite_sequence WHERE name LIKE '{tableName}%' ORDER BY name DESC LIMIT 1";
+
+					cmd.Connection = conn;
+					conn.Open();
+					cmd.ExecuteNonQuery();
+
+					SqliteDataReader reader = cmd.ExecuteReader();
+
+					while (reader.Read())
+					{
+						result=reader.GetString(0);
+					}
+
+					conn.Close();
+				}
+			}
+			return result;
+		}
+
+
+		public int GetForecastforProduct(int winNumber, string depotDate)
+		{
+			int forecast = 0;
+
+			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"SELECT qty FROM Forecast WHERE winNumber=@winNumber and depotDate=@depotDate";
+
+					cmd.Parameters.Add("@winNumber", SqliteType.Integer).Value = winNumber;
+					cmd.Parameters.Add("@depotDate", SqliteType.Text).Value = depotDate;
+
+					cmd.Connection = conn;
+					conn.Open();
+					//cmd.ExecuteNonQuery();
+
+					SqliteDataReader reader = cmd.ExecuteReader();
+
+					while (reader.Read())
+					{
+						forecast = reader.GetInt32(0);
+					}
+
+					conn.Close();
+				}
+			}
+			return forecast;
+		}
+
+		public double GetDepotSplit(int winNumber, string depotName, string depotDate)
+		{
+			double forecast = 0;
+
+			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"SELECT qty FROM DepotSplits WHERE winNumber=@winNumber AND depotName=@depotName AND depotDate=@depotDate";
+
+					cmd.Parameters.Add("@winNumber", SqliteType.Integer).Value = winNumber;
+					cmd.Parameters.Add("@depotName", SqliteType.Text).Value = depotName;
+					cmd.Parameters.Add("@depotDate", SqliteType.Text).Value = depotDate;
+
+					cmd.Connection = conn;
+					conn.Open();
+					//cmd.ExecuteNonQuery();
+
+					SqliteDataReader reader = cmd.ExecuteReader();
+
+					while (reader.Read())
+					{
+						forecast = reader.GetDouble(0);
+					}
+
+					conn.Close();
+				}
+			}
+			return forecast;
+		}
+
+		public double GetDefaultDepotSplit(int winNumber, string depotName)
+		{
+			double forecast = 0;
+
+			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"SELECT qty FROM DefaultDepotSplits WHERE winNumber=@winNumber AND depotName=@depotName";
+
+					cmd.Parameters.Add("@winNumber", SqliteType.Integer).Value = winNumber;
+					cmd.Parameters.Add("@depotName", SqliteType.Text).Value = depotName;
+
+					cmd.Connection = conn;
+					conn.Open();
+					//cmd.ExecuteNonQuery();
+
+					SqliteDataReader reader = cmd.ExecuteReader();
+
+					while (reader.Read())
+					{
+						forecast = reader.GetDouble(0);
+					}
+
+					conn.Close();
+				}
+			}
+			return forecast;
+		}
+
+		public string GetProductInformation(int winNumber, string fieldToReturn)
+		{
+			string information = string.Empty;
+
+			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"SELECT {fieldToReturn} FROM ProductInformation WHERE winNumber=@winNumber";
+
+					cmd.Parameters.Add("@winNumber", SqliteType.Integer).Value = winNumber;
+
+					cmd.Connection = conn;
+					conn.Open();
+					//cmd.ExecuteNonQuery();
+
+					SqliteDataReader reader = cmd.ExecuteReader();
+
+					while (reader.Read())
+					{
+						information = reader.GetString(0);
+					}
+
+					conn.Close();
+				}
+			}
+			return information;
+		}
+
+		#endregion get data out of database
+
+		#region check if data exists in database
+
+		public bool checkDatabaseTableExists(string tableName)
+		{
+			using (SqliteConnection conn = new SqliteConnection($"data source ={_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"SELECT name FROM sqlite_master WHERE type='table' AND name='{tableName}';";
+
+					cmd.Connection = conn;
+					conn.Open();
+
+					SqliteDataReader reader = cmd.ExecuteReader();
+
+					if (reader.HasRows)
+					{
+						return true;
+					}
+					else { return false; }
+				}
+			}
 		}
 
 		public string productExistsInStorage(int winNumber, string depotDate, string storageDate, string depotName)
@@ -441,6 +669,38 @@ namespace DespatchEventPlanning.Database
 			return result;
 		}
 
+		public bool productExistsInProductInformationTable(int winNumber)
+		{
+			bool result = false;
+
+			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"SELECT Count(*) FROM ProductInformation Where winNumber = @winNumber";
+					cmd.Parameters.Add("@winNumber", SqliteType.Integer).Value = winNumber;
+
+					cmd.Connection = conn;
+					conn.Open();
+
+					int entryFound = (int)Convert.ToInt64(cmd.ExecuteScalar());
+
+					if (entryFound > 0)
+					{
+						result = true;
+					}
+					else
+					{
+						result = false;
+					}
+
+					conn.Close();
+				}
+			}
+
+			return result;
+		}
+
 		public bool productExistsIndepotSplitTable(int winNumber, int depotNumber, string depotDate)
 		{
 			bool result = false;
@@ -451,6 +711,39 @@ namespace DespatchEventPlanning.Database
 				{
 					cmd.CommandText = $"SELECT Count(*) FROM DepotSplits Where winNumber = {winNumber} AND  depotNumber =@depotNumber AND depotDate=@depotDate";
 					cmd.Parameters.Add("@depotNumber", SqliteType.Integer).Value = depotNumber;
+					cmd.Parameters.Add("@depotDate", SqliteType.Text).Value = depotDate;
+
+					cmd.Connection = conn;
+					conn.Open();
+
+					int entryFound = (int)Convert.ToInt64(cmd.ExecuteScalar());
+
+					if (entryFound > 0)
+					{
+						result = true;
+					}
+					else
+					{
+						result = false;
+					}
+
+					conn.Close();
+				}
+			}
+
+			return result;
+		}
+
+		public bool productExistsIndepotSplitTable(int winNumber, string depotName, string depotDate)
+		{
+			bool result = false;
+
+			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"SELECT Count(*) FROM DepotSplits Where winNumber = {winNumber} AND  depotName =@depotName AND depotDate=@depotDate";
+					cmd.Parameters.Add("@depotName", SqliteType.Text).Value = depotName;
 					cmd.Parameters.Add("@depotDate", SqliteType.Text).Value = depotDate;
 
 					cmd.Connection = conn;
@@ -571,32 +864,9 @@ namespace DespatchEventPlanning.Database
 			return result;
 		}
 
-		public List<string> GetDatabaseTables()
-		{
-			List<string> result = new List<string>();
+		#endregion check if data exists in database
 
-			using (SqliteConnection conn = new SqliteConnection($"data source = {_databaseSource}; Mode=ReadWrite;"))
-			{
-				using (SqliteCommand cmd = new SqliteCommand())
-				{
-					cmd.CommandText = $"SELECT name FROM sqlite_sequence";
-
-					cmd.Connection = conn;
-					conn.Open();
-					cmd.ExecuteNonQuery();
-
-					SqliteDataReader reader = cmd.ExecuteReader();
-
-					while (reader.Read())
-					{
-						result.Add(reader.GetString(0));
-					}
-
-					conn.Close();
-				}
-			}
-			return result;
-		}
+		#region Manipulate database tables
 
 		public void clearDatbaseTable(string tableName)
 		{
@@ -614,5 +884,88 @@ namespace DespatchEventPlanning.Database
 				}
 			}
 		}
+
+		public void GenerateDatabaseTable(string tableName)
+		{
+			using (SqliteConnection conn = new SqliteConnection($"data source ={_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"CREATE TABLE {tableName} (id INTEGER PRIMARY KEY, " +
+						$"winNumber numeric," +
+						$"productDescription Text," +
+						$"productGroup Text," +
+						$"packingDate Text," +
+						$"depotDate Text," +
+						$"packingQuantity INT," +
+						$"forecast INT," +
+						$"difference INT," +
+						$"packsPerPallet INT," +
+						$"palletsGenerated INT," +
+						$"BEDFORD INT," +
+						$"ERITH INT," +
+						$"LUTTERWORTH INT," +
+						$"ROCHDALE INT," +
+						$"SKELMERSDALE INT," +
+						$"WAKEFIELD INT," +
+						$"WASHINGTON INT," +
+						$"FALKIRK INT," +
+						$"LARNE INT," +
+						$"BRISTOL INT" +
+						$");";
+
+					cmd.Connection = conn;
+					conn.Open();
+
+					cmd.ExecuteNonQuery();
+
+					conn.Close();
+				}
+			}
+		}
+
+		public void GenerateProductionPlanTable(string tableName)
+		{
+			using (SqliteConnection conn = new SqliteConnection($"data source ={_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"CREATE TABLE {tableName} (" +
+									$"id INTEGER, " +
+									$"winNumber numeric," +
+									$"productDescription    Text," +
+									$"productGroup  Text," +
+									$"packingDate   Text," +
+									$"depotDate Text," +
+									$"packingQuantity   INT," +
+									$"forecast  INT," +
+									$"difference    INT," +
+									$"packsPerPallet    INT," +
+									$"palletsGenerated  INT," +
+									$"BEDFORD   INT," +
+									$"ERITH INT," +
+									$"LUTTERWORTH   INT," +
+									$"ROCHDALE  INT," +
+									$"SKELMERSDALE  INT," +
+									$"WAKEFIELD INT," +
+									$"WASHINGTON    INT," +
+									$"FALKIRK   INT," +
+									$"LARNE INT," +
+									$"BRISTOL   INT," +
+									$"PRIMARY KEY(id AUTOINCREMENT)" +
+									$");";
+
+					cmd.Connection = conn;
+					conn.Open();
+
+					cmd.ExecuteNonQuery();
+
+					conn.Close();
+				}
+			}
+
+		}
+
+		#endregion Manipulate database tables
 	}
 }

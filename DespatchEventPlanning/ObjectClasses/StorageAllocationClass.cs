@@ -23,10 +23,10 @@ namespace DespatchEventPlanning.ObjectClasses
 
 		private List<StorageSummary> allocatedLoadSummary;
 
-		public void AllocateStorage(string allocationDate)
+		public void AllocateStorage(string allocationDate,string selectedProductinPlan)
 		{
 			List<DepotLimitationClass> depotLimits = new List<DepotLimitationClass>();
-			List<PackingProductInformationClass> packingProduct = db.getInformationInList();
+			List<PackingProductInformationClass> packingProduct = db.getInformationInList(selectedProductinPlan);
 
 			packingProduct.AsEnumerable().Where(item => item.packingDate.Equals(allocationDate)).ToList().ForEach(item =>
 			{

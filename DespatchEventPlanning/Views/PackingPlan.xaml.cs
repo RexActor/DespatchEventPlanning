@@ -18,23 +18,36 @@ namespace DespatchEventPlanning.Views
 		private DatabaseClass db;
 
 		public static List<StorageInformation> storageInformationList;
+		string selectedProductionPlanVersion = string.Empty;
 
 		public PackingPlan()
 		{
 			InitializeComponent();
+
+			availableProductionPlansList.Items.Add("Please Choose Packing Plan");
+			availableProductionPlansList.SelectedIndex = 0;
+
 			db = new DatabaseClass();
+
+			db.GetProductionPlanTables().AsEnumerable().ToList().ForEach(table =>
+			{
+
+				availableProductionPlansList.Items.Add(table);
+
+			});
+			
 			storageInformationList = new List<StorageInformation>();
 
-			excelDataGrid.ItemsSource = db.getInformationInList().OrderBy(item=>item.packingDate);
-			siteCapacityGrid.ItemsSource = DisplayCapacity(db.getInformationInList()).ToList();
-			siteCapacityFlowersGrid.ItemsSource = DisplayCapacity(db.getInformationInList().Where(item => item.productGroup.Contains("FLOWERS")).ToList());
-			siteCapacityPlantsGrid.ItemsSource = DisplayCapacity(db.getInformationInList().Where(item => item.productGroup.Contains("PLANTS")).ToList());
-			//excelDataGrid.ItemsSource = db.getInformationInDataTable().DefaultView;
+			
+			
 		}
 
 		private void PackingDateCalendar_SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
 		{
-			excelDataGrid.ItemsSource = db.getInformationInList().Where(item => item.packingDate == PackingDateCalendar.SelectedDate.Value.ToShortDateString());
+			if (selectedProductionPlanVersion != string.Empty)
+			{
+				excelDataGrid.ItemsSource = db.getInformationInList(selectedProductionPlanVersion).Where(item => item.packingDate == PackingDateCalendar.SelectedDate.Value.ToShortDateString());
+			}
 		}
 
 		private void ClearPackingDateButton_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -44,7 +57,10 @@ namespace DespatchEventPlanning.Views
 
 		private void excelDataGridItemSourceReset()
 		{
-			excelDataGrid.ItemsSource = db.getInformationInList().OrderBy(item => item.packingDate);
+			if (selectedProductionPlanVersion != string.Empty)
+			{
+				excelDataGrid.ItemsSource = db.getInformationInList(selectedProductionPlanVersion).OrderBy(item => item.packingDate);
+			}
 		}
 
 		private List<SiteCapacityClass> DisplayCapacity(List<PackingProductInformationClass> productList)
@@ -127,7 +143,8 @@ namespace DespatchEventPlanning.Views
 				{
 					allocationDate = siteCapacityClass.produceDate,
 					allocationQuantity = siteCapacityClass.siteCapacity,
-					Group = "ALL"
+					Group = "ALL",
+					productionPlanVersion = selectedProductionPlanVersion
 				});
 			}
 		}
@@ -149,9 +166,12 @@ namespace DespatchEventPlanning.Views
 
 		private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
 		{
-			siteCapacityGrid.ItemsSource = DisplayCapacity(db.getInformationInList()).OrderBy(item => item.produceDate).ToList().OrderBy(item=>item.produceDate);
-			siteCapacityFlowersGrid.ItemsSource = DisplayCapacity(db.getInformationInList().Where(item => item.productGroup.Contains("FLOWERS")).ToList()).OrderBy(item => item.produceDate);
-			siteCapacityPlantsGrid.ItemsSource = DisplayCapacity(db.getInformationInList().Where(item => item.productGroup.Contains("PLANTS")).ToList()).OrderBy(item => item.produceDate);
+			if (selectedProductionPlanVersion != string.Empty)
+			{
+				siteCapacityGrid.ItemsSource = DisplayCapacity(db.getInformationInList(selectedProductionPlanVersion)).OrderBy(item => item.produceDate).ToList().OrderBy(item => item.produceDate);
+				siteCapacityFlowersGrid.ItemsSource = DisplayCapacity(db.getInformationInList(selectedProductionPlanVersion).Where(item => item.productGroup.Contains("FLOWERS")).ToList()).OrderBy(item => item.produceDate);
+				siteCapacityPlantsGrid.ItemsSource = DisplayCapacity(db.getInformationInList(selectedProductionPlanVersion).Where(item => item.productGroup.Contains("PLANTS")).ToList()).OrderBy(item => item.produceDate);
+			}
 		}
 
 		private void UpdateProductInformation_Click(object sender, RoutedEventArgs e)
@@ -165,6 +185,22 @@ namespace DespatchEventPlanning.Views
 		{
 
 		}
+
+		private void availableProductionPlansList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			if (availableProductionPlansList.SelectedIndex > 0)
+			{
+				selectedProductionPlanVersion = availableProductionPlansList.SelectedItem.ToString();
+
+
+				excelDataGrid.ItemsSource = db.getInformationInList(availableProductionPlansList.SelectedItem.ToString()).OrderBy(item => item.packingDate);
+
+				siteCapacityGrid.ItemsSource = DisplayCapacity(db.getInformationInList(availableProductionPlansList.SelectedItem.ToString())).ToList();
+				siteCapacityFlowersGrid.ItemsSource = DisplayCapacity(db.getInformationInList(availableProductionPlansList.SelectedItem.ToString()).Where(item => item.productGroup.Contains("FLOWERS")).ToList());
+				siteCapacityPlantsGrid.ItemsSource = DisplayCapacity(db.getInformationInList(availableProductionPlansList.SelectedItem.ToString()).Where(item => item.productGroup.Contains("PLANTS")).ToList());
+
+			};
+		}
 	}
 
 	public class StorageInformation
@@ -172,5 +208,6 @@ namespace DespatchEventPlanning.Views
 		public string allocationDate { get; set; }
 		public int allocationQuantity { get; set; }
 		public string Group { get; set; }
+		public string productionPlanVersion { get; set; }
 	}
 }

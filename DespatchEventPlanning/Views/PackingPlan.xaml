@@ -5,16 +5,26 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              IsVisibleChanged="UserControl_IsVisibleChanged"
              mc:Ignorable="d" Background="Red" Margin="0,0,10,10">
-        
+
+
+    
+
     <Grid Background="blue">
+       
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="150*" />
             <ColumnDefinition Width="46*" />
         </Grid.ColumnDefinitions>
-        <DataGrid x:Name="excelDataGrid" IsReadOnly="True"  ScrollViewer.CanContentScroll="True" AutoGenerateColumns="False"  Grid.Column="0" HorizontalAlignment="Left" Height="auto" Width="auto" d:ItemsSource="{d:SampleData ItemCount=5}"  RenderTransformOrigin="0.5,0.5" Margin="10,10,10,10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <ComboBox x:Name="availableProductionPlansList" Grid.Row="0" Width="200" HorizontalAlignment="Left" Margin="10,0,0,0" Height="30" SelectionChanged="availableProductionPlansList_SelectionChanged"/>
+
+        <DataGrid x:Name="excelDataGrid" Grid.Row="1" IsReadOnly="True"  ScrollViewer.CanContentScroll="True" AutoGenerateColumns="False"  Grid.Column="0" HorizontalAlignment="Left" Height="auto" Width="auto" d:ItemsSource="{d:SampleData ItemCount=5}"  RenderTransformOrigin="0.5,0.5" Margin="10,10,10,10">
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem x:Name="UpdateProductInformation" IsEnabled="True" Header="Update Product Information" Click="UpdateProductInformation_Click"/>
+                    <MenuItem x:Name="UpdateProductInformation" IsEnabled="{Binding haveProductInformation}" Header="Update Product Information" Click="UpdateProductInformation_Click"/>
                     <MenuItem x:Name="AddProductInformation" IsEnabled="False" Header="Add Product Information" Click="AddProductInformation_Click"/> 
                 </ContextMenu>
             </DataGrid.ContextMenu>
@@ -33,9 +43,8 @@
                 
             </DataGrid.Columns>
         </DataGrid>
-
-        <!--#region  Packing Date Calendar-->
-        <Grid x:Name="RightSideGridPanel"  Grid.Column="1" Background="orange">
+          <!--#region  Packing Date Calendar-->
+        <Grid x:Name="RightSideGridPanel"  Grid.Column="1" Grid.Row="1" Background="orange">
             <Grid.RowDefinitions>
                 <RowDefinition  Height="260" />
                 <RowDefinition Height="*" />

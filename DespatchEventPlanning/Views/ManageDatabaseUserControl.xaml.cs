@@ -25,6 +25,7 @@ namespace DespatchEventPlanning.Views
 		private string forecastText = string.Empty;
 		private string packingPlanText = string.Empty;
 		private string selectedDatabaseTable = string.Empty;
+		private string productionPlanText = string.Empty;
 
 
 
@@ -40,12 +41,14 @@ namespace DespatchEventPlanning.Views
 		private ToolTip defaultDepotSplitsToolTip;
 		private ToolTip forecastToolTip;
 		private ToolTip packingPlanTooltip;
+		private ToolTip productionPlanToolTip;
 
 		BackgroundWorker importProductInformationBackgroundWorker = new BackgroundWorker();
 		BackgroundWorker importDepotSplitsBackgroundWorker = new BackgroundWorker();
 		BackgroundWorker defaultDepotSplitBackgroundWorker = new BackgroundWorker();
 		BackgroundWorker forecastBackgroundWorker = new BackgroundWorker();
 		BackgroundWorker packingPlanBackgroundWorker = new BackgroundWorker();
+		BackgroundWorker productionPlanBackgroundWorker = new BackgroundWorker();
 
 		public ManageDatabaseUserControl()
 		{
@@ -53,7 +56,26 @@ namespace DespatchEventPlanning.Views
 
 			handler = new HandleExcelFiles();
 
-			databaseTableList.Items.Add("Please choose table");
+			
+			resetDataTableNames();
+			productInformationProgressBar.Maximum = handler.GenerateProductInformation().Count;
+			depotSplitProgressBar.Maximum = handler.GenerateDepotSplits().Count;
+			defaultDepotSplitProgressBar.Maximum = handler.GenerateDefaultDepotSplits().Count;
+			forecastProgressBar.Maximum = handler.GenerateForecast().Count;
+			packingPlanProgressBar.Maximum = handler.GeneratePackingPlan().Count;
+			packingPlanGenerationProgressBar.Maximum = handler.GeneratePackingPlan().Count;
+		}
+
+
+		public void resetDataTableNames()
+		{
+			if (databaseTableList.Items.Count > 0)
+			{
+				databaseTableList.Items.Clear();
+				databaseTableList.Items.Add("Please choose table");
+			}
+			
+			
 			databaseTableList.SelectedIndex = 0;
 			db.GetDatabaseTables().AsEnumerable().ToList().ForEach(dbTable => {
 
@@ -62,17 +84,12 @@ namespace DespatchEventPlanning.Views
 
 			});
 
-			productInformationProgressBar.Maximum = handler.GenerateProductInformation().Count;
-			depotSplitProgressBar.Maximum = handler.GenerateDepotSplits().Count;
-			defaultDepotSplitProgressBar.Maximum = handler.GenerateDefaultDepotSplits().Count;
-			forecastProgressBar.Maximum = handler.GenerateForecast().Count;
-			packingPlanProgressBar.Maximum = handler.GeneratePackingPlan().Count;
 		}
 
 		public bool IsSomethingBeingUpdated()
 		{
 
-			if (importProductInformationBackgroundWorker.IsBusy || importDepotSplitsBackgroundWorker.IsBusy || defaultDepotSplitBackgroundWorker.IsBusy || forecastBackgroundWorker.IsBusy || packingPlanBackgroundWorker.IsBusy)
+			if (importProductInformationBackgroundWorker.IsBusy || importDepotSplitsBackgroundWorker.IsBusy || defaultDepotSplitBackgroundWorker.IsBusy || forecastBackgroundWorker.IsBusy || packingPlanBackgroundWorker.IsBusy || productionPlanBackgroundWorker.IsBusy)
 			{
 				return true;
 			}
@@ -122,7 +139,7 @@ namespace DespatchEventPlanning.Views
 					increase++;
 					productInformationExists = true;
 
-					(sender as BackgroundWorker).ReportProgress(increase);
+					
 
 				}
 				else
@@ -140,6 +157,7 @@ namespace DespatchEventPlanning.Views
 
 					increase++;
 					(sender as BackgroundWorker).ReportProgress(increase);
+
 				}
 				
 			});
@@ -495,6 +513,7 @@ namespace DespatchEventPlanning.Views
 			
 		}
 
+
 		private void databaseTableList_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 
@@ -502,5 +521,85 @@ namespace DespatchEventPlanning.Views
 			databaseClearTextbox.Text = string.Empty;
 			
 		}
+
+
+		#region generateProductionPlan
+
+
+		private void generatePackingPlanButton_Click(object sender, RoutedEventArgs e)
+		{
+			if (IsSomethingBeingUpdated() == true) { MessageBox.Show("Already Uploading items...! Please be patient!"); return; }
+
+
+			
+			
+
+			productionPlanBackgroundWorker.WorkerReportsProgress = true;
+			productionPlanBackgroundWorker.DoWork += ProductionPlanBackgroundWorker_DoWork;
+			productionPlanBackgroundWorker.RunWorkerCompleted += ProductionPlanBackgroundWorker_RunWorkerCompleted;
+			productionPlanBackgroundWorker.ProgressChanged += ProductionPlanBackgroundWorker_ProgressChanged;
+
+			productionPlanBackgroundWorker.RunWorkerAsync();
+			productionPlanToolTip = new ToolTip();
+			packingPlanGenerationProgressBar.ToolTip = productionPlanToolTip;
+
+
+		}
+
+		private void ProductionPlanBackgroundWorker_ProgressChanged(object? sender, ProgressChangedEventArgs e)
+		{
+			float progressValue = e.ProgressPercentage;
+
+			packingPlanGenerationProgressBar.Value = progressValue;
+
+			packingPlanGenerationProgressText.Text = $"{Math.Round((progressValue / packingPlanGenerationProgressBar.Maximum) * 100)}%";
+			packingPlanGenerationTextBlock.Text = productionPlanText;
+			productionPlanToolTip.Content = $"Loading {progressValue} from {packingPlanGenerationProgressBar.Maximum}";
+		}
+
+		private void ProductionPlanBackgroundWorker_RunWorkerCompleted(object? sender, RunWorkerCompletedEventArgs e)
+		{
+			packingPlanGenerationProgressText.Text = "Completed!";
+			productInformationTextBlock.Text = string.Empty;
+			productionPlanToolTip.Content = $"Complted! In Total uploaded {packingPlanGenerationProgressBar.Maximum} entries!";
+			resetDataTableNames();
+		}
+
+		private void ProductionPlanBackgroundWorker_DoWork(object? sender, DoWorkEventArgs e)
+		{
+			int increase = 0;
+
+			string[] lastProductionVersion = db.GetLastProductionPlanVersion("ProductionPlan").Split('V');
+
+			int newVersion = Convert.ToInt32(lastProductionVersion[1]) + 1;
+
+			string tableName = $"ProductionPlanV{newVersion}";
+
+			if (db.checkDatabaseTableExists(tableName)) { MessageBox.Show($"Database Table {tableName} exists! Please clear it or generate different name"); return; }
+
+			db.GenerateProductionPlanTable(tableName);
+
+			handler.GeneratePackingListFromDatabase().AsEnumerable().ToList().ForEach(item =>
+			{
+
+
+
+				db.saveProductionPlanIntoDatabaseParameterized(tableName, item.winNumber, item.productDescription, item.productGroup, item.packingDate, item.depotDate, (int)item.packingQty, (int)item.forecastQty, (int)item.difference, item.packsPerPallet, (int)item.palletsGenerated, (int)item.BEDFORD, (int)item.ERITH, (int)item.LUTTERWORTH, (int)item.ROCHDALE, (int)item.SKELMERSDALE, (int)item.WAKEFIELD, (int)item.WASHINGTON, (int)item.FALKIRK, (int)item.LARNE, (int)item.BRISTOL);
+
+
+				productionPlanText = $"Uploading: WIN {item.winNumber} " +
+				$"has {item.productDescription} as description " +
+				$"and have {item.depotDate} as depot date " +
+				$"which belongs to {item.productGroup} product group ";
+
+					
+
+					increase++;
+					(sender as BackgroundWorker).ReportProgress(increase);
+				
+			});
+			
+		}
+		#endregion
 	}
 }
