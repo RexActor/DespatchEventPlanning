@@ -17,29 +17,51 @@ namespace DespatchEventPlanning.Views
 	{
 		private DatabaseClass db;
 
-		public static List<StorageInformation> storageInformationList= new List<StorageInformation>();
-		string selectedProductionPlanVersion = string.Empty;
+		public static List<StorageInformation> storageInformationList = new List<StorageInformation>();
+		private string selectedProductionPlanVersion = string.Empty;
 
 		public PackingPlan()
 		{
 			InitializeComponent();
 
+		
+
+				db = new DatabaseClass();
+			resetPackingPlanTableList();
+
+
+		}
+
+
+		public void resetPackingPlanTableList()
+		{
+
+
+			if (availableProductionPlansList.Items.Count > 0)
+			{
+				availableProductionPlansList.Items.Clear();
+			}
+
+
+
 			availableProductionPlansList.Items.Add("Please Choose Packing Plan");
-			availableProductionPlansList.SelectedIndex = 0;
-
-			db = new DatabaseClass();
-
 			db.GetProductionPlanTables().AsEnumerable().ToList().ForEach(table =>
 			{
-
 				availableProductionPlansList.Items.Add(table);
-
 			});
 			
-			
+
+			if (selectedProductionPlanVersion!=string.Empty)
+			{
+				availableProductionPlansList.SelectedItem = selectedProductionPlanVersion;
+			}
+			else
+			{
+				availableProductionPlansList.SelectedIndex = 0;
+			}
 
 			
-			
+
 		}
 
 		private void PackingDateCalendar_SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
@@ -72,44 +94,29 @@ namespace DespatchEventPlanning.Views
 				int palletsGenerated = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.packingDate) == Convert.ToDateTime(packingDate)).Sum(item => item.palletsGenerated);
 				int palletsDirect = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.depotDate) == Convert.ToDateTime(packingDate).AddDays(1)).Sum(item => item.palletsGenerated);
 
-				
-
 				int palletsToStorage = db.getStorageInformationInList(selectedProductionPlanVersion).AsEnumerable().Where(item => Convert.ToDateTime(item.storageDate) == Convert.ToDateTime(packingDate)).Sum(item => item.quantityPalletsAllocated);
 				int storageForDepotDate = db.getStorageInformationInList(selectedProductionPlanVersion).AsEnumerable().Where(item => Convert.ToDateTime(item.depotDate) == Convert.ToDateTime(packingDate).AddDays(1)).Sum(item => item.quantityPalletsAllocated);
 				int totalPalletsGenerated = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.packingDate) <= Convert.ToDateTime(packingDate)).Sum(item => item.palletsGenerated);
 
-
-				
-
-
 				int generatedPreviousDay = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.packingDate) == Convert.ToDateTime(packingDate).AddDays(-1)).Sum(item => item.palletsGenerated);
 				int palletsToStoragePreviousDay = db.getStorageInformationInList(selectedProductionPlanVersion).AsEnumerable().Where(item => Convert.ToDateTime(item.storageDate) == Convert.ToDateTime(packingDate).AddDays(-1)).Sum(item => item.quantityPalletsAllocated);
-				int directsPreviousDay  = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.depotDate) == Convert.ToDateTime(packingDate)).Sum(item => item.palletsGenerated);
-
+				int directsPreviousDay = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.depotDate) == Convert.ToDateTime(packingDate)).Sum(item => item.palletsGenerated);
 
 				int totalDirects = (int)productList.AsEnumerable().Where(item => Convert.ToDateTime(item.depotDate) <= Convert.ToDateTime(packingDate).AddDays(1)).Sum(item => item.palletsGenerated);
 				int totalStorageForDepotDate = db.getStorageInformationInList(selectedProductionPlanVersion).AsEnumerable().Where(item => Convert.ToDateTime(item.depotDate) <= Convert.ToDateTime(packingDate).AddDays(1)).Sum(item => item.quantityPalletsAllocated);
 
 				int totalStorage = db.getStorageInformationInList(selectedProductionPlanVersion).AsEnumerable().Where(item => Convert.ToDateTime(item.storageDate) <= Convert.ToDateTime(packingDate)).Sum(item => item.quantityPalletsAllocated);
 
-
-				
 				int TotalOutbound = totalDirects - totalStorageForDepotDate + totalStorage;
 
 				int totalPalletsOutboundPreviousDay = directsPreviousDay - storageForDepotDate + palletsToStoragePreviousDay;
 
-				
+				int leftOnSitePreviousDay = generatedPreviousDay - totalPalletsOutboundPreviousDay;
 
-				int leftOnSitePreviousDay =  generatedPreviousDay - totalPalletsOutboundPreviousDay;
-
-				
-				
 				int directsWithRemovedStorage = palletsDirect - storageForDepotDate;
-				int totalPalletsOutbound = directsWithRemovedStorage  + palletsToStorage;
+				int totalPalletsOutbound = directsWithRemovedStorage + palletsToStorage;
 
-				int leftOnSite = palletsGenerated  - totalPalletsOutbound;
-
-				
+				int leftOnSite = palletsGenerated - totalPalletsOutbound;
 
 				siteCapacity.Add(new SiteCapacityClass()
 				{
@@ -125,9 +132,7 @@ namespace DespatchEventPlanning.Views
 					palletsOutbound = TotalOutbound,
 
 					leftOnSitePreviousDay = leftOnSitePreviousDay,
-					palletsInBound= TotalOutbound
-
-
+					palletsInBound = TotalOutbound
 				});
 			});
 			return siteCapacity;
@@ -173,6 +178,7 @@ namespace DespatchEventPlanning.Views
 				siteCapacityFlowersGrid.ItemsSource = DisplayCapacity(db.getInformationInList(selectedProductionPlanVersion).Where(item => item.productGroup.Contains("FLOWERS")).ToList()).OrderBy(item => item.produceDate);
 				siteCapacityPlantsGrid.ItemsSource = DisplayCapacity(db.getInformationInList(selectedProductionPlanVersion).Where(item => item.productGroup.Contains("PLANTS")).ToList()).OrderBy(item => item.produceDate);
 			}
+			resetPackingPlanTableList();
 		}
 
 		private void UpdateProductInformation_Click(object sender, RoutedEventArgs e)
@@ -184,12 +190,10 @@ namespace DespatchEventPlanning.Views
 
 		private void AddProductInformation_Click(object sender, RoutedEventArgs e)
 		{
-
 		}
 
 		private void availableProductionPlansList_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-
 			if (storageInformationList.Count > 0)
 			{
 				storageInformationList.Clear();
@@ -199,13 +203,11 @@ namespace DespatchEventPlanning.Views
 			{
 				selectedProductionPlanVersion = availableProductionPlansList.SelectedItem.ToString();
 
-
 				excelDataGrid.ItemsSource = db.getInformationInList(availableProductionPlansList.SelectedItem.ToString()).OrderBy(item => item.packingDate);
 
 				siteCapacityGrid.ItemsSource = DisplayCapacity(db.getInformationInList(availableProductionPlansList.SelectedItem.ToString())).ToList();
 				siteCapacityFlowersGrid.ItemsSource = DisplayCapacity(db.getInformationInList(availableProductionPlansList.SelectedItem.ToString()).Where(item => item.productGroup.Contains("FLOWERS")).ToList());
 				siteCapacityPlantsGrid.ItemsSource = DisplayCapacity(db.getInformationInList(availableProductionPlansList.SelectedItem.ToString()).Where(item => item.productGroup.Contains("PLANTS")).ToList());
-
 			};
 		}
 	}

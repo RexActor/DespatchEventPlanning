@@ -1,16 +1,11 @@
 ﻿using DespatchEventPlanning.ObjectClasses;
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
-
-using Utilities;
 
 namespace DespatchEventPlanning.Views
 {
@@ -20,8 +15,6 @@ namespace DespatchEventPlanning.Views
 	public partial class AllocateLoadsUserControl : UserControl
 	{
 		private StorageAllocationClass storage = new StorageAllocationClass();
-
-		private List<Storage> tempList = new();
 
 		private ComboBox depotDateComboBox;
 		private Label storageDateLabel;
@@ -35,70 +28,49 @@ namespace DespatchEventPlanning.Views
 		private string depotDateSelected = string.Empty;
 		private string selectedProductionPlanVersion = string.Empty;
 
-
-	
-
-		
-	
-
 		public AllocateLoadsUserControl()
 		{
 			InitializeComponent();
 
 			ToolTip toolTip = new ToolTip();
-			
-			
 
 			toolTip.Content = $"This Grid displays product list for chosen packing date from which one storage should be allocated\n" +
 				$"Available pallets are total <b>SUM</b> of depot available pallets";
 
 			loadsToAllocateDataGrid.ToolTip = toolTip;
-
-			
-
 		}
-
-	
 
 		private void UserControl_Loaded(object sender, RoutedEventArgs e)
 		{
-			
-
-				storageSummary.ItemsSource = storage.GetAllocatedLoadsSummary(selectedProductionPlanVersion);
-			
-
+			storageSummary.ItemsSource = storage.GetAllocatedLoadsSummary(selectedProductionPlanVersion);
 		}
 
 		private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
 		{
-			if ((bool)e.NewValue)
+			if ((bool)e.NewValue && PackingPlan.storageInformationList.Count > 0)
 			{
-				
-				if (PackingPlan.storageInformationList.Count > 0)
+				storage.ClearAllocatedLoads();
+
+				PackingPlan.storageInformationList.AsEnumerable().ToList().ForEach(item =>
 				{
-					storage.ClearAllocatedLoads();
-
-					PackingPlan.storageInformationList.AsEnumerable().ToList().ForEach(item =>
+					storage.AllocateStorage(item.allocationDate, item.productionPlanVersion);
+					selectedProductionPlanVersion = item.productionPlanVersion;
+					Debug.WriteLine(selectedProductionPlanVersion);
+					switch (item.Group)
 					{
-						storage.AllocateStorage(item.allocationDate,item.productionPlanVersion);
-						selectedProductionPlanVersion = item.productionPlanVersion;
-						Debug.WriteLine(selectedProductionPlanVersion);
-						switch (item.Group)
-						{
-							case "FLOWERS":
-								loadsToAllocateDataGrid.ItemsSource = storage.GetAllocatedLoads().Where(item => item.productGroup.Contains("FLOWERS")).OrderBy(item => item.storageDate).ThenBy(item => item.depotName).ThenBy(item => item.depotDate).ThenByDescending(item => item.quantityPalletsToAllocate).Where(item => item.storageDate != Convert.ToDateTime(item.depotDate).AddDays(-1).ToShortDateString());
-								break;
+						case "FLOWERS":
+							loadsToAllocateDataGrid.ItemsSource = storage.GetAllocatedLoads().Where(item => item.productGroup.Contains("FLOWERS")).OrderBy(item => item.storageDate).ThenBy(item => item.depotName).ThenBy(item => item.depotDate).ThenByDescending(item => item.quantityPalletsToAllocate).Where(item => item.storageDate != Convert.ToDateTime(item.depotDate).AddDays(-1).ToShortDateString());
+							break;
 
-							case "ALL":
-								loadsToAllocateDataGrid.ItemsSource = storage.GetAllocatedLoads().Where(item => item.storageDate != Convert.ToDateTime(item.depotDate).AddDays(-1).ToShortDateString()).OrderBy(item => item.storageDate).ThenBy(item => item.depotName).ThenBy(item => item.depotDate).ThenByDescending(item => item.quantityPalletsToAllocate);
-								break;
-						}
-					});
+						case "ALL":
+							loadsToAllocateDataGrid.ItemsSource = storage.GetAllocatedLoads().Where(item => item.storageDate != Convert.ToDateTime(item.depotDate).AddDays(-1).ToShortDateString()).OrderBy(item => item.storageDate).ThenBy(item => item.depotName).ThenBy(item => item.depotDate).ThenByDescending(item => item.quantityPalletsToAllocate);
+							break;
+					}
+				});
 
-					GenerateInformationGrid();
+				GenerateInformationGrid();
 
-					storageSummary.ItemsSource = storage.GetAllocatedLoadsSummary(selectedProductionPlanVersion);
-				}
+				storageSummary.ItemsSource = storage.GetAllocatedLoadsSummary(selectedProductionPlanVersion);
 			}
 		}
 
@@ -275,9 +247,9 @@ namespace DespatchEventPlanning.Views
 			string lastloadReference = string.Empty;
 			string loadReferenceToBeAssigned = $"{storageItemToAdd.depotName.Substring(0, 3)}";
 
-			if (storage.GetAmountOfLoadsWithDepotDate(loadReferenceToBeAssigned, storageItemToAdd.depotDate,storageItemToAdd.storageDate) > 0)
+			if (storage.GetAmountOfLoadsWithDepotDate(loadReferenceToBeAssigned, storageItemToAdd.depotDate, storageItemToAdd.storageDate) > 0)
 			{
-				lastloadReference = storage.GetLastLoadReferenceWithDepotDate(loadReferenceToBeAssigned, storageItemToAdd.depotDate,storageItemToAdd.storageDate);
+				lastloadReference = storage.GetLastLoadReferenceWithDepotDate(loadReferenceToBeAssigned, storageItemToAdd.depotDate, storageItemToAdd.storageDate);
 			}
 			else
 			{
@@ -319,7 +291,6 @@ namespace DespatchEventPlanning.Views
 				AddProductToLoad(storageItemToAdd, $"{loadSplit[0]}-{loadNumber + 1}", palletsAllocated, casesAllocated);
 			}
 
-			
 			Button button = sender as Button;
 			button.IsEnabled = false;
 		}
@@ -337,30 +308,17 @@ namespace DespatchEventPlanning.Views
 				depotDate = storageItemToAdd.depotDate,
 				storageDate = storageItemToAdd.storageDate,
 				productionPlanVersion = selectedProductionPlanVersion
-
 			};
-
-
-
 
 			storage.AddProductToStorageTruck(amendedProduct);
 
-
-				storageSummary.ItemsSource = storage.GetAllocatedLoadsSummary(selectedProductionPlanVersion);
-			
+			storageSummary.ItemsSource = storage.GetAllocatedLoadsSummary(selectedProductionPlanVersion);
 		}
 
 		private void storageSummary_SourceUpdated(object sender, System.Windows.Data.DataTransferEventArgs e)
 		{
-			//MessageBox.Show("Changed Source");
-			//storageSummary.ItemsSource = storage.GetAllocatedLoadsSummary();
+			
 		}
 
-		private void CommandBinding_CanExecute(object sender, System.Windows.Input.CanExecuteRoutedEventArgs e)
-		{
-
-		}
-
-		
 	}
 }

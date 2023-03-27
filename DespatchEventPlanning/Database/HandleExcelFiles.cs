@@ -48,7 +48,6 @@ namespace DespatchEventPlanning.Database
 		{
 			DataTable packingPlan = db.getPackingPlanInDataTable();
 
-			//List<PackingPlanClass> packingPlan = GeneratePackingPlan();
 			var convertedList = packingPlan.AsEnumerable().Select(item => new PackingProductInformationClass
 			{
 				winNumber = Convert.ToInt32(item[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.WinNumber}"]),
@@ -57,15 +56,32 @@ namespace DespatchEventPlanning.Database
 				packingDate = Convert.ToString(item[$"packingDate"]),
 				depotDate = Convert.ToString(item[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.DepotDate}"]),
 				packingQty = Convert.ToDouble(item[$"{EnumClass.PACKINGPLAN_DATATABLE_COLUMN_NAMES.PackingQuantity}"])
-				
-				
-			
 			}).ToList();
 
 			return convertedList;
 		}
 
-	
+
+
+		public List<PackingProductInformationClass> GeneratePackingListFromExcelFile()
+		{
+			List<PackingPlanClass> packingPlan = GeneratePackingPlan();
+
+			var convertedList = packingPlan.AsEnumerable().Select(item => new PackingProductInformationClass
+			{
+				winNumber = item.winNumber,
+				productDescription = item.productDescription,
+				productGroup = item.productGroup,
+				packingDate = item.packingDate,
+				depotDate = item.depotDate,
+				packingQty = item.packingQuantity
+			}).ToList();
+
+			return convertedList;
+		}
+
+
+
 		public List<ProductInformationClass> GenerateProductInformation()
 		{
 			handler = new DataHandler();

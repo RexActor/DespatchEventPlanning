@@ -1,16 +1,9 @@
 ﻿using DespatchEventPlanning.Database;
 
-using DocumentFormat.OpenXml.Office.CustomUI;
-
-using Microsoft.Diagnostics.Tracing.Parsers.MicrosoftAntimalwareEngine;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Linq;
-using System.Windows;
 
 namespace DespatchEventPlanning.ObjectClasses
 {
@@ -19,12 +12,12 @@ namespace DespatchEventPlanning.ObjectClasses
 		private DatabaseClass db = new DatabaseClass();
 		private List<Storage> allocatedLoads = new List<Storage>();
 
-		private List<Storage>productsAllocatedForStorageTrucks = new List<Storage>();
+		private List<Storage> productsAllocatedForStorageTrucks = new List<Storage>();
 
 		private List<StorageSummary> allocatedLoadSummary;
 		private string selectedProductionPlanVersion = string.Empty;
 
-		public void AllocateStorage(string allocationDate,string selectedProductinPlan)
+		public void AllocateStorage(string allocationDate, string selectedProductinPlan)
 		{
 			List<DepotLimitationClass> depotLimits = new List<DepotLimitationClass>();
 			List<PackingProductInformationClass> packingProduct = db.getInformationInList(selectedProductinPlan);
@@ -48,7 +41,7 @@ namespace DespatchEventPlanning.ObjectClasses
 									depotName = x.Name,
 									productDescription = item.productDescription,
 									packsPerPallet = item.packsPerPallet,
-									inStorage = db.productExistsInStorage(item.winNumber,item.depotDate,item.packingDate,"BEDFORD", selectedProductionPlanVersion),
+									inStorage = db.productExistsInStorage(item.winNumber, item.depotDate, item.packingDate, "BEDFORD", selectedProductionPlanVersion),
 									quantityCases = (int)item.BEDFORD,
 									productGroup = item.productGroup,
 									quantityPallets = (int)Math.Ceiling(item.BEDFORD / item.packsPerPallet),
@@ -244,8 +237,6 @@ namespace DespatchEventPlanning.ObjectClasses
 
 		public List<Storage> GetAllocatedLoads()
 		{
-			
-			
 			return allocatedLoads.ToList();
 		}
 
@@ -256,36 +247,20 @@ namespace DespatchEventPlanning.ObjectClasses
 
 		public List<StorageSummary> GetAllocatedLoadsSummary(string productionPlanVersion)
 		{
-
-
-
 			allocatedLoadSummary = new List<StorageSummary>();
 
 			productsAllocatedForStorageTrucks = db.getStorageInformationInList(selectedProductionPlanVersion);
 
-			db.getStorageInformationInList(productionPlanVersion).AsEnumerable().Select(item=>item.loadReference).Distinct().ToList().ForEach(subItem=> {
-
-
+			db.getStorageInformationInList(productionPlanVersion).AsEnumerable().Select(item => item.loadReference).Distinct().ToList().ForEach(subItem =>
+			{
 				allocatedLoadSummary.Add(new StorageSummary()
 				{
 					loadReference = subItem
 				});
-
-
 			});
-
-
-			//productsAllocatedForStorageTrucks.AsEnumerable().ToList().Select(item => item.loadReference).Distinct().ToList().ForEach(subItem =>
-			//{
-			//	allocatedLoadSummary.Add(new StorageSummary()
-			//	{
-			//		loadReference = subItem
-			//	});
-			//});
 
 			allocatedLoadSummary.AsEnumerable().ToList().ForEach(item =>
 			{
-				
 				item.palletSummary = productsAllocatedForStorageTrucks.Where(x => x.loadReference == item.loadReference).Sum(x => x.quantityPalletsAllocated);
 				item.casesSummary = productsAllocatedForStorageTrucks.Where(x => x.loadReference == item.loadReference).Sum(x => x.quantityCases);
 				item.depotName = productsAllocatedForStorageTrucks.Where(x => x.loadReference == item.loadReference).Distinct().Select(x => x.depotName).FirstOrDefault().ToString();
@@ -302,29 +277,19 @@ namespace DespatchEventPlanning.ObjectClasses
 			return productsAllocatedForStorageTrucks.Where(item => item.loadReference.Contains(loadReference)).Sum(item => item.quantityPalletsAllocated);
 		}
 
-
-		public int GetTotalLoadsWithReference(string loadReference,string productionVersion)
+		public string GetLastLoadReferenceWithDepotDate(string loadReference, string depotDate, string storageDate)
 		{
-			return GetAllocatedLoadsSummary(selectedProductionPlanVersion).Where(item => item.loadReference.Contains(loadReference)).Distinct().Count();
-		}
-
-		public string GetLastLoadReferenceWithDepotDate(string loadReference,string depotDate,string storageDate)
-		{
-			
-				return productsAllocatedForStorageTrucks.Where(item => item.depotDate == depotDate).Where(item=>item.storageDate==storageDate).Where(item => item.loadReference.Contains(loadReference)).Distinct().Select(item => item.loadReference).LastOrDefault().ToString();
-			
+			return productsAllocatedForStorageTrucks.Where(item => item.depotDate == depotDate).Where(item => item.storageDate == storageDate).Where(item => item.loadReference.Contains(loadReference)).Distinct().Select(item => item.loadReference).LastOrDefault().ToString();
 		}
 
 		public string GetLastLoadReference(string loadReference)
 		{
-
 			return productsAllocatedForStorageTrucks.Where(item => item.loadReference.Contains(loadReference)).Distinct().Select(item => item.loadReference).LastOrDefault().ToString();
-
 		}
 
-		public int GetAmountOfLoadsWithDepotDate(string loadReference,string depotDate,string storageDate)
+		public int GetAmountOfLoadsWithDepotDate(string loadReference, string depotDate, string storageDate)
 		{
-			return productsAllocatedForStorageTrucks.Where(item => item.depotDate == depotDate).Where(item=>item.storageDate ==storageDate).Count(item=>item.loadReference.Contains(loadReference));
+			return productsAllocatedForStorageTrucks.Where(item => item.depotDate == depotDate).Where(item => item.storageDate == storageDate).Count(item => item.loadReference.Contains(loadReference));
 		}
 
 		public int GetAmountOfLoads(string loadReference)
@@ -332,12 +297,10 @@ namespace DespatchEventPlanning.ObjectClasses
 			return productsAllocatedForStorageTrucks.Where(item => item.loadReference.Contains(loadReference)).Count();
 		}
 
-
 		public void AddProductToStorageTruck(Storage storage)
 		{
-
-			productsAllocatedForStorageTrucks.Add(new Storage() {
-
+			productsAllocatedForStorageTrucks.Add(new Storage()
+			{
 				winNumber = storage.winNumber,
 				productDescription = storage.productDescription,
 				storageDate = storage.storageDate,
@@ -347,47 +310,14 @@ namespace DespatchEventPlanning.ObjectClasses
 				loadReference = storage.loadReference,
 				quantityCases = storage.quantityCases,
 				productionPlanVersion = selectedProductionPlanVersion
-
-
-				
 			});
 
-			/*
-			MessageBox.Show($"WIN: \t{storage.winNumber}\n" +
-				$"Description: \t{storage.productDescription}\n" +
-				$"Storage Date: \t{storage.storageDate}\n" +
-				$"Depot Date: \t{storage.depotDate}\n" +
-				$"Allocated Pallets: \t{storage.quantityPalletsAllocated}\n" +
-				$"Depot Name: \t{storage.depotName}\n" +
-				$"Load Reference: \t{storage.loadReference}\n" +
-				$"Quantity Cases: \t{storage.quantityCases}\n");
-			*/
-
-			db.saveProductIntoStorageLoad("StorageAllocation", storage.winNumber, storage.productDescription, storage.storageDate, storage.depotDate, storage.depotName, storage.quantityCases, storage.loadReference, storage.quantityPalletsAllocated,selectedProductionPlanVersion);
-
-
-
-
+			db.saveProductIntoStorageLoad("StorageAllocation", storage.winNumber, storage.productDescription, storage.storageDate, storage.depotDate, storage.depotName, storage.quantityCases, storage.loadReference, storage.quantityPalletsAllocated, selectedProductionPlanVersion);
 		}
-
-
-
-
-
-
-
 	}
-
-	
 
 	internal class Storage
 	{
-
-
-
-	
-
-
 		public int winNumber { get; set; }
 		public string productDescription { get; set; }
 		public string storageDate { get; set; }
@@ -398,12 +328,9 @@ namespace DespatchEventPlanning.ObjectClasses
 		public string loadReference { get; set; }
 		public int packsPerPallet { get; set; }
 		public string productGroup { get; set; }
-
 		public string inStorage { get; set; }
-
 		public int quantityPalletsToAllocate { get; set; }
 		public int quantityPalletsAllocated { get; set; }
-
 		public int siteCapacityTarget { get; set; }
 		public string productionPlanVersion { get; set; }
 	}
@@ -417,20 +344,4 @@ namespace DespatchEventPlanning.ObjectClasses
 		public string storageDate { get; set; }
 		public string depotName { get; set; }
 	}
-
-	/*
-
-	CREATE TABLE "StorageAllocation" (
-	"Id"	INTEGER,
-	"winNumber"	INTEGER DEFAULT 0,
-	"productDescription"	TEXT DEFAULT 'N/A',
-	"storageDate"	TEXT DEFAULT 'N/A',
-	"depotDate"	TEXT DEFAULT 'N/A',
-	"depotName"	TEXT DEFAULT 'N/A',
-	"quantity"	INTEGER DEFAULT 0,
-	"loadReference"	INTEGER DEFAULT 'N/A',
-	PRIMARY KEY("Id" AUTOINCREMENT)
-);
-
-	 */
 }

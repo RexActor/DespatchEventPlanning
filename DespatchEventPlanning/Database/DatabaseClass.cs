@@ -222,6 +222,28 @@ namespace DespatchEventPlanning.Database
 			}
 		}
 
+		public void saveProductionVersion(string table_name, string versionName)
+		{
+			using (SqliteConnection conn = new SqliteConnection($"data source ={_databaseSource}; Mode=ReadWrite;"))
+			{
+				using (SqliteCommand cmd = new SqliteCommand())
+				{
+					cmd.CommandText = $"INSERT INTO [{table_name}] ([versionName]) values(@versionName)";
+
+					cmd.Parameters.AddWithValue("@versionName", versionName);
+				
+
+					cmd.Connection = conn;
+					conn.Open();
+
+					cmd.ExecuteNonQuery();
+
+					conn.Close();
+				}
+			}
+		}
+
+
 		#endregion save data into database
 
 		#region get data out of database
@@ -411,7 +433,7 @@ namespace DespatchEventPlanning.Database
 			{
 				using (SqliteCommand cmd = new SqliteCommand())
 				{
-					cmd.CommandText = $"SELECT name FROM sqlite_sequence WHERE name LIKE 'ProductionPlanV%' ORDER BY name ASC";
+					cmd.CommandText = $"SELECT versionName FROM ProductionVersions WHERE versionName LIKE 'ProductionPlanV%' ORDER BY Id ASC";
 
 					cmd.Connection = conn;
 					conn.Open();
@@ -438,7 +460,7 @@ namespace DespatchEventPlanning.Database
 			{
 				using (SqliteCommand cmd = new SqliteCommand())
 				{
-					cmd.CommandText = $"SELECT name FROM sqlite_sequence WHERE name LIKE '{tableName}%' ORDER BY name DESC LIMIT 1";
+					cmd.CommandText = $"SELECT versionName FROM ProductionVersions WHERE versionName LIKE '{tableName}%' ORDER BY Id DESC LIMIT 1";
 
 					cmd.Connection = conn;
 					conn.Open();

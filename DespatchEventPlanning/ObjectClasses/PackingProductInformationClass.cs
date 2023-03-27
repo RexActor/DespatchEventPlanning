@@ -19,18 +19,11 @@ namespace DespatchEventPlanning.ObjectClasses
 	{
 		static readonly string depotSplitsPath = $"{AppDomain.CurrentDomain.BaseDirectory}DepotSplits.xlsx";
 		static readonly string defaultDepotSplitsPath = $"{AppDomain.CurrentDomain.BaseDirectory}DefaultDepotSplits.xlsx";
-
 		static DataHandler handler = new DataHandler();
 		static DatabaseClass db = new DatabaseClass();
-
 		static DataTable depotSplits = handler.ReadExcelFile($"{EnumClass.SHEETNAMES.DepotSplits}", depotSplitsPath);
 		static DataTable defaultDepotSplits = handler.ReadExcelFile($"{EnumClass.SHEETNAMES.DepotSplits}",defaultDepotSplitsPath);
-		static string updateInforamtionButtonStatus = "HIDDEN";
-		static string addInformationButtonStatus = "HIDDEN";
-
-
-
-		
+				
 
 		public int winNumber { get; set; }
 		public string productDescription { get; set; } = string.Empty;
@@ -38,30 +31,10 @@ namespace DespatchEventPlanning.ObjectClasses
 		public string packingDate { get; set; } = string.Empty;
 		public string depotDate { get; set; } = string.Empty;
 		public double packingQty { get; set; } = 0f;
-
-		
-
-	
-
-		public double forecastQty { get { return getForecast(winNumber, depotDate); } }
-
-		
-
+		public double forecastQty { get { return getForecast(winNumber, depotDate); } }				
 		public double difference { get { return forecastQty - packingQty; } }
-
 		public int packsPerPallet { get { return Convert.ToInt32(getProductInformation(winNumber, "PacksPerPallet")); } }
-
-		public double palletsGenerated { get { return Math.Ceiling(packingQty/packsPerPallet); } }
-
-
-
-
-
-
-
-
-
-		
+		public double palletsGenerated { get { return Math.Ceiling(packingQty/packsPerPallet); } }	
 		public double BEDFORD { get { return getDepotSplit(forecastQty, packingQty, "BEDFORD", depotDate, winNumber); } }
 		public double ERITH { get { return getDepotSplit(forecastQty, packingQty, "ERITH", depotDate, winNumber); } }
 		public double LUTTERWORTH { get { return getDepotSplit(forecastQty, packingQty, "LUTTERWORTH", depotDate, winNumber); } }
@@ -73,14 +46,6 @@ namespace DespatchEventPlanning.ObjectClasses
 		public double LARNE { get { return getDepotSplit(forecastQty, packingQty, "LARNE", depotDate, winNumber); } }
 		public double BRISTOL { get { return getDepotSplit(forecastQty, packingQty, "BRISTOL", depotDate, winNumber); } }
 		
-
-		
-
-
-
-
-
-
 
 
 		private string getProductInformation(int winNumber,string fieldInTable)
@@ -103,7 +68,6 @@ namespace DespatchEventPlanning.ObjectClasses
 		{
 			return db.GetForecastforProduct(winNumber, depotDate);
 		}
-
 
 
 

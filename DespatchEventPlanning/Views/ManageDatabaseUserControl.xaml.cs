@@ -1,13 +1,10 @@
 ﻿using DespatchEventPlanning.Database;
 
-
-
 using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace DespatchEventPlanning.Views
 {
@@ -18,7 +15,7 @@ namespace DespatchEventPlanning.Views
 	{
 		private DatabaseClass db = new DatabaseClass();
 		private HandleExcelFiles handler;
-		private BackgroundWorker backgroundWorker;
+
 		private string productInformationText = string.Empty;
 		private string depotSplitText = string.Empty;
 		private string defaultSplitText = string.Empty;
@@ -27,14 +24,11 @@ namespace DespatchEventPlanning.Views
 		private string selectedDatabaseTable = string.Empty;
 		private string productionPlanText = string.Empty;
 
-
-
 		private bool depotSplitsExists;
 		private bool productInformationExists;
 		private bool defaultDepotSplitsExists;
 		private bool forecastExists;
 		private bool packingPlanExists;
-
 
 		private ToolTip depotSplitsToolTip;
 		private ToolTip productInformationToolTip;
@@ -43,12 +37,12 @@ namespace DespatchEventPlanning.Views
 		private ToolTip packingPlanTooltip;
 		private ToolTip productionPlanToolTip;
 
-		BackgroundWorker importProductInformationBackgroundWorker = new BackgroundWorker();
-		BackgroundWorker importDepotSplitsBackgroundWorker = new BackgroundWorker();
-		BackgroundWorker defaultDepotSplitBackgroundWorker = new BackgroundWorker();
-		BackgroundWorker forecastBackgroundWorker = new BackgroundWorker();
-		BackgroundWorker packingPlanBackgroundWorker = new BackgroundWorker();
-		BackgroundWorker productionPlanBackgroundWorker = new BackgroundWorker();
+		private BackgroundWorker importProductInformationBackgroundWorker = new BackgroundWorker();
+		private BackgroundWorker importDepotSplitsBackgroundWorker = new BackgroundWorker();
+		private BackgroundWorker defaultDepotSplitBackgroundWorker = new BackgroundWorker();
+		private BackgroundWorker forecastBackgroundWorker = new BackgroundWorker();
+		private BackgroundWorker packingPlanBackgroundWorker = new BackgroundWorker();
+		private BackgroundWorker productionPlanBackgroundWorker = new BackgroundWorker();
 
 		public ManageDatabaseUserControl()
 		{
@@ -56,8 +50,8 @@ namespace DespatchEventPlanning.Views
 
 			handler = new HandleExcelFiles();
 
-			
 			resetDataTableNames();
+
 			productInformationProgressBar.Maximum = handler.GenerateProductInformation().Count;
 			depotSplitProgressBar.Maximum = handler.GenerateDepotSplits().Count;
 			defaultDepotSplitProgressBar.Maximum = handler.GenerateDefaultDepotSplits().Count;
@@ -66,7 +60,6 @@ namespace DespatchEventPlanning.Views
 			packingPlanGenerationProgressBar.Maximum = handler.GeneratePackingPlan().Count;
 		}
 
-
 		public void resetDataTableNames()
 		{
 			if (databaseTableList.Items.Count > 0)
@@ -74,21 +67,16 @@ namespace DespatchEventPlanning.Views
 				databaseTableList.Items.Clear();
 				databaseTableList.Items.Add("Please choose table");
 			}
-			
-			
+
 			databaseTableList.SelectedIndex = 0;
-			db.GetDatabaseTables().AsEnumerable().ToList().ForEach(dbTable => {
-
+			db.GetDatabaseTables().AsEnumerable().ToList().ForEach(dbTable =>
+			{
 				databaseTableList.Items.Add(dbTable.ToString());
-
-
 			});
-
 		}
 
 		public bool IsSomethingBeingUpdated()
 		{
-
 			if (importProductInformationBackgroundWorker.IsBusy || importDepotSplitsBackgroundWorker.IsBusy || defaultDepotSplitBackgroundWorker.IsBusy || forecastBackgroundWorker.IsBusy || packingPlanBackgroundWorker.IsBusy || productionPlanBackgroundWorker.IsBusy)
 			{
 				return true;
@@ -96,20 +84,16 @@ namespace DespatchEventPlanning.Views
 			else { return false; }
 		}
 
-
 		#region productInformation import section
 
 		private void importProductInformationButton_Click(object sender, RoutedEventArgs e)
 		{
-			if (IsSomethingBeingUpdated()==true) { MessageBox.Show("Already Uploading items...! Please be patient!");return; }
+			if (IsSomethingBeingUpdated() == true) { MessageBox.Show("Already Uploading items...! Please be patient!"); return; }
 
-			
 			importProductInformationBackgroundWorker.WorkerReportsProgress = true;
 			importProductInformationBackgroundWorker.DoWork += importProductInformationBackgroundWorker_DoWork;
 			importProductInformationBackgroundWorker.ProgressChanged += importProductInformationBackgroundWorker_ProgressChanged;
 			importProductInformationBackgroundWorker.RunWorkerCompleted += ImportProductInformationBackgroundWorker_RunWorkerCompleted;
-
-			
 
 			importProductInformationBackgroundWorker.RunWorkerAsync();
 			productInformationToolTip = new ToolTip();
@@ -124,23 +108,18 @@ namespace DespatchEventPlanning.Views
 			productInformationProgressBarProgressText.Text = $"{Math.Round((progressValue / productInformationProgressBar.Maximum) * 100)}%";
 			productInformationTextBlock.Text = productInformationText;
 			productInformationToolTip.Content = $"Uploading {progressValue} from {productInformationProgressBar.Maximum}";
-			
 		}
 
 		private void importProductInformationBackgroundWorker_DoWork(object? sender, DoWorkEventArgs e)
 		{
 			int increase = 0;
-			
+
 			handler.GenerateProductInformation().AsEnumerable().ToList().ForEach(item =>
 			{
-				
 				if (db.productExistsInProductInformationTable(item.winNumber, item.productNumber) == true)
 				{
 					increase++;
 					productInformationExists = true;
-
-					
-
 				}
 				else
 				{
@@ -157,9 +136,7 @@ namespace DespatchEventPlanning.Views
 
 					increase++;
 					(sender as BackgroundWorker).ReportProgress(increase);
-
 				}
-				
 			});
 		}
 
@@ -186,9 +163,8 @@ namespace DespatchEventPlanning.Views
 
 		private void importDepotSplitsButton_Click(object sender, RoutedEventArgs e)
 		{
-
 			if (IsSomethingBeingUpdated() == true) { MessageBox.Show("Already Uploading items...! Please be patient!"); return; }
-			
+
 			importDepotSplitsBackgroundWorker.WorkerReportsProgress = true;
 			importDepotSplitsBackgroundWorker.DoWork += ImportDepotSplitsBackgroundWorker_DoWork;
 			importDepotSplitsBackgroundWorker.ProgressChanged += ImportDepotSplitsBackgroundWorker_ProgressChanged;
@@ -211,7 +187,7 @@ namespace DespatchEventPlanning.Views
 			else
 			{
 				depotSplitsTextBlock.Text = string.Empty;
-				depotSplitProgressBarProgressText.Text= "Completed!";
+				depotSplitProgressBarProgressText.Text = "Completed!";
 				depotSplitsToolTip.Content = $"Complted! In Total uploaded  {depotSplitProgressBar.Maximum} entries!";
 			}
 		}
@@ -237,8 +213,6 @@ namespace DespatchEventPlanning.Views
 				{
 					increase++;
 					depotSplitsExists = true;
-
-					
 				}
 				else
 				{
@@ -255,7 +229,6 @@ namespace DespatchEventPlanning.Views
 
 					increase++;
 					(sender as BackgroundWorker).ReportProgress(increase);
-
 				}
 			});
 		}
@@ -267,7 +240,7 @@ namespace DespatchEventPlanning.Views
 		private void importDefaultDepotSplitsButton_Click(object sender, RoutedEventArgs e)
 		{
 			if (IsSomethingBeingUpdated() == true) { MessageBox.Show("Already Uploading items...! Please be patient!"); return; }
-			
+
 			defaultDepotSplitBackgroundWorker.WorkerReportsProgress = true;
 			defaultDepotSplitBackgroundWorker.DoWork += DefaultDepotSplitBackgroundWorker_DoWork;
 			defaultDepotSplitBackgroundWorker.ProgressChanged += DefaultDepotSplitBackgroundWorker_ProgressChanged;
@@ -314,9 +287,6 @@ namespace DespatchEventPlanning.Views
 				{
 					increase++;
 					defaultDepotSplitsExists = true;
-
-
-					
 				}
 				else
 				{
@@ -343,7 +313,7 @@ namespace DespatchEventPlanning.Views
 		private void importForecastButton_Click(object sender, RoutedEventArgs e)
 		{
 			if (IsSomethingBeingUpdated() == true) { MessageBox.Show("Already Uploading items...! Please be patient!"); return; }
-		
+
 			forecastBackgroundWorker.WorkerReportsProgress = true;
 			forecastBackgroundWorker.DoWork += ForecastBackgroundWorker_DoWork;
 			forecastBackgroundWorker.ProgressChanged += ForecastBackgroundWorker_ProgressChanged;
@@ -355,7 +325,8 @@ namespace DespatchEventPlanning.Views
 
 		private void ForecastBackgroundWorker_RunWorkerCompleted(object? sender, RunWorkerCompletedEventArgs e)
 		{
-			if (forecastExists == true) {
+			if (forecastExists == true)
+			{
 				forecastTextBlock.Text = "Nothing uploaded! Products already exist in database";
 				forecastToolTip.Content = "Nothing uploaded! Products already exist in database";
 				forecastBarProgressText.Text = "Failed!";
@@ -387,10 +358,8 @@ namespace DespatchEventPlanning.Views
 			{
 				if (db.productExistsInForecastTable(item.winNumber, item.depotDate) == true)
 				{
-
 					increase++;
 					forecastExists = true;
-				
 				}
 				else
 				{
@@ -417,14 +386,13 @@ namespace DespatchEventPlanning.Views
 		private void importPackingPlanButton_Click(object sender, RoutedEventArgs e)
 		{
 			if (IsSomethingBeingUpdated() == true) { MessageBox.Show("Already Uploading items...! Please be patient!"); return; }
-			
 
 			packingPlanBackgroundWorker.WorkerReportsProgress = true;
 			packingPlanBackgroundWorker.DoWork += PackingPlanBackgroundWorker_DoWork;
 			packingPlanBackgroundWorker.ProgressChanged += PackingPlanBackgroundWorker_ProgressChanged;
 			packingPlanBackgroundWorker.RunWorkerCompleted += PackingPlanBackgroundWorker_RunWorkerCompleted;
 			packingPlanBackgroundWorker.RunWorkerAsync();
-			
+
 			packingPlanTooltip = new ToolTip();
 			packingPlanProgressBar.ToolTip = packingPlanTooltip;
 		}
@@ -436,12 +404,9 @@ namespace DespatchEventPlanning.Views
 				packingPlanTextBlock.Text = "Nothing uploaded! Products already exist in database";
 				packingPlanTooltip.Content = "Nothing uploaded! Products already exist in database";
 				packingPlanProgressText.Text = "Failed!";
-				
-				
 			}
 			else
 			{
-				
 				packingPlanProgressText.Text = "Completed!";
 				packingPlanTextBlock.Text = string.Empty;
 				packingPlanTooltip.Content = $"Complted! In Total uploaded {packingPlanProgressBar.Maximum} entries!";
@@ -470,13 +435,10 @@ namespace DespatchEventPlanning.Views
 				{
 					increase++;
 					packingPlanExists = true;
-
-					
 				}
 				else
 				{
 					packingPlanExists = false;
-
 
 					db.savePackingPlan("PackingPlan", item.winNumber, item.productDescription, item.productGroup, item.packingDate, item.depotDate, item.packingQuantity);
 
@@ -498,8 +460,7 @@ namespace DespatchEventPlanning.Views
 
 		private void clearDatabaseButton_Click(object sender, RoutedEventArgs e)
 		{
-			
-			if(databaseTableList.SelectedItem != null && databaseTableList.SelectedIndex!=0)
+			if (databaseTableList.SelectedItem != null && databaseTableList.SelectedIndex != 0)
 			{
 				db.clearDatbaseTable(databaseTableList.SelectedItem.ToString());
 				databaseTableList.SelectedIndex = 0;
@@ -509,30 +470,23 @@ namespace DespatchEventPlanning.Views
 			{
 				databaseClearTextbox.Text = "Unable To Clear this database table! Please select different table";
 			}
-			
-			
 		}
-
 
 		private void databaseTableList_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
+			if (databaseTableList.SelectedItem != null)
+			{
 
-			selectedDatabaseTable = databaseTableList.SelectedItem.ToString();
-			databaseClearTextbox.Text = string.Empty;
-			
+				selectedDatabaseTable = databaseTableList.SelectedItem.ToString();
+				databaseClearTextbox.Text = string.Empty;
+			}
 		}
 
-
 		#region generateProductionPlan
-
 
 		private void generatePackingPlanButton_Click(object sender, RoutedEventArgs e)
 		{
 			if (IsSomethingBeingUpdated() == true) { MessageBox.Show("Already Uploading items...! Please be patient!"); return; }
-
-
-			
-			
 
 			productionPlanBackgroundWorker.WorkerReportsProgress = true;
 			productionPlanBackgroundWorker.DoWork += ProductionPlanBackgroundWorker_DoWork;
@@ -542,8 +496,6 @@ namespace DespatchEventPlanning.Views
 			productionPlanBackgroundWorker.RunWorkerAsync();
 			productionPlanToolTip = new ToolTip();
 			packingPlanGenerationProgressBar.ToolTip = productionPlanToolTip;
-
-
 		}
 
 		private void ProductionPlanBackgroundWorker_ProgressChanged(object? sender, ProgressChangedEventArgs e)
@@ -578,28 +530,26 @@ namespace DespatchEventPlanning.Views
 			if (db.checkDatabaseTableExists(tableName)) { MessageBox.Show($"Database Table {tableName} exists! Please clear it or generate different name"); return; }
 
 			db.GenerateProductionPlanTable(tableName);
+			db.saveProductionVersion("ProductionVersions", tableName);
 
-			handler.GeneratePackingListFromDatabase().AsEnumerable().ToList().ForEach(item =>
+			handler.GeneratePackingListFromExcelFile().AsEnumerable().ToList().ForEach(item =>
 			{
 
 
+				
 
 				db.saveProductionPlanIntoDatabaseParameterized(tableName, item.winNumber, item.productDescription, item.productGroup, item.packingDate, item.depotDate, (int)item.packingQty, (int)item.forecastQty, (int)item.difference, item.packsPerPallet, (int)item.palletsGenerated, (int)item.BEDFORD, (int)item.ERITH, (int)item.LUTTERWORTH, (int)item.ROCHDALE, (int)item.SKELMERSDALE, (int)item.WAKEFIELD, (int)item.WASHINGTON, (int)item.FALKIRK, (int)item.LARNE, (int)item.BRISTOL);
-
 
 				productionPlanText = $"Uploading: WIN {item.winNumber} " +
 				$"has {item.productDescription} as description " +
 				$"and have {item.depotDate} as depot date " +
 				$"which belongs to {item.productGroup} product group ";
 
-					
-
-					increase++;
-					(sender as BackgroundWorker).ReportProgress(increase);
-				
+				increase++;
+				(sender as BackgroundWorker).ReportProgress(increase);
 			});
-			
 		}
-		#endregion
+
+		#endregion generateProductionPlan
 	}
 }
