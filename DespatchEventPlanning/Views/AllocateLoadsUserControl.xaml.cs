@@ -22,6 +22,7 @@ namespace DespatchEventPlanning.Views
 
 		public static bool clearAllocatedProductInformation = false;
 
+
 		private ComboBox depotDateComboBox;
 		private Label storageDateLabel;
 		private ComboBox storageDatesComboBox;
@@ -55,6 +56,8 @@ namespace DespatchEventPlanning.Views
 		{
 			if ((bool)e.NewValue)
 			{
+				
+
 				if (PackingPlan.storageInformationList.Count > 0)
 				{
 					storage.ClearAllocatedLoads();
@@ -63,7 +66,7 @@ namespace DespatchEventPlanning.Views
 					{
 						storage.AllocateStorage(item.allocationDate, item.productionPlanVersion);
 						selectedProductionPlanVersion = item.productionPlanVersion;
-						Debug.WriteLine(item.productionPlanVersion);
+						
 						switch (item.Group)
 						{
 							case "FLOWERS":
@@ -87,6 +90,15 @@ namespace DespatchEventPlanning.Views
 			{
 				allocatedProduct.Clear();
 				clearAllocatedProductInformation = false;
+
+
+				LoadStorageDateLabel.Content = $"Storage Date: ";
+				LoadDepotDateLabel.Content = $"Depot Date: ";
+				LoadReferenceLabel.Content = $"Load Reference: ";
+				LoadDepotNameLabel.Content = $"Depot Name: ";
+				LoadTotalPalletsLabel.Content = $"Total Pallets Allocated: ";
+				LoadTotalCasesLabel.Content = $"Total Cases Allocated: ";
+
 			}
 		}
 
@@ -333,13 +345,16 @@ namespace DespatchEventPlanning.Views
 
 		private void storageSummary_SourceUpdated(object sender, System.Windows.Data.DataTransferEventArgs e)
 		{
+			
 		}
 
 		private void storageSummary_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			StorageSummary storageAllocation = storageSummary.SelectedItem as StorageSummary;
 
-			if (storageAllocation == null) { return; }
+			if (storageAllocation == null) { allocatedProductInformation.Visibility = Visibility.Hidden; return; }
+
+			allocatedProductInformation.Visibility = Visibility.Visible;
 
 			string storageReference = storageAllocation.loadReference;
 

@@ -17,9 +17,9 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition MaxHeight="700"/>
-            <RowDefinition Height="auto" MinHeight="100"/>
+            <RowDefinition  MinHeight="100" MaxHeight="500"/>
         </Grid.RowDefinitions>
-        <DataGrid x:Name="loadsToAllocateDataGrid" IsReadOnly="True" AutoGenerateColumns="False" Grid.Column="0" Grid.Row="0" Margin="10,10,0,0" CanUserReorderColumns="False" CanUserAddRows="False">
+        <DataGrid x:Name="loadsToAllocateDataGrid" IsReadOnly="True" EnableRowVirtualization="False" AutoGenerateColumns="False" Grid.Column="0" Grid.Row="0" Margin="10,10,0,0" CanUserReorderColumns="False" CanUserAddRows="False">
 
             <DataGrid.Columns>
 
@@ -44,7 +44,7 @@
             </DataGrid.Columns>
         </DataGrid>
 
-        <DataGrid x:Name="storageSummary" Grid.Row="1" AutoGenerateColumns="False" Margin="10,10,0,10" IsReadOnly="True" SourceUpdated="storageSummary_SourceUpdated" SelectionChanged="storageSummary_SelectionChanged">
+        <DataGrid x:Name="storageSummary"  Grid.Row="1" AutoGenerateColumns="False" Margin="10,10,0,10" IsReadOnly="True" SourceUpdated="storageSummary_SourceUpdated" SelectionChanged="storageSummary_SelectionChanged">
 
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Load Reference" Binding="{Binding loadReference}" Width="*" />
@@ -73,7 +73,7 @@
                 
             </Grid>
 
-            <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Bottom">
+            <Grid x:Name="allocatedProductInformation" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Visibility="Hidden" VerticalAlignment="Stretch">
 
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
