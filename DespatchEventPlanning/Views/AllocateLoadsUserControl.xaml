@@ -6,67 +6,123 @@
              Loaded="UserControl_Loaded"
              IsVisibleChanged="UserControl_IsVisibleChanged"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800" Background="Green">
-   
-      
+             d:DesignHeight="450" d:DesignWidth="1900" Background="#C3D0C3">
 
-    
     <Grid>
 
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="950" />
-            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="250" />
             <ColumnDefinition Width="300" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition />
-            <RowDefinition />
+            <RowDefinition MaxHeight="700"/>
+            <RowDefinition Height="auto" MinHeight="100"/>
         </Grid.RowDefinitions>
-        <DataGrid x:Name="loadsToAllocateDataGrid" IsReadOnly="True" AutoGenerateColumns="False" Grid.Column="0" Grid.Row="0" Margin="0,0,0,0" CanUserReorderColumns="False" CanUserAddRows="False" >
+        <DataGrid x:Name="loadsToAllocateDataGrid" IsReadOnly="True" AutoGenerateColumns="False" Grid.Column="0" Grid.Row="0" Margin="10,10,0,0" CanUserReorderColumns="False" CanUserAddRows="False">
 
             <DataGrid.Columns>
 
-                <DataGridTextColumn Header="Storage Date" Binding="{Binding storageDate}" />
-                <DataGridTextColumn Header="Win Number" Binding="{Binding winNumber}"/>
-                <DataGridTextColumn Header="Product" Binding="{Binding productDescription}" />
-                <DataGridTextColumn Header="Depot Name" Binding="{Binding depotName}" />
-                <DataGridTextColumn Header="Depot Date" Binding="{Binding depotDate}" />
-                <DataGridTextColumn Header="Cases Per Pallet" Binding="{Binding packsPerPallet}" />
-                <DataGridTextColumn Header="Pallets Produced" Binding="{Binding quantityPallets}" />
-                <DataGridTextColumn Header="Case Produced" Binding="{Binding quantityCases}" />
-                <DataGridTextColumn Header="Available Full Pallets" Binding="{Binding quantityPalletsToAllocate}" />
+                <DataGridTextColumn Header="Storage Date" Binding="{Binding storageDate}" Width="*" />
+                <DataGridTextColumn Header="Win Number" Binding="{Binding winNumber}" Width="*"/>
+                <DataGridTextColumn Header="Product" Binding="{Binding productDescription}" Width="*"/>
+                <DataGridTextColumn Header="Depot Name" Binding="{Binding depotName}" Width="*"/>
+                <DataGridTextColumn Header="Depot Date" Binding="{Binding depotDate}" Width="*"/>
+                <DataGridTextColumn Header="Cases Per Pallet" Binding="{Binding packsPerPallet}" Width="*" />
+                <DataGridTextColumn Header="Pallets Produced" Binding="{Binding quantityPallets}" Width="*"/>
+                <DataGridTextColumn Header="Case Produced" Binding="{Binding quantityCases}" Width="*"/>
+                <DataGridTextColumn Header="Available Full Pallets" Binding="{Binding quantityPalletsToAllocate}" Width="*" />
 
                 <DataGridTemplateColumn Header="Allocate" IsReadOnly="True">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <!--<CheckBox x:Name="AllocationCheckbox"  Checked="AllocationCheckbox_Checked" Unchecked="AllocationCheckbox_Unchecked" /> -->
-                            <Button x:Name="AllocateProductButton" Click="AllocateProductButton_Click"  Background="DarkKhaki" Content="Allocate" IsEnabled="{Binding inStorage}" VerticalContentAlignment="Center" Height="16" FontSize="10"/>
+                            <Button x:Name="AllocateProductButton" Click="AllocateProductButton_Click"  Background="DarkKhaki" Content="Allocate" IsEnabled="{Binding inStorage}" VerticalContentAlignment="Center" Height="16" FontSize="10" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
-        
-        
-        
-        <DataGrid x:Name="storageSummary" Grid.Row="1" AutoGenerateColumns="False" Margin="0,10,0,0" SourceUpdated="storageSummary_SourceUpdated">
+
+        <DataGrid x:Name="storageSummary" Grid.Row="1" AutoGenerateColumns="False" Margin="10,10,0,10" IsReadOnly="True" SourceUpdated="storageSummary_SourceUpdated" SelectionChanged="storageSummary_SelectionChanged">
 
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Load Reference" Binding="{Binding loadReference}" />
-                <DataGridTextColumn Header="Storage Date" Binding="{Binding storageDate}" />
-                <DataGridTextColumn Header="Depot Name" Binding="{Binding depotName}" />
+                <DataGridTextColumn Header="Load Reference" Binding="{Binding loadReference}" Width="*" />
+                <DataGridTextColumn Header="Storage Date" Binding="{Binding storageDate}" Width="*" />
+                <DataGridTextColumn Header="Depot Name" Binding="{Binding depotName}" Width="*"/>
 
-                <DataGridTextColumn Header="Depot Date" Binding="{Binding depotDate}" />
-                <DataGridTextColumn Header="Pallet Quantity" Binding="{Binding palletSummary}" />
-                <DataGridTextColumn Header="Total Cases" Binding="{Binding casesSummary}" />
-                <DataGridTextColumn Header="" />
-                <DataGridTextColumn Header="" />
+                <DataGridTextColumn Header="Depot Date" Binding="{Binding depotDate}" Width="*" />
+                <DataGridTextColumn Header="Pallet Quantity" Binding="{Binding palletSummary}" Width="*" />
+                <DataGridTextColumn Header="Total Cases" Binding="{Binding casesSummary}" Width="*"/>
+            
             </DataGrid.Columns>
         </DataGrid>
-        
 
-        <Grid Grid.Column="1" x:Name="informationGrid" Grid.Row="0" Margin="10,10,10,0" Background="LightGreen" Height="100" VerticalAlignment="Top">
+        <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Grid.ColumnSpan="2" Height="auto" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
+                
+            </Grid.RowDefinitions>
+            <Grid Grid.Column="0" x:Name="informationGrid" Grid.Row="0" Margin="10,10,10,0" Background="LightGreen" Height="100" VerticalAlignment="Top">
+
+                
+            </Grid>
+
+            <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Bottom">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    
+                </Grid.ColumnDefinitions>
+
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="50"/>
+
+                </Grid.RowDefinitions>
+
+
+                <Label x:Name="LoadReferenceLabel" FontWeight="Black" FontSize="15" Background="#A0CDA0"  Content="Load Reference:" Grid.Column="0" Grid.Row="0" Height="30" Margin="10,0,10,0"  Width="auto"  />
+                <Label x:Name="LoadDepotNameLabel" FontWeight="Black" FontSize="15" Background="#A0CDA0"  Content="Depot Name:" Grid.Column="1" Grid.Row="0" Height="30" Margin="10,0,10,0" Width="auto"  />
+
+                <Label x:Name="LoadDepotDateLabel" FontWeight="Black" FontSize="15" Background="#A0CDA0" Content="Depot Date:" Grid.Column="0" Grid.Row="1" Height="30" Margin="10,0,10,0" Width="auto" />
+                <Label x:Name="LoadStorageDateLabel" FontWeight="Black" FontSize="15" Background="#A0CDA0"  Content="Storage Date:" Grid.Column="1" Grid.Row="1" Height="30" Margin="10,0,10,0" Width="auto"  />
+
+
+                <Label x:Name="LoadTotalPalletsLabel" FontWeight="Black" FontSize="15" Background="#A0CDA0"  Content="Total Pallets Allocated:" Grid.Column="0" Grid.Row="2" Height="30" Margin="10,0,10,0" Width="auto"  />
+                <Label x:Name="LoadTotalCasesLabel" FontWeight="Black" FontSize="15" Background="#A0CDA0"  Content="Total Cases Allocated:" Grid.Column="1" Grid.Row="2" Height="30" Margin="10,0,10,0"  Width="auto"  />
+
+
+                <DataGrid x:Name="AllocatedProductBreakdown" Grid.Column="0" Height="auto" HorizontalContentAlignment="Center"  Grid.Row="3" Margin="10,0,10,10" Grid.ColumnSpan="2" AutoGenerateColumns="False" IsReadOnly="True" SourceUpdated="AllocatedProductBreakdown_SourceUpdated">
+                    <DataGrid.Columns>
+                        <!--<DataGridTextColumn Header="Load reference" Binding="{Binding loadReference}" />-->
+                        <!--<DataGridTextColumn Header="Storage Date" Binding="{Binding storageDate}" />-->
+                        <!--<DataGridTextColumn Header="Depot Date" Binding="{Binding depotDate}" />-->
+                        <!--<DataGridTextColumn Header="Depot Name" Binding="{Binding depotName}" />-->
+                        <DataGridTextColumn Header="Product Description" Binding="{Binding productDescription}" Width="*" />
+                        <DataGridTextColumn Header="Allocated Pallets" Binding="{Binding quantityPalletsAllocated}" Width="*" />
+                        <DataGridTextColumn Header="Cases Allocated" Binding="{Binding quantityCases}" Width="*"/>
+                        
+                    </DataGrid.Columns>
+                </DataGrid>
+                <Button x:Name="EditLoadButton" Grid.Row="4" Grid.Column="2" Height="30" Width="90" HorizontalAlignment="Right" IsEnabled="False"  Content="Edit Load"/>
+
+
+            </Grid>
+
+
         </Grid>
+
         
     </Grid>
 </UserControl>

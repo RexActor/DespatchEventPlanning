@@ -1,6 +1,8 @@
-﻿using DespatchEventPlanning.ObjectClasses;
+﻿using DespatchEventPlanning.Database;
+using DespatchEventPlanning.ObjectClasses;
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
@@ -15,6 +17,10 @@ namespace DespatchEventPlanning.Views
 	public partial class AllocateLoadsUserControl : UserControl
 	{
 		private StorageAllocationClass storage = new StorageAllocationClass();
+		private List<Storage> allocatedProduct = new List<Storage>();
+		private DatabaseClass db = new DatabaseClass();
+
+		public static bool clearAllocatedProductInformation = false;
 
 		private ComboBox depotDateComboBox;
 		private Label storageDateLabel;
@@ -47,10 +53,8 @@ namespace DespatchEventPlanning.Views
 
 		private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
 		{
-
 			if ((bool)e.NewValue)
 			{
-
 				if (PackingPlan.storageInformationList.Count > 0)
 				{
 					storage.ClearAllocatedLoads();
@@ -76,7 +80,13 @@ namespace DespatchEventPlanning.Views
 
 					storageSummary.ItemsSource = storage.GetAllocatedLoadsSummary(selectedProductionPlanVersion);
 				}
-				
+			}
+
+
+			if(clearAllocatedProductInformation == true && allocatedProduct.Count>0)
+			{
+				allocatedProduct.Clear();
+				clearAllocatedProductInformation = false;
 			}
 		}
 
@@ -323,8 +333,52 @@ namespace DespatchEventPlanning.Views
 
 		private void storageSummary_SourceUpdated(object sender, System.Windows.Data.DataTransferEventArgs e)
 		{
-			
 		}
 
+		private void storageSummary_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			StorageSummary storageAllocation = storageSummary.SelectedItem as StorageSummary;
+
+			if (storageAllocation == null) { return; }
+
+			string storageReference = storageAllocation.loadReference;
+
+			if (allocatedProduct.Count > 0)
+			{
+				allocatedProduct.Clear();
+			}
+
+			LoadStorageDateLabel.Content = $"Storage Date: {storageAllocation.storageDate}";
+			LoadDepotDateLabel.Content = $"Depot Date: {storageAllocation.depotDate}";
+			LoadReferenceLabel.Content = $"Load Reference: {storageAllocation.loadReference}";
+			LoadDepotNameLabel.Content = $"Depot Name: {storageAllocation.depotName}";
+			LoadTotalPalletsLabel.Content = $"Total Pallets Allocated: {storageAllocation.palletSummary}";
+			LoadTotalCasesLabel.Content = $"Total Cases Allocated: {storageAllocation.casesSummary}";
+
+			db.getStorageInformationInList(selectedProductionPlanVersion).AsEnumerable().Where(item => item.loadReference == storageReference).ToList().ForEach(
+
+				item =>
+				{
+					allocatedProduct.Add(new Storage()
+					{
+						loadReference = item.loadReference,
+						storageDate = item.storageDate,
+						depotDate = item.depotDate,
+						depotName = item.depotName,
+						productDescription = item.productDescription,
+						quantityPalletsAllocated = item.quantityPalletsAllocated,
+						quantityCases = item.quantityCases
+						
+					});
+					
+				});
+			AllocatedProductBreakdown.ItemsSource = null;
+			AllocatedProductBreakdown.ItemsSource = allocatedProduct;
+		}
+
+		private void AllocatedProductBreakdown_SourceUpdated(object sender, System.Windows.Data.DataTransferEventArgs e)
+		{
+			//AllocatedProductBreakdown.ItemsSource = allocatedProduct;
+		}
 	}
 }

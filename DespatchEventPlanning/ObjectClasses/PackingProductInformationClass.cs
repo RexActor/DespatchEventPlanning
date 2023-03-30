@@ -21,8 +21,8 @@ namespace DespatchEventPlanning.ObjectClasses
 		static readonly string defaultDepotSplitsPath = $"{AppDomain.CurrentDomain.BaseDirectory}DefaultDepotSplits.xlsx";
 		static DataHandler handler = new DataHandler();
 		static DatabaseClass db = new DatabaseClass();
-		static DataTable depotSplits = handler.ReadExcelFile($"{EnumClass.SHEETNAMES.DepotSplits}", depotSplitsPath);
-		static DataTable defaultDepotSplits = handler.ReadExcelFile($"{EnumClass.SHEETNAMES.DepotSplits}",defaultDepotSplitsPath);
+		//static DataTable depotSplits = handler.ReadExcelFile($"{EnumClass.SHEETNAMES.DepotSplits}", depotSplitsPath);
+		//static DataTable defaultDepotSplits = handler.ReadExcelFile($"{EnumClass.SHEETNAMES.DepotSplits}",defaultDepotSplitsPath);
 				
 
 		public int winNumber { get; set; }
@@ -77,7 +77,9 @@ namespace DespatchEventPlanning.ObjectClasses
 			double splitFound = 0;
 
 
-			splitFound = depotSplits.AsEnumerable().Where(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.WinNumber}") == (double)winNumber).Where(item => item.Field<string>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.DepotDate}") == depotDate).Where(item => item.Field<string>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.DepotName}") == depotName).Sum(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.Qty}"));
+			splitFound = db.GetDepotSplit(winNumber, depotName, depotDate);
+
+			//splitFound = depotSplits.AsEnumerable().Where(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.WinNumber}") == (double)winNumber).Where(item => item.Field<string>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.DepotDate}") == depotDate).Where(item => item.Field<string>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.DepotName}") == depotName).Sum(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.Qty}"));
 
 			if (forecast != packingQty)
 			{
@@ -91,7 +93,9 @@ namespace DespatchEventPlanning.ObjectClasses
 
 			if (splitFound == 0)
 			{
-				splitFound = defaultDepotSplits.AsEnumerable().Where(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.WinNumber}") == (double)winNumber).Where(item => item.Field<string>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.DepotName}") == depotName).Sum(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.Qty}"));
+
+				splitFound = db.GetDefaultDepotSplit(winNumber, depotName);
+				//splitFound = defaultDepotSplits.AsEnumerable().Where(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.WinNumber}") == (double)winNumber).Where(item => item.Field<string>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.DepotName}") == depotName).Sum(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.Qty}"));
 
 				result = Math.Round(packQuantity * splitFound);
 			}

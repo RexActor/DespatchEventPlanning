@@ -15,18 +15,15 @@ namespace DespatchEventPlanning
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		public StatusUpdate Status { get; set; } = new StatusUpdate();
+	
 
 		public MainWindow()
 		{
-			Stopwatch pw = new Stopwatch();
-			pw.Start();
-
+			
 			InitializeComponent();
 
-			pw.Stop();
-			Debug.WriteLine($"Elapsed: {pw.Elapsed}");
-			this.Status.Message = "Ready";
+		
+			
 		}
 
 		private void ImportPlanButton_Click(object sender, RoutedEventArgs e)
@@ -49,7 +46,7 @@ namespace DespatchEventPlanning
 
 		private void AllocateLoadsButton_Click(object sender, RoutedEventArgs e)
 		{
-			this.Status.Message = "Allocating loads...";
+			
 			packingPlanUserControl.Visibility = Visibility.Hidden;
 			allocateLoadsUSerControl.Visibility = Visibility.Visible;
 			depotSplitsUserControl.Visibility = Visibility.Hidden;
@@ -59,7 +56,7 @@ namespace DespatchEventPlanning
 
 		private void DepotSplitsButton_Click(object sender, RoutedEventArgs e)
 		{
-			this.Status.Message = "DepotSplits loads...";
+			
 			packingPlanUserControl.Visibility = Visibility.Hidden;
 			allocateLoadsUSerControl.Visibility = Visibility.Hidden;
 			depotSplitsUserControl.Visibility = Visibility.Visible;

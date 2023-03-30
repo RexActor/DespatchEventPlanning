@@ -18,50 +18,45 @@ namespace DespatchEventPlanning.Views
 		private DatabaseClass db;
 
 		public static List<StorageInformation> storageInformationList = new List<StorageInformation>();
+
+		public static bool resetPackingPlanTable = false;
 		private string selectedProductionPlanVersion = string.Empty;
 
 		public PackingPlan()
 		{
 			InitializeComponent();
+			resetPackingPlanTable = true;
 
-		
-
-				db = new DatabaseClass();
-			resetPackingPlanTableList();
-
-
+			db = new DatabaseClass();
 		}
 
-
-		public void resetPackingPlanTableList()
+		public  void resetPackingPlanTableList()
 		{
 
-
-			if (availableProductionPlansList.Items.Count > 0)
+			if (resetPackingPlanTable == true)
 			{
-				availableProductionPlansList.Items.Clear();
+
+				if (availableProductionPlansList.Items.Count > 0)
+				{
+					availableProductionPlansList.Items.Clear();
+				}
+
+				availableProductionPlansList.Items.Add("Please Choose Packing Plan");
+				db.GetProductionPlanTables().AsEnumerable().ToList().ForEach(table =>
+				{
+					availableProductionPlansList.Items.Add(table);
+				});
+
+				if (selectedProductionPlanVersion != string.Empty)
+				{
+					availableProductionPlansList.SelectedItem = selectedProductionPlanVersion;
+				}
+				else
+				{
+					availableProductionPlansList.SelectedIndex = 0;
+				}
+				resetPackingPlanTable = false;
 			}
-
-
-
-			availableProductionPlansList.Items.Add("Please Choose Packing Plan");
-			db.GetProductionPlanTables().AsEnumerable().ToList().ForEach(table =>
-			{
-				availableProductionPlansList.Items.Add(table);
-			});
-			
-
-			if (selectedProductionPlanVersion!=string.Empty)
-			{
-				availableProductionPlansList.SelectedItem = selectedProductionPlanVersion;
-			}
-			else
-			{
-				availableProductionPlansList.SelectedIndex = 0;
-			}
-
-			
-
 		}
 
 		private void PackingDateCalendar_SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
@@ -157,7 +152,7 @@ namespace DespatchEventPlanning.Views
 		private void AddFlowersToLoadAllocation_Click(object sender, RoutedEventArgs e)
 		{
 			SiteCapacityClass siteCapacityClass = (SiteCapacityClass)siteCapacityGrid.SelectedItem;
-			
+
 			if (!storageInformationList.Any(item => item.allocationDate == siteCapacityClass.produceDate))
 			{
 				storageInformationList.Add(new StorageInformation()
@@ -194,10 +189,20 @@ namespace DespatchEventPlanning.Views
 
 		private void availableProductionPlansList_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			
+
+			AllocateLoadsUserControl.clearAllocatedProductInformation = true;
+
+			if (storageInformationList.Count > 0)
+			{
+				storageInformationList.Clear();
+			}
 
 			if (availableProductionPlansList.SelectedIndex > 0)
 			{
+					
+				
+				
+				
 				selectedProductionPlanVersion = availableProductionPlansList.SelectedItem.ToString();
 
 				excelDataGrid.ItemsSource = db.getInformationInList(availableProductionPlansList.SelectedItem.ToString()).OrderBy(item => item.packingDate);
@@ -205,6 +210,8 @@ namespace DespatchEventPlanning.Views
 				siteCapacityGrid.ItemsSource = DisplayCapacity(db.getInformationInList(availableProductionPlansList.SelectedItem.ToString())).ToList();
 				siteCapacityFlowersGrid.ItemsSource = DisplayCapacity(db.getInformationInList(availableProductionPlansList.SelectedItem.ToString()).Where(item => item.productGroup.Contains("FLOWERS")).ToList());
 				siteCapacityPlantsGrid.ItemsSource = DisplayCapacity(db.getInformationInList(availableProductionPlansList.SelectedItem.ToString()).Where(item => item.productGroup.Contains("PLANTS")).ToList());
+
+				
 			};
 		}
 	}

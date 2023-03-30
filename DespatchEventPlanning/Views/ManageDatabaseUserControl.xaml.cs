@@ -52,12 +52,6 @@ namespace DespatchEventPlanning.Views
 
 			resetDataTableNames();
 
-			productInformationProgressBar.Maximum = handler.GenerateProductInformation().Count;
-			depotSplitProgressBar.Maximum = handler.GenerateDepotSplits().Count;
-			defaultDepotSplitProgressBar.Maximum = handler.GenerateDefaultDepotSplits().Count;
-			forecastProgressBar.Maximum = handler.GenerateForecast().Count;
-			packingPlanProgressBar.Maximum = handler.GeneratePackingPlan().Count;
-			packingPlanGenerationProgressBar.Maximum = handler.GeneratePackingPlan().Count;
 		}
 
 		public void resetDataTableNames()
@@ -95,9 +89,12 @@ namespace DespatchEventPlanning.Views
 			importProductInformationBackgroundWorker.ProgressChanged += importProductInformationBackgroundWorker_ProgressChanged;
 			importProductInformationBackgroundWorker.RunWorkerCompleted += ImportProductInformationBackgroundWorker_RunWorkerCompleted;
 
+			productInformationProgressBar.Maximum = handler.GenerateProductInformation().Count;
+
 			importProductInformationBackgroundWorker.RunWorkerAsync();
 			productInformationToolTip = new ToolTip();
 			productInformationProgressBar.ToolTip = productInformationToolTip;
+			
 		}
 
 		private void importProductInformationBackgroundWorker_ProgressChanged(object? sender, ProgressChangedEventArgs e)
@@ -169,6 +166,8 @@ namespace DespatchEventPlanning.Views
 			importDepotSplitsBackgroundWorker.DoWork += ImportDepotSplitsBackgroundWorker_DoWork;
 			importDepotSplitsBackgroundWorker.ProgressChanged += ImportDepotSplitsBackgroundWorker_ProgressChanged;
 			importDepotSplitsBackgroundWorker.RunWorkerCompleted += ImportDepotSplitsBackgroundWorker_RunWorkerCompleted;
+
+			depotSplitProgressBar.Maximum = handler.GenerateDepotSplits().Count;
 
 			importDepotSplitsBackgroundWorker.RunWorkerAsync();
 			depotSplitsToolTip = new ToolTip();
@@ -245,6 +244,8 @@ namespace DespatchEventPlanning.Views
 			defaultDepotSplitBackgroundWorker.DoWork += DefaultDepotSplitBackgroundWorker_DoWork;
 			defaultDepotSplitBackgroundWorker.ProgressChanged += DefaultDepotSplitBackgroundWorker_ProgressChanged;
 			defaultDepotSplitBackgroundWorker.RunWorkerCompleted += DefaultDepotSplitBackgroundWorker_RunWorkerCompleted;
+			defaultDepotSplitProgressBar.Maximum = handler.GenerateDefaultDepotSplits().Count;
+
 			defaultDepotSplitBackgroundWorker.RunWorkerAsync();
 			defaultDepotSplitsToolTip = new ToolTip();
 			defaultDepotSplitProgressBar.ToolTip = defaultDepotSplitsToolTip;
@@ -318,6 +319,8 @@ namespace DespatchEventPlanning.Views
 			forecastBackgroundWorker.DoWork += ForecastBackgroundWorker_DoWork;
 			forecastBackgroundWorker.ProgressChanged += ForecastBackgroundWorker_ProgressChanged;
 			forecastBackgroundWorker.RunWorkerCompleted += ForecastBackgroundWorker_RunWorkerCompleted;
+			forecastProgressBar.Maximum = handler.GenerateForecast().Count;
+
 			forecastBackgroundWorker.RunWorkerAsync();
 			forecastToolTip = new ToolTip();
 			forecastProgressBar.ToolTip = forecastToolTip;
@@ -392,6 +395,8 @@ namespace DespatchEventPlanning.Views
 			packingPlanBackgroundWorker.ProgressChanged += PackingPlanBackgroundWorker_ProgressChanged;
 			packingPlanBackgroundWorker.RunWorkerCompleted += PackingPlanBackgroundWorker_RunWorkerCompleted;
 			packingPlanBackgroundWorker.RunWorkerAsync();
+
+			packingPlanProgressBar.Maximum = handler.GeneratePackingPlan().Count;
 
 			packingPlanTooltip = new ToolTip();
 			packingPlanProgressBar.ToolTip = packingPlanTooltip;
@@ -493,6 +498,8 @@ namespace DespatchEventPlanning.Views
 			productionPlanBackgroundWorker.RunWorkerCompleted += ProductionPlanBackgroundWorker_RunWorkerCompleted;
 			productionPlanBackgroundWorker.ProgressChanged += ProductionPlanBackgroundWorker_ProgressChanged;
 
+			packingPlanGenerationProgressBar.Maximum = handler.GeneratePackingPlan().Count;
+
 			productionPlanBackgroundWorker.RunWorkerAsync();
 			productionPlanToolTip = new ToolTip();
 			packingPlanGenerationProgressBar.ToolTip = productionPlanToolTip;
@@ -514,6 +521,8 @@ namespace DespatchEventPlanning.Views
 			packingPlanGenerationProgressText.Text = "Completed!";
 			productInformationTextBlock.Text = string.Empty;
 			productionPlanToolTip.Content = $"Complted! In Total uploaded {packingPlanGenerationProgressBar.Maximum} entries!";
+
+			PackingPlan.resetPackingPlanTable = true;
 			resetDataTableNames();
 		}
 
