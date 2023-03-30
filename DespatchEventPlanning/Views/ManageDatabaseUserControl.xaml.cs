@@ -529,12 +529,21 @@ namespace DespatchEventPlanning.Views
 		private void ProductionPlanBackgroundWorker_DoWork(object? sender, DoWorkEventArgs e)
 		{
 			int increase = 0;
+			string tableName = string.Empty;
 
-			string[] lastProductionVersion = db.GetLastProductionPlanVersion("ProductionPlan").Split('V');
 
-			int newVersion = Convert.ToInt32(lastProductionVersion[1]) + 1;
+			if (db.GetLastProductionPlanVersion("ProductionPlan").Length > 0) {
+				string[] lastProductionVersion = db.GetLastProductionPlanVersion("ProductionPlan").Split('V');
 
-			string tableName = $"ProductionPlanV{newVersion}";
+				int newVersion = Convert.ToInt32(lastProductionVersion[1]) + 1;
+
+				 tableName = $"ProductionPlanV{newVersion}";
+			}
+			else
+			{
+				tableName = $"ProductionPlanV1";
+			}
+			
 
 			if (db.checkDatabaseTableExists(tableName)) { MessageBox.Show($"Database Table {tableName} exists! Please clear it or generate different name"); return; }
 

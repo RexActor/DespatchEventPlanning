@@ -169,7 +169,7 @@ namespace DespatchEventPlanning.Views
 		{
 			if (selectedProductionPlanVersion != string.Empty)
 			{
-				siteCapacityGrid.ItemsSource = DisplayCapacity(db.getInformationInList(selectedProductionPlanVersion)).OrderBy(item => item.produceDate).ToList().OrderBy(item => item.produceDate);
+				siteCapacityGrid.ItemsSource = DisplayCapacity(db.getInformationInList(selectedProductionPlanVersion)).OrderBy(item => item.produceDate).ToList();
 				siteCapacityFlowersGrid.ItemsSource = DisplayCapacity(db.getInformationInList(selectedProductionPlanVersion).Where(item => item.productGroup.Contains("FLOWERS")).ToList()).OrderBy(item => item.produceDate);
 				siteCapacityPlantsGrid.ItemsSource = DisplayCapacity(db.getInformationInList(selectedProductionPlanVersion).Where(item => item.productGroup.Contains("PLANTS")).ToList()).OrderBy(item => item.produceDate);
 			}

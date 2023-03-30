@@ -31,11 +31,11 @@
             </Grid.RowDefinitions>
             <Button x:Name="ImportPlanButton" Content="Production Plan" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="ImportPlanButton_Click"/>
             <Button x:Name="AllocateLoadsButton" Grid.Row="1" Content="Allocate Loads" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="AllocateLoadsButton_Click"/>
-            <Button x:Name="DepotSplitsButton" Grid.Row="2" Content="Depot Splits" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="DepotSplitsButton_Click"/>
-            <Button x:Name="ForecastButton" Grid.Row="3" Content="Forecast Data" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="ForecastButton_Click" />
+            <Button x:Name="DepotSplitsButton" IsEnabled="False" Grid.Row="2" Content="Depot Splits" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="DepotSplitsButton_Click"/>
+            <Button x:Name="ForecastButton" IsEnabled="False" Grid.Row="3" Content="Forecast Data" HorizontalAlignment="Center"  VerticalAlignment="Center"  Width="140" Height="35" Click="ForecastButton_Click" />
 
             <Button x:Name="ManageDatabaseButton" Grid.Row="4" Content="Manage Database" HorizontalAlignment="Center"  VerticalAlignment="Top"  Width="140" Height="35" Click="ManageDatabaseButton_Click" Margin="0,10,0,0" />
-            <Button x:Name="ClearDatabase" Grid.Row="4" Content="Clear Database" HorizontalAlignment="Center"  VerticalAlignment="Top"  Width="140" Height="35" Click="ClearDatabase_Click" Margin="0,72,0,0" />
+            <Button x:Name="ClearDatabase" IsEnabled="False" Grid.Row="4" Content="Clear Database" HorizontalAlignment="Center"  VerticalAlignment="Top"  Width="140" Height="35" Click="ClearDatabase_Click" Margin="0,72,0,0" />
 
 
         </Grid>
