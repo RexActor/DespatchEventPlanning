@@ -6,8 +6,9 @@
       xmlns:local="clr-namespace:DespatchEventPlanning.Views"
     x:Class="DespatchEventPlanning.MainWindow" Loaded="RootWindow_Loaded"
     mc:Ignorable="d"
-        Title="MainWindow"  Width="1600" Height="960" MaxWidth="1980" MaxHeight="1080"
-    WindowStartupLocation="CenterScreen" WindowState="Maximized" >
+        Title="Event Planning Tool For Despatch"  Width="1600" Height="960" MaxWidth="1980" MaxHeight="1080"
+    WindowStartupLocation="CenterScreen" WindowState="Maximized">
+  
 
 
     <Grid>

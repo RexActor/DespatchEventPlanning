@@ -6,29 +6,42 @@
              IsVisibleChanged="UserControl_IsVisibleChanged"
              mc:Ignorable="d" Background="Red" Margin="0,0,10,10">
 
-
-    
-
     <Grid Background="blue">
-       
+
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="150*" />
             <ColumnDefinition Width="46*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="80"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="80" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <ComboBox x:Name="availableProductionPlansList" Grid.Row="0" Width="200" HorizontalAlignment="Left" Margin="10,0,0,0" Height="30" SelectionChanged="availableProductionPlansList_SelectionChanged"/>
+        <ComboBox x:Name="availableProductionPlansList" Grid.Row="0" Width="200" HorizontalAlignment="Left" Margin="10,0,0,0" Height="30" SelectionChanged="availableProductionPlansList_SelectionChanged" />
 
-        <DataGrid x:Name="excelDataGrid" Grid.Row="1" IsReadOnly="True"  ScrollViewer.CanContentScroll="True" AutoGenerateColumns="False"  Grid.Column="0" HorizontalAlignment="Left" Height="auto" Width="auto" d:ItemsSource="{d:SampleData ItemCount=5}"  RenderTransformOrigin="0.5,0.5" Margin="10,10,10,10">
+        <DataGrid x:Name="excelDataGrid" Grid.Row="1" IsReadOnly="True"  ScrollViewer.CanContentScroll="True" AutoGenerateColumns="False"  Grid.Column="0" HorizontalAlignment="Left" Height="auto" Width="auto" d:ItemsSource="{d:SampleData ItemCount=5}"  RenderTransformOrigin="0.5,0.5" Margin="10,10,10,10"  SelectedCellsChanged="excelDataGrid_SelectedCellsChanged" SelectionUnit="FullRow">
             <DataGrid.ContextMenu>
-                <ContextMenu>
-                    <MenuItem x:Name="UpdateProductInformation" IsEnabled="{Binding haveProductInformation}" Header="Update Product Information" Click="UpdateProductInformation_Click"/>
-                    <MenuItem x:Name="AddProductInformation" IsEnabled="False" Header="Add Product Information" Click="AddProductInformation_Click"/> 
+                <ContextMenu x:Name="PackingPlanContextMenu">
+                    <MenuItem x:Name="UpdateProductInformation" IsEnabled="{Binding haveProductInformation}" Header="Update Product Information" Click="UpdateProductInformation_Click" />
+                    <MenuItem x:Name="AddProductInformation" IsEnabled="False" Header="Add Product Information" Click="AddProductInformation_Click" />
+                    <MenuItem x:Name="ShowDepotSplits" Header="Show Depot Splits" Width="250">
+                        <MenuItem.Icon>
+                            <Image Source="/Images/depotSplits.png" />
+                        </MenuItem.Icon>
+                        
+                        <MenuItem x:Name="BEDFORDDepotSplit" Header="BEDFORD {x}" IsEnabled="False" Icon="BE" />
+                        <MenuItem x:Name="BRISTOLDepotSplit" Header="BRISTOL {x}" IsEnabled="False" Icon="BS" />
+                        <MenuItem x:Name="LARNEDepotSplit" Header="LARNE {x}" IsEnabled="False" Icon="LA" />
+                        <MenuItem x:Name="FALKIRKDepotSplit" Header="FALKIRK {x}" IsEnabled="False" Icon="FA" />
+                        <MenuItem x:Name="WASHINGTONDepotSplit" Header="WASHINGTON {x}" IsEnabled="False" Icon="WA" />
+                        <MenuItem x:Name="WAKEFIELDDepotSplit" Header="WAKEFIELD {x}" IsEnabled="False" Icon="WK" />
+                        <MenuItem x:Name="SKELMERSDALEDepotSplit" Header="SKELMERSDALE {x}" IsEnabled="False" Icon="SK" />
+                        <MenuItem x:Name="ROCHDALEDepotSplit" Header="ROCHDALE {x}" IsEnabled="False" Icon="RO" />
+                        <MenuItem x:Name="LUTTRWORTHDepotSplit" Header="LUTTRWORTH {x}" IsEnabled="False" Icon="LU" />
+                        <MenuItem x:Name="ERITHDepotSplit" Header="ERITH {x}" IsEnabled="False" Icon="ER" />
+                    </MenuItem>
                 </ContextMenu>
             </DataGrid.ContextMenu>
-            
+
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Win Number" Binding="{Binding winNumber}" MinWidth="80" Width="*" MaxWidth="100" />
                 <DataGridTextColumn Header="Product Description" Binding="{Binding productDescription}" MinWidth="150" Width="*" />
@@ -40,10 +53,9 @@
                 <DataGridTextColumn Header="Packs Per Pallet" Binding="{Binding packsPerPallet}" MaxWidth="100" />
                 <DataGridTextColumn Header="Difference" Binding="{Binding difference}" MaxWidth="70" />
                 <DataGridTextColumn Header="Pallets Generated" Binding="{Binding palletsGenerated}" Width="*" />
-                
             </DataGrid.Columns>
         </DataGrid>
-          <!--#region  Packing Date Calendar-->
+        <!--#region  Packing Date Calendar-->
         <Grid x:Name="RightSideGridPanel"  Grid.Column="1" Grid.Row="1" Background="orange">
             <Grid.RowDefinitions>
                 <RowDefinition  Height="260" />
@@ -65,23 +77,20 @@
                 <DataGrid.ContextMenu>
                     <ContextMenu VerticalContentAlignment="Center">
 
-                        <MenuItem  VerticalContentAlignment="Center" Header="Add ALL for Storage Allocation" Click="AddToLoadAllocation_Click" ToolTip="Add Selected Date to Storage Allocation"/>
-                        <MenuItem  VerticalContentAlignment="Center" Header="Add FLOWERS ONLY for Storage Allocation" Click="AddFlowersToLoadAllocation_Click" ToolTip="Add Selected Date to Storage Allocation"/>
-
-
+                        <MenuItem  VerticalContentAlignment="Center" Header="Add ALL for Storage Allocation" Click="AddToLoadAllocation_Click" ToolTip="Add Selected Date to Storage Allocation" />
+                        <MenuItem  VerticalContentAlignment="Center" Header="Add FLOWERS ONLY for Storage Allocation" Click="AddFlowersToLoadAllocation_Click" ToolTip="Add Selected Date to Storage Allocation" />
                     </ContextMenu>
                 </DataGrid.ContextMenu>
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Date" Binding="{Binding produceDate}" Width="*" MinWidth="80" />
                     <DataGridTextColumn Header="Generate" Binding="{Binding palletsGenerating}" Width="*" />
-                   <!-- <DataGridTextColumn Header="Generated" Binding="{Binding palletsGeneratedTotal}" Width="*" /> -->
-                    <DataGridTextColumn Header="Storage" Binding="{Binding palletsToStorage}"/>
-                    <DataGridTextColumn Header="DIRECTS" Binding="{Binding palletsDirect}"/>
+                    <!-- <DataGridTextColumn Header="Generated" Binding="{Binding palletsGeneratedTotal}" Width="*" /> -->
+                    <DataGridTextColumn Header="Storage" Binding="{Binding palletsToStorage}" />
+                    <DataGridTextColumn Header="DIRECTS" Binding="{Binding palletsDirect}" />
                     <!--<DataGridTextColumn Header="Outbound" Binding="{Binding palletsOutbound}" Width="*" /> -->
 
-                    <!--  <DataGridTextColumn Header="Test" Binding="{Binding palletsInBound}"/>-->
+                    <!--  <DataGridTextColumn Header="Test" Binding="{Binding palletsInBound}" />-->
                     <DataGridTextColumn Header="Left On Site" Binding="{Binding siteCapacity}" Width="*" />
-
                 </DataGrid.Columns>
             </DataGrid>
             <Label Content="FLOWERS CAPACITY" Grid.Row="2" Margin="0,-10,0,0" FontSize="12" FontWeight="Bold" Foreground="Black" HorizontalContentAlignment="Center" />
@@ -91,11 +100,11 @@
                     <DataGridTextColumn Header="Date" Binding="{Binding produceDate}" Width="*" MinWidth="80" />
                     <DataGridTextColumn Header="Generate" Binding="{Binding palletsGenerating}" Width="*" />
                     <!-- <DataGridTextColumn Header="Generated" Binding="{Binding palletsGeneratedTotal}" Width="*" /> -->
-                    <DataGridTextColumn Header="Storage" Binding="{Binding palletsToStorage}"/>
-                    <DataGridTextColumn Header="DIRECTS" Binding="{Binding palletsDirect}"/>
+                    <DataGridTextColumn Header="Storage" Binding="{Binding palletsToStorage}" />
+                    <DataGridTextColumn Header="DIRECTS" Binding="{Binding palletsDirect}" />
                     <!--<DataGridTextColumn Header="Outbound" Binding="{Binding palletsOutbound}" Width="*" /> -->
 
-                    <!--  <DataGridTextColumn Header="Test" Binding="{Binding palletsInBound}"/>-->
+                    <!--  <DataGridTextColumn Header="Test" Binding="{Binding palletsInBound}" />-->
                     <DataGridTextColumn Header="Left On Site" Binding="{Binding siteCapacity}" Width="*" />
                 </DataGrid.Columns>
             </DataGrid>
@@ -108,11 +117,11 @@
                     <DataGridTextColumn Header="Date" Binding="{Binding produceDate}" Width="*" MinWidth="80" />
                     <DataGridTextColumn Header="Generate" Binding="{Binding palletsGenerating}" Width="*" />
                     <!-- <DataGridTextColumn Header="Generated" Binding="{Binding palletsGeneratedTotal}" Width="*" /> -->
-                    <DataGridTextColumn Header="Storage" Binding="{Binding palletsToStorage}"/>
-                    <DataGridTextColumn Header="DIRECTS" Binding="{Binding palletsDirect}"/>
+                    <DataGridTextColumn Header="Storage" Binding="{Binding palletsToStorage}" />
+                    <DataGridTextColumn Header="DIRECTS" Binding="{Binding palletsDirect}" />
                     <!--<DataGridTextColumn Header="Outbound" Binding="{Binding palletsOutbound}" Width="*" /> -->
 
-                    <!--  <DataGridTextColumn Header="Test" Binding="{Binding palletsInBound}"/>-->
+                    <!--  <DataGridTextColumn Header="Test" Binding="{Binding palletsInBound}" />-->
                     <DataGridTextColumn Header="Left On Site" Binding="{Binding siteCapacity}" Width="*" />
                 </DataGrid.Columns>
             </DataGrid>

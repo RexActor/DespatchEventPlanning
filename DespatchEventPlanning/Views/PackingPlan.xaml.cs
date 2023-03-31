@@ -214,6 +214,36 @@ namespace DespatchEventPlanning.Views
 				
 			};
 		}
+
+
+		private void excelDataGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
+		{
+			PackingProductInformationClass productSelection = (PackingProductInformationClass)excelDataGrid.SelectedItem;
+
+			
+			ToolTip toolTip = new ToolTip();
+
+
+
+			BEDFORDDepotSplit.Header = $" BEDFORD -- {productSelection.BEDFORD} cases";
+			BRISTOLDepotSplit.Header = $" BRISTOL -- {productSelection.BRISTOL} cases";
+			LARNEDepotSplit.Header = $" LARNE -- {productSelection.LARNE} cases";
+			FALKIRKDepotSplit.Header = $" FALKIRK -- {productSelection.FALKIRK} cases";
+			WASHINGTONDepotSplit.Header = $" WASHINGTON -- {productSelection.WASHINGTON} cases";
+			WAKEFIELDDepotSplit.Header = $" WAKEFIELD -- {productSelection.WAKEFIELD} cases";
+			SKELMERSDALEDepotSplit.Header = $" SKELMERSDALE -- {productSelection.SKELMERSDALE} cases";
+			ROCHDALEDepotSplit.Header = $" ROCHDALE -- {productSelection.ROCHDALE} cases";
+			LUTTRWORTHDepotSplit.Header = $" LUTTERWORTH -- {productSelection.LUTTERWORTH} cases";
+			ERITHDepotSplit.Header = $" ERITH -- {productSelection.ERITH} cases";
+
+
+
+			toolTip.Content = $"Depot Splits for Selected Line is as below:";
+			toolTip.Visibility = Visibility.Visible;
+
+			excelDataGrid.ToolTip = toolTip;
+			///MessageBox.Show("Enter");
+		}
 	}
 
 	public class StorageInformation
