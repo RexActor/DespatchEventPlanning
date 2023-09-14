@@ -79,7 +79,7 @@ namespace DespatchEventPlanning.ObjectClasses
 
 			splitFound = db.GetDepotSplit(winNumber, depotName, depotDate);
 
-			//splitFound = depotSplits.AsEnumerable().Where(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.WinNumber}") == (double)winNumber).Where(item => item.Field<string>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.DepotDate}") == depotDate).Where(item => item.Field<string>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.DepotName}") == depotName).Sum(item => item.Field<double>($"{EnumClass.DEPOTSPLITS_DATATABLE_COLUMN_NAMES.Qty}"));
+			
 
 			if (forecast != packingQty)
 			{

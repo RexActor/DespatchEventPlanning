@@ -30,7 +30,7 @@ namespace DespatchEventPlanning.Views
 			db = new DatabaseClass();
 		}
 
-		public  void resetPackingPlanTableList()
+		public void resetPackingPlanTableList()
 		{
 
 			if (resetPackingPlanTable == true)
@@ -125,6 +125,8 @@ namespace DespatchEventPlanning.Views
 					palletsToStorage = palletsToStorage,
 
 					palletsOutbound = TotalOutbound,
+					directLoads = palletsDirect / 26,
+					storageLoads = palletsToStorage / 26,
 
 					leftOnSitePreviousDay = leftOnSitePreviousDay,
 					palletsInBound = TotalOutbound
@@ -199,10 +201,10 @@ namespace DespatchEventPlanning.Views
 
 			if (availableProductionPlansList.SelectedIndex > 0)
 			{
-					
-				
-				
-				
+
+
+
+
 				selectedProductionPlanVersion = availableProductionPlansList.SelectedItem.ToString();
 
 				excelDataGrid.ItemsSource = db.getInformationInList(availableProductionPlansList.SelectedItem.ToString()).OrderBy(item => item.packingDate);
@@ -211,7 +213,7 @@ namespace DespatchEventPlanning.Views
 				siteCapacityFlowersGrid.ItemsSource = DisplayCapacity(db.getInformationInList(availableProductionPlansList.SelectedItem.ToString()).Where(item => item.productGroup.Contains("FLOWERS")).ToList());
 				siteCapacityPlantsGrid.ItemsSource = DisplayCapacity(db.getInformationInList(availableProductionPlansList.SelectedItem.ToString()).Where(item => item.productGroup.Contains("PLANTS")).ToList());
 
-				
+
 			};
 		}
 
@@ -220,7 +222,7 @@ namespace DespatchEventPlanning.Views
 		{
 			PackingProductInformationClass productSelection = (PackingProductInformationClass)excelDataGrid.SelectedItem;
 
-			
+
 			ToolTip toolTip = new ToolTip();
 
 
