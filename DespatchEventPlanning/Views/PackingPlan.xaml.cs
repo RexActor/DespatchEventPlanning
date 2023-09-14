@@ -197,6 +197,7 @@ namespace DespatchEventPlanning.Views
 			if (storageInformationList.Count > 0)
 			{
 				storageInformationList.Clear();
+
 			}
 
 			if (availableProductionPlansList.SelectedIndex > 0)

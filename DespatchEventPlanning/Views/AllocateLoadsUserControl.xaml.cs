@@ -56,7 +56,7 @@ namespace DespatchEventPlanning.Views
 		{
 			if ((bool)e.NewValue)
 			{
-				
+
 
 				if (PackingPlan.storageInformationList.Count > 0)
 				{
@@ -66,7 +66,7 @@ namespace DespatchEventPlanning.Views
 					{
 						storage.AllocateStorage(item.allocationDate, item.productionPlanVersion);
 						selectedProductionPlanVersion = item.productionPlanVersion;
-						
+
 						switch (item.Group)
 						{
 							case "FLOWERS":
@@ -83,13 +83,18 @@ namespace DespatchEventPlanning.Views
 
 					storageSummary.ItemsSource = storage.GetAllocatedLoadsSummary(selectedProductionPlanVersion);
 				}
+				else
+				{
+					loadsToAllocateDataGrid.ItemsSource = null;
+				}
 			}
 
 
-			if(clearAllocatedProductInformation == true && allocatedProduct.Count>0)
+			if (clearAllocatedProductInformation == true && allocatedProduct.Count > 0)
 			{
 				allocatedProduct.Clear();
 				clearAllocatedProductInformation = false;
+
 
 
 				LoadStorageDateLabel.Content = $"Storage Date: ";
@@ -100,6 +105,8 @@ namespace DespatchEventPlanning.Views
 				LoadTotalCasesLabel.Content = $"Total Cases Allocated: ";
 
 			}
+
+
 		}
 
 		private void GenerateInformationGrid()
@@ -345,7 +352,7 @@ namespace DespatchEventPlanning.Views
 
 		private void storageSummary_SourceUpdated(object sender, System.Windows.Data.DataTransferEventArgs e)
 		{
-			
+
 		}
 
 		private void storageSummary_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -383,9 +390,9 @@ namespace DespatchEventPlanning.Views
 						productDescription = item.productDescription,
 						quantityPalletsAllocated = item.quantityPalletsAllocated,
 						quantityCases = item.quantityCases
-						
+
 					});
-					
+
 				});
 			AllocatedProductBreakdown.ItemsSource = null;
 			AllocatedProductBreakdown.ItemsSource = allocatedProduct;
