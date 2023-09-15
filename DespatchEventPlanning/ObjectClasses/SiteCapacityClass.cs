@@ -30,5 +30,9 @@ namespace DespatchEventPlanning.ObjectClasses
 		public int directLoads { get; set; }
 		public int storageLoads { get; set; }
 		public int totalLoads { get { return directLoads + storageLoads; } }
+
+		public bool hasStorage { get; set; }
+		public bool totalLoadLimitReached { get; set; }
+		public bool totalLoadsaboveFifty { get; set; }
 	}
 }

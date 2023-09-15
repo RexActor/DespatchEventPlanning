@@ -119,7 +119,7 @@ namespace DespatchEventPlanning.Views
 
 					palletsGenerating = palletsGenerated,
 					palletsGeneratedTotal = totalPalletsGenerated,
-
+					hasStorage = palletsToStorage > 0,
 					palletsDirect = directsWithRemovedStorage,
 
 					palletsToStorage = palletsToStorage,
@@ -129,8 +129,11 @@ namespace DespatchEventPlanning.Views
 					storageLoads = palletsToStorage / 26,
 
 					leftOnSitePreviousDay = leftOnSitePreviousDay,
-					palletsInBound = TotalOutbound
-				});
+					palletsInBound = TotalOutbound,
+					totalLoadsaboveFifty = ((directsWithRemovedStorage / 26) + (palletsToStorage / 26)) >= 50,
+					totalLoadLimitReached = ((directsWithRemovedStorage / 26) + (palletsToStorage / 26)) >= 60
+
+				}); ;
 			});
 			return siteCapacity;
 		}
