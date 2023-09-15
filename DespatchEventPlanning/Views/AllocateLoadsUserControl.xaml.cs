@@ -86,6 +86,7 @@ namespace DespatchEventPlanning.Views
 				else
 				{
 					loadsToAllocateDataGrid.ItemsSource = null;
+					storageSummary.ItemsSource = null;
 				}
 			}
 

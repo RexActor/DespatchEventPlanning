@@ -125,7 +125,7 @@ namespace DespatchEventPlanning.Views
 					palletsToStorage = palletsToStorage,
 
 					palletsOutbound = TotalOutbound,
-					directLoads = palletsDirect / 26,
+					directLoads = directsWithRemovedStorage / 26,
 					storageLoads = palletsToStorage / 26,
 
 					leftOnSitePreviousDay = leftOnSitePreviousDay,
